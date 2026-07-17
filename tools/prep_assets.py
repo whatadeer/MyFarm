@@ -821,6 +821,8 @@ CRITTER_PALS = {
             "W": (0xF3, 0xF2, 0xC0, 255), "D": (0xBA, 0x7C, 0x54, 255)},
     "shroomling": {"O": CRITTER_OUTLINE, "M": (0xC5, 0x80, 0x86, 255),
                    "L": (0xF3, 0xD8, 0xC5, 255), "W": (0xF3, 0xF2, 0xC0, 255)},
+    "deer": {"O": CRITTER_OUTLINE, "T": (0xE8, 0xCF, 0xA6, 255),
+             "D": (0xC4, 0x9A, 0x6C, 255), "W": (0xF3, 0xF2, 0xC0, 255)},
 }
 CRITTER_GRIDS = {
     "pig": [
@@ -919,6 +921,24 @@ CRITTER_GRIDS["shroomling"] = [
     "....O...O.......",
     "................",
 ]
+CRITTER_GRIDS["deer"] = [
+    "................",
+    "..O...O.........",
+    "..OO.OO.........",
+    "...O.O..........",
+    "..OTTTO.O.......",
+    ".OTOTOTOO.......",
+    ".OTTTTTO........",
+    "..OTTTO.........",
+    "..OTTTOOOOOO....",
+    ".OTTTTTTTTTTWO..",
+    ".ODTTTTTTTTTWO..",
+    "..OTTTTTTTTTO...",
+    "..OTTOOOOTTOO...",
+    "..OTO....OTO....",
+    "..OO.....OO.....",
+    "................",
+]
 CRITTER_GRIDS["cat"] = [
     "................", "................", "................",
     "................", "................",
@@ -937,7 +957,7 @@ CRITTER_GRIDS["cat"] = [
 # Rows that are LEGS (stay planted during the idle bob, swap during the
 # walk). Everything above them is the body.
 CRITTER_LEG_ROWS = {"pig": 12, "piglet": 13, "fox": 12, "wolf": 12,
-                    "alpaca": 12, "cat": 13, "shroomling": 13}
+                    "alpaca": 12, "cat": 13, "shroomling": 13, "deer": 12}
 
 
 def render_critter_grid(grid, pal):
@@ -1026,6 +1046,56 @@ def main():
     emit_critter("shroomling", "shroomling", "shroomling")
     emit_critter("shroomling1", "shroomling", "shroomling",
                  lambda c: hue_shift(c, -60, None, 1.1, 0.9))  # dusk-purple cap
+    emit_critter("deer", "deer", "deer")
+    emit_critter("deer1", "deer", "deer",
+                 lambda c: hue_shift(c, 0, None, 0.12, 1.20))  # pale snow deer
+
+    # The overworld slime: legless, so it skips critter_frames and gets
+    # two hand-authored frames instead - round, and mid-hop squashed.
+    # Greens sampled from the mine slime so they read as one species; the
+    # outline is the overworld critters' purple.
+    WSLIME_PAL = {"O": CRITTER_OUTLINE, "S": (0x8D, 0xB1, 0x5D, 255),
+                  "L": (0xC0, 0xD4, 0x70, 255), "D": (0x78, 0xA1, 0x58, 255)}
+    WSLIME_ROUND = [
+        "................", "................", "................",
+        "................", "................",
+        ".....OOOOO......",
+        "...OOSLLSSOO....",
+        "..OSLLSSSSSSO...",
+        "..OSSSSSSSSSO...",
+        ".OSSOSSSOSSSSO..",
+        ".OSSSSSSSSSSSO..",
+        ".ODSSSSSSSSSDO..",
+        "..ODSSSSSSSDO...",
+        "...OODDDDDOO....",
+        ".....OOOOO......",
+        "................",
+    ]
+    WSLIME_SQUASH = [
+        "................", "................", "................",
+        "................", "................", "................",
+        "................", "................",
+        "....OOOOOOO.....",
+        "..OOSLLSSSSOO...",
+        ".OSLSOSSOSSSSO..",
+        "OSSSSSSSSSSSSSO.",
+        "ODSSSSSSSSSSSDO.",
+        ".ODDSSSSSSSDDO..",
+        "..OOOOOOOOOOO...",
+        "................",
+    ]
+    ws_round = render_critter_grid(WSLIME_ROUND, WSLIME_PAL)
+    ws_squash = render_critter_grid(WSLIME_SQUASH, WSLIME_PAL)
+    # Five slime flavors: green, lagoon blue, rosy pink, dusk purple, amber.
+    WSLIME_COLORS = [None,
+                     lambda c: hue_shift(c, 130, None, 0.95, 1.00),
+                     lambda c: hue_shift(c, -110, None, 0.90, 1.05),
+                     lambda c: hue_shift(c, 180, None, 0.85, 0.90),
+                     lambda c: hue_shift(c, -75, None, 1.00, 1.05)]
+    for i, rc in enumerate(WSLIME_COLORS):
+        p = "wslime" if i == 0 else f"wslime{i}"
+        emit(p + "_0", rc(ws_round) if rc else ws_round)
+        emit(p + "_1", rc(ws_squash) if rc else ws_squash)
     for i, rc in enumerate([None,
                             lambda c: hue_shift(c, 0, None, 0.18, 0.95),  # grey tabby
                             lambda c: darken(c, 0.52)]):                  # black cat

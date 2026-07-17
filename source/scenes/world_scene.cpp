@@ -1289,6 +1289,10 @@ bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
         setStatus("The shroomling toddles off - not the taming kind.");
         return false;
     }
+    if (wild.kind == 11) { // deer
+        setStatus("The deer bows its antlers politely, then bounds away.");
+        return false;
+    }
 
     const core::ItemStack& sel = selectedStack();
     // Per-species tame rules: palate table, food count, Herding gate, and
@@ -2574,11 +2578,14 @@ void WorldScene::updateWildAnimals(float dt) {
                     w.kind = 5; // fox (arctic coat in the Snowlands)
                     w.variant = bio == core::Biome::Snow ? 1 : 0;
                 } else if (roll < 19) {
-                    w.kind = 9; // wild slime, escaped the mine
-                    w.variant = 0;
-                } else if (woodsy && roll < 25) {
+                    w.kind = 9; // wild slime, escaped the mine (5 flavors)
+                    w.variant = static_cast<uint8_t>(nextRand() % 5);
+                } else if (woodsy && roll < 23) {
                     w.kind = 10; // shroomling on a woodland stroll
                     w.variant = static_cast<uint8_t>(nextRand() % 2);
+                } else if (woodsy && roll < 28) {
+                    w.kind = 11; // a deer, of course (pale coat up north)
+                    w.variant = bio == core::Biome::Snow ? 1 : 0;
                 } else if (roll < 40) {
                     w.kind = 4; // pig
                     w.variant = static_cast<uint8_t>(nextRand() % 5);
@@ -5584,11 +5591,29 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
                                   movingNow ? set[2 + fastFrame] : set[slowFrame], 0.65f,
                                   w.faceLeft};
             } else if (w.kind == 9) { // wild slime, hopping free
-                int sprite = movingNow ? (fastFrame ? atlas_slime_2_idx : atlas_slime_1_idx)
-                                       : atlas_slime_0_idx;
-                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f, sprite, 0.65f, w.faceLeft};
+                // Its own overworld art (wslime_*): round, then mid-hop
+                // squash - centered on the tile, in five flavors.
+                static const int kSlimeWild[5][2] = {
+                    {atlas_wslime_0_idx, atlas_wslime_1_idx},
+                    {atlas_wslime1_0_idx, atlas_wslime1_1_idx},
+                    {atlas_wslime2_0_idx, atlas_wslime2_1_idx},
+                    {atlas_wslime3_0_idx, atlas_wslime3_1_idx},
+                    {atlas_wslime4_0_idx, atlas_wslime4_1_idx}};
+                const int* set = kSlimeWild[v];
+                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f,
+                                  set[(movingNow ? fastFrame : slowFrame) ? 1 : 0], 0.65f,
+                                  w.faceLeft};
             } else if (w.kind == 10) { // shroomling out for a stroll
                 const int* set = kShroomWild[w.variant % 2];
+                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f,
+                                  movingNow ? set[2 + fastFrame] : set[slowFrame], 0.65f,
+                                  w.faceLeft};
+            } else if (w.kind == 11) { // deer (pale up in the snow)
+                static const int kDeerWild[2][4] = {
+                    {atlas_deer_0_idx, atlas_deer_1_idx, atlas_deer_w0_idx, atlas_deer_w1_idx},
+                    {atlas_deer1_0_idx, atlas_deer1_1_idx, atlas_deer1_w0_idx,
+                     atlas_deer1_w1_idx}};
+                const int* set = kDeerWild[w.variant % 2];
                 items[count++] = {w.y, cx - 16.0f, feetY - 32.0f,
                                   movingNow ? set[2 + fastFrame] : set[slowFrame], 0.65f,
                                   w.faceLeft};
