@@ -10,14 +10,15 @@ const char* const kSkillNames[kSkillCount] = {
 };
 
 namespace {
-// Growth factor per level. 1.18 keeps early levels quick (2-3 gathers) and
-// late levels genuinely long without RuneScape's full grind: level 10 needs
-// ~180 XP, level 20 ~930, level 30 ~4900. u32 lifetime XP overflows the
-// curve around level ~100, which is effectively "no real end" on a 3DS.
+// Growth factor per level. 1.05 stretches the ladder into a real
+// level-100 climb without losing the early hook: level 2 after a few
+// gathers, ~62 XP per level around 10, ~440 around 50, ~5000 at the top -
+// roughly 99k lifetime XP to cap. Content gates span the whole 1-100
+// range now (balance.h), so the curve has to make 100 reachable.
 constexpr double kBase = 40.0;
-constexpr double kGrowth = 1.18;
-// Safety backstop only - the XP a u32 can hold runs out long before this.
-constexpr int kMaxLevel = 200;
+constexpr double kGrowth = 1.05;
+// Level 100 is the cap - the ladder ends where the content does.
+constexpr int kMaxLevel = 100;
 } // namespace
 
 uint32_t xpToNext(int level) {

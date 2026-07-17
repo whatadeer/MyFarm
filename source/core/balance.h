@@ -24,16 +24,38 @@ struct NodeBalance {
     int32_t respawnSec[kNodeTiers];
 };
 
+// Gates span the full 1-100 ladder (the curve caps at 100 - skills.cpp).
+// The levelReq/xp here are the MEADOW baselines for trees; the per-biome
+// variant tables below override them for tiers 0-1.
 constexpr NodeBalance kTreeBalance = {
-    Skill::Logging, {1, 5, 12}, {10, 22, 40}, {1, 2, 3}, {480, 720, 960}};
+    Skill::Logging, {1, 12, 65}, {10, 30, 120}, {1, 2, 3}, {480, 720, 960}};
 constexpr NodeBalance kRockBalance = {
-    Skill::Mining, {1, 5, 12}, {12, 26, 45}, {1, 2, 3}, {600, 900, 1200}};
+    Skill::Mining, {1, 25, 50}, {12, 40, 80}, {1, 2, 3}, {600, 900, 1200}};
 constexpr NodeBalance kBushBalance = {
-    Skill::Foraging, {1, 4, 9}, {8, 18, 30}, {1, 2, 3}, {300, 450, 600}};
+    Skill::Foraging, {1, 20, 45}, {8, 30, 60}, {1, 2, 3}, {300, 450, 600}};
 // Mushrooms train (and gate on) Mycology, not Foraging - fungus is its
 // own discipline, split out in save v13.
 constexpr NodeBalance kMushroomBalance = {
-    Skill::Mycology, {1, 3, 7}, {6, 14, 24}, {1, 2, 3}, {360, 540, 720}};
+    Skill::Mycology, {1, 15, 40}, {6, 26, 55}, {1, 2, 3}, {360, 540, 720}};
+
+// Each tree VARIATION is its own unlock: the biome ladder (meadow ->
+// birch -> cherry -> pine -> snow) climbs with distance from home, and
+// the big trees climb it again. Fruit trees top the Logging ladder.
+// Indexed by static_cast<int>(Biome); yield/respawn stay per-tier above.
+constexpr int kTreeReqByBiome[5] = {1, 8, 16, 24, 32};      // slim (tier 0)
+constexpr int kTreeXpByBiome[5] = {10, 18, 26, 36, 48};
+constexpr int kTreeBigReqByBiome[5] = {12, 22, 32, 42, 52}; // big (tier 1)
+constexpr int kTreeBigXpByBiome[5] = {30, 44, 58, 74, 92};
+constexpr int kTreeFruitReq = 65; // fruit tree (tier 2), any biome
+constexpr int kTreeFruitXp = 120;
+inline int treeLevelReq(int tier, int biome) {
+    if (tier >= 2) return kTreeFruitReq;
+    return tier == 1 ? kTreeBigReqByBiome[biome] : kTreeReqByBiome[biome];
+}
+inline int treeXp(int tier, int biome) {
+    if (tier >= 2) return kTreeFruitXp;
+    return tier == 1 ? kTreeBigXpByBiome[biome] : kTreeXpByBiome[biome];
+}
 // Wild pumpkin/sunflower patches (single tier - clumps in the meadow).
 constexpr NodeBalance kWildPatchBalance = {
     Skill::Foraging, {1, 1, 1}, {8, 8, 8}, {1, 1, 1}, {600, 600, 600}};
@@ -94,6 +116,9 @@ inline int tameCapacity(int herdingLevel) { return 1 + herdingLevel; } // total 
 // A freshly tamed animal is a baby; it grows up (and starts producing) on
 // real time, like everything else.
 constexpr int32_t kBabyGrowSec = 600;
+
+// Chickens tame from Herding 1; cows are for proven herders.
+constexpr int kTameCowMinHerding = 12;
 
 // Taming food (consumed on a successful tame).
 constexpr int kTameChickenBerries = 3;
@@ -207,9 +232,9 @@ constexpr int kCloneChestRadius = 8;
 // builds teach more. Levels gate the buildable list (see kBuildables).
 constexpr int kXpBuildPerMaterial = 2;
 
-// Fishing: rare sunken-treasure catch (needs some skill first).
+// Fishing: rare sunken-treasure catch (needs real skill first).
 constexpr int kTreasureChancePct = 5;
-constexpr int kTreasureMinLevel = 4;
+constexpr int kTreasureMinLevel = 30;
 constexpr int kXpTreasure = 25;
 
 // Rain makes fish bite faster (multiplier on the bite delay).

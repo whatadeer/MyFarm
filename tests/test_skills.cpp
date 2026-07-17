@@ -21,11 +21,10 @@ static void test_level_boundaries() {
 }
 
 static void test_huge_xp_terminates_and_is_high() {
-    // u32 max XP must resolve without hanging, to something far beyond any
-    // real play but below the backstop cap.
+    // u32 max XP must resolve without hanging, and lands exactly on the
+    // level-100 cap (~99k lifetime XP caps the curve; u32 max is far past).
     int level = levelForXp(0xFFFFFFFFu);
-    CHECK(level > 50);
-    CHECK(level <= 200);
+    CHECK(level == 100);
 }
 
 static void test_progress_reporting() {

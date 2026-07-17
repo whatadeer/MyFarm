@@ -7,21 +7,24 @@ namespace core {
 // Pacing is deliberately short (minutes) so the loop is provable in one
 // sitting - tunable here without touching anything else. Better crops
 // grow slower but pay more Farming XP.
+// farmingReq spreads the species across the whole 1-100 Farming ladder,
+// roughly tracking grow time: quick salad greens first, the exotic
+// long-haul crops for master farmers.
 const CropSpecies kCropSpeciesTable[kCropSpeciesCount] = {
-    /* kCropWheat       */ {"Wheat", 4, 90, kItemWheatSeed, kItemWheat, 10},
-    /* kCropTurnip      */ {"Turnip", 4, 180, kItemTurnipSeed, kItemTurnip, 8},
-    /* kCropCarrot      */ {"Carrot", 4, 45, kItemCarrotSeed, kItemCarrot, 6},
-    /* kCropTomato      */ {"Tomato", 4, 150, kItemTomatoSeed, kItemTomato, 14},
-    /* kCropPumpkin     */ {"Pumpkin", 4, 300, kItemPumpkinSeed, kItemPumpkin, 24},
-    /* kCropCauliflower */ {"Cauliflower", 4, 210, kItemCauliflowerSeed, kItemCauliflower, 16},
-    /* kCropEggplant    */ {"Eggplant", 4, 240, kItemEggplantSeed, kItemEggplant, 18},
-    /* kCropLettuce     */ {"Lettuce", 4, 120, kItemLettuceSeed, kItemLettuce, 11},
-    /* kCropRadish      */ {"Radish", 4, 60, kItemRadishSeed, kItemRadish, 7},
-    /* kCropBeetroot    */ {"Beetroot", 4, 180, kItemBeetrootSeed, kItemBeetroot, 15},
-    /* kCropStarfruit   */ {"Starfruit", 4, 360, kItemStarfruitSeed, kItemStarfruit, 30},
-    /* kCropCucumber    */ {"Cucumber", 4, 150, kItemCucumberSeed, kItemCucumber, 13},
-    /* kCropCorn        */ {"Corn", 4, 240, kItemCornSeed, kItemCorn, 20},
-    /* kCropSunflower   */ {"Sunflower", 4, 300, kItemSunflowerSeed, kItemSunflower, 26},
+    /* kCropWheat       */ {"Wheat", 4, 90, kItemWheatSeed, kItemWheat, 10, 1},
+    /* kCropTurnip      */ {"Turnip", 4, 180, kItemTurnipSeed, kItemTurnip, 8, 14},
+    /* kCropCarrot      */ {"Carrot", 4, 45, kItemCarrotSeed, kItemCarrot, 6, 1},
+    /* kCropTomato      */ {"Tomato", 4, 150, kItemTomatoSeed, kItemTomato, 14, 24},
+    /* kCropPumpkin     */ {"Pumpkin", 4, 300, kItemPumpkinSeed, kItemPumpkin, 24, 62},
+    /* kCropCauliflower */ {"Cauliflower", 4, 210, kItemCauliflowerSeed, kItemCauliflower, 16, 38},
+    /* kCropEggplant    */ {"Eggplant", 4, 240, kItemEggplantSeed, kItemEggplant, 18, 46},
+    /* kCropLettuce     */ {"Lettuce", 4, 120, kItemLettuceSeed, kItemLettuce, 11, 10},
+    /* kCropRadish      */ {"Radish", 4, 60, kItemRadishSeed, kItemRadish, 7, 5},
+    /* kCropBeetroot    */ {"Beetroot", 4, 180, kItemBeetrootSeed, kItemBeetroot, 15, 30},
+    /* kCropStarfruit   */ {"Starfruit", 4, 360, kItemStarfruitSeed, kItemStarfruit, 30, 82},
+    /* kCropCucumber    */ {"Cucumber", 4, 150, kItemCucumberSeed, kItemCucumber, 13, 18},
+    /* kCropCorn        */ {"Corn", 4, 240, kItemCornSeed, kItemCorn, 20, 54},
+    /* kCropSunflower   */ {"Sunflower", 4, 300, kItemSunflowerSeed, kItemSunflower, 26, 72},
 };
 
 int cropStage(const CropSpecies& species, int64_t plantedAt, int64_t now) {

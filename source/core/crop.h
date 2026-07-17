@@ -13,7 +13,9 @@ struct CropSpecies {
     int32_t secondsPerStage;
     ItemId seedItem;
     ItemId harvestItem;
-    int harvestXp; // Farming XP per harvest
+    int harvestXp;  // Farming XP per harvest
+    int farmingReq; // Farming level needed to plant it (checked at the
+                    // plant action - seeds can be held early, sown later)
 };
 
 // Wheat/Turnip art comes from the free pack's Basic Plants.png; the other

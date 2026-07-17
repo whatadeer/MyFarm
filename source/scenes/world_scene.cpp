@@ -114,61 +114,62 @@ struct Buildable {
     core::BuildCost cost;
     int level; // required Building skill level
 };
+// Spread across the whole 1-100 Building ladder. The working farm loop
+// (Coop 8, Barn 22, Mine Shaft 30) stays reachable in a normal playthrough;
+// luxury, seasonal, and village pieces climb the long tail.
 constexpr Buildable kBuildables[] = {
-    // Level 1: the crafting station, a starter camp, fences, comforts.
+    // Levels 1-6: the starter kit.
     {core::kItemWorkbench, core::kCostWorkbench, 1},
     {core::kItemCamp, core::kCostCamp, 1},
     {core::kItemFence, core::kCostFence, 1},
-    {core::kItemGate, core::kCostGate, 1},
-    {core::kItemGateRight, core::kCostGateRight, 1},
     {core::kItemPathDirt, core::kCostPathDirt, 1},
-    {core::kItemRug, core::kCostRug, 1},
-    {core::kItemSign, core::kCostSign, 1},
-    {core::kItemCampfire, core::kCostCampfire, 1},
-    // Level 2: sturdier paths and storage.
-    {core::kItemPath, core::kCostPath, 2},
-    {core::kItemPathPlank, core::kCostPathPlank, 2},
-    {core::kItemChest, core::kCostChest, 2},
-    {core::kItemChair, core::kCostChair, 2},
-    {core::kItemStool, core::kCostStool, 2},
-    {core::kItemSnowman, core::kCostSnowman, 2},
-    // Level 3: real house parts (and a picnic for the meadow).
-    {core::kItemFloor, core::kCostFloor, 3},
-    {core::kItemWall, core::kCostWall, 3},
-    {core::kItemDoor, core::kCostDoor, 3},
-    {core::kItemBed, core::kCostBed, 3},
-    {core::kItemWoodTable, core::kCostTable, 3},
-    {core::kItemRugLong, core::kCostRugLong, 3},
-    {core::kItemMailbox, core::kCostMailbox, 3},
-    {core::kItemPicnic, core::kCostPicnic, 3},
-    // Level 4: roofs, bridges, and finer furniture.
-    {core::kItemRoof, core::kCostRoof, 4},
-    {core::kItemBridge, core::kCostBridge, 4},
-    {core::kItemBoat, core::kCostBoat, 4},
-    {core::kItemLamp, core::kCostLamp, 4},
-    {core::kItemDresser, core::kCostDresser, 4},
-    {core::kItemBench, core::kCostBench, 4},
-    {core::kItemBeehive, core::kCostBeehive, 4},
-    {core::kItemChestSilver, core::kCostChestSilver, 4},
-    // Level 5: infrastructure and husbandry.
-    {core::kItemWell, core::kCostWell, 5},
-    {core::kItemRail, core::kCostRail, 5},
-    {core::kItemCoop, core::kCostCoop, 5},
-    {core::kItemTrough, core::kCostTrough, 5},
-    {core::kItemHayBale, core::kCostHayBale, 5},
-    {core::kItemWaterTray, core::kCostWaterTray, 5},
-    {core::kItemXmasTree, core::kCostXmasTree, 5},
-    {core::kItemPresent, core::kCostPresent, 5},
-    // Level 6+: the big projects.
-    {core::kItemBarn, core::kCostBarn, 6},
-    {core::kItemChestGold, core::kCostChestGold, 6},
-    {core::kItemMineShaft, core::kCostMineShaft, 6},
-    {core::kItemHut, core::kCostHut, 7},
-    {core::kItemCottage, core::kCostCottage, 8},
-    {core::kItemManor, core::kCostManor, 9},
-    // Level 10: the Clone Mirror (also takes 5 of each deep-mine gem -
-    // see buildFromMaterials' crystal check).
-    {core::kItemClone, core::kCostClone, 10},
+    {core::kItemSign, core::kCostSign, 2},
+    {core::kItemRug, core::kCostRug, 2},
+    {core::kItemGate, core::kCostGate, 4},
+    {core::kItemGateRight, core::kCostGateRight, 4},
+    {core::kItemCampfire, core::kCostCampfire, 4},
+    {core::kItemChest, core::kCostChest, 6},
+    {core::kItemChair, core::kCostChair, 6},
+    {core::kItemStool, core::kCostStool, 6},
+    // 8-18: paths, poultry, house parts.
+    {core::kItemPathPlank, core::kCostPathPlank, 8},
+    {core::kItemCoop, core::kCostCoop, 8},
+    {core::kItemPath, core::kCostPath, 10},
+    {core::kItemBeehive, core::kCostBeehive, 10},
+    {core::kItemFloor, core::kCostFloor, 12},
+    {core::kItemWall, core::kCostWall, 12},
+    {core::kItemDoor, core::kCostDoor, 12},
+    {core::kItemBed, core::kCostBed, 15},
+    {core::kItemWoodTable, core::kCostTable, 15},
+    {core::kItemRoof, core::kCostRoof, 18},
+    {core::kItemBridge, core::kCostBridge, 18},
+    {core::kItemMailbox, core::kCostMailbox, 18},
+    // 22-35: husbandry and the mine.
+    {core::kItemBarn, core::kCostBarn, 22},
+    {core::kItemTrough, core::kCostTrough, 22},
+    {core::kItemLamp, core::kCostLamp, 26},
+    {core::kItemDresser, core::kCostDresser, 26},
+    {core::kItemBench, core::kCostBench, 26},
+    {core::kItemMineShaft, core::kCostMineShaft, 30},
+    {core::kItemHayBale, core::kCostHayBale, 30},
+    {core::kItemWaterTray, core::kCostWaterTray, 30},
+    {core::kItemBoat, core::kCostBoat, 35},
+    {core::kItemPicnic, core::kCostPicnic, 35},
+    {core::kItemRugLong, core::kCostRugLong, 35},
+    // 40-60: infrastructure and finery.
+    {core::kItemWell, core::kCostWell, 40},
+    {core::kItemChestSilver, core::kCostChestSilver, 40},
+    {core::kItemRail, core::kCostRail, 46},
+    {core::kItemSnowman, core::kCostSnowman, 46},
+    {core::kItemXmasTree, core::kCostXmasTree, 52},
+    {core::kItemPresent, core::kCostPresent, 52},
+    {core::kItemChestGold, core::kCostChestGold, 60},
+    // 70-100: the village homes and the endgame automaton (the Clone
+    // Mirror also takes 5 of each deep-mine gem - see buildFromMaterials).
+    {core::kItemHut, core::kCostHut, 70},
+    {core::kItemCottage, core::kCostCottage, 80},
+    {core::kItemManor, core::kCostManor, 90},
+    {core::kItemClone, core::kCostClone, 100},
 };
 constexpr int kBuildableCount = static_cast<int>(sizeof(kBuildables) / sizeof(kBuildables[0]));
 
@@ -1114,7 +1115,12 @@ void WorldScene::gatherAt(core::Tile& tile, int32_t tx, int32_t ty, core::Decora
                           const core::NodeBalance& bal, int64_t now) {
     int tier = clampTier(tile.decoTier);
     int level = state_->skillLevel(bal.skill);
-    core::GatherResult result = core::gatherNode(tile, kind, level, now);
+    // Trees gate (and pay) per VARIATION: the biome ladder climbs with
+    // distance from home, so each small/big tree is its own unlock.
+    int biome = static_cast<int>(core::biomeAt(state_->worldSeed, tx, ty));
+    bool isTree = kind == core::Decoration::Tree;
+    int req = isTree ? core::treeLevelReq(tier, biome) : bal.levelReq[tier];
+    core::GatherResult result = core::gatherNode(tile, kind, level, req, now);
     switch (result) {
         case core::GatherResult::NotANode:
             return;
@@ -1122,8 +1128,7 @@ void WorldScene::gatherAt(core::Tile& tile, int32_t tx, int32_t ty, core::Decora
             setStatus("Still regrowing...");
             return;
         case core::GatherResult::LevelTooLow:
-            setStatus("Need %s Lv %d", core::kSkillNames[static_cast<int>(bal.skill)],
-                      bal.levelReq[tier]);
+            setStatus("Need %s Lv %d", core::kSkillNames[static_cast<int>(bal.skill)], req);
             platform::playSfx(platform::Sfx::Deny);
             return;
         case core::GatherResult::Ok:
@@ -1210,7 +1215,7 @@ void WorldScene::gatherAt(core::Tile& tile, int32_t tx, int32_t ty, core::Decora
         default:
             break;
     }
-    awardXp(bal.skill, bal.xp[tier]);
+    awardXp(bal.skill, isTree ? core::treeXp(tier, biome) : bal.xp[tier]);
 }
 
 bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
@@ -1245,6 +1250,11 @@ bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
     int herdingLv = state_->skillLevel(core::Skill::Herding);
     if (static_cast<int>(state_->animals.size()) >= core::tameCapacity(herdingLv)) {
         setStatus("Herd full - level up Herding!");
+        return false;
+    }
+    if (!isChicken && herdingLv < core::kTameCowMinHerding) {
+        setStatus("Need Herding Lv %d for cows", core::kTameCowMinHerding);
+        platform::playSfx(platform::Sfx::Deny);
         return false;
     }
 
@@ -2193,9 +2203,14 @@ void WorldScene::doContextualAction() {
             break;
     }
 
-    // 8. Seeds.
+    // 8. Seeds - each species has its own Farming gate (see crop.cpp).
     for (int i = 0; i < core::kCropSpeciesCount; i++) {
         if (selected.item == core::kCropSpeciesTable[i].seedItem && core::canPlant(tile)) {
+            if (state_->skillLevel(core::Skill::Farming) < core::kCropSpeciesTable[i].farmingReq) {
+                setStatus("Need Farming Lv %d", core::kCropSpeciesTable[i].farmingReq);
+                platform::playSfx(platform::Sfx::Deny);
+                return;
+            }
             if (state_->inventory.remove(selected.item, 1)) {
                 core::plantCrop(tile, static_cast<uint8_t>(i), now);
                 state_->world.markDirty(tx, ty);
@@ -2618,10 +2633,12 @@ void WorldScene::cloneAct(int32_t tx, int32_t ty) {
         12.0f;
 
     switch (cl.task) {
-        case 1: // lumberjack
+        case 1: // lumberjack - same per-variation gates as the player
             if (core::gatherNode(t, core::Decoration::Tree,
-                                 state_->skillLevel(core::Skill::Logging), now) ==
-                core::GatherResult::Ok) {
+                                 state_->skillLevel(core::Skill::Logging),
+                                 core::treeLevelReq(
+                                     tier, static_cast<int>(core::biomeAt(state_->worldSeed, tx, ty))),
+                                 now) == core::GatherResult::Ok) {
                 cloneDeposit(core::kItemWood, core::kTreeBalance.baseYield[tier]);
                 poofs_.push_back({tx, ty, 0.0f});
                 state_->world.markDirty(tx, ty);
@@ -2636,7 +2653,8 @@ void WorldScene::cloneAct(int32_t tx, int32_t ty) {
                 break;
             }
             if (core::gatherNode(t, core::Decoration::Rock,
-                                 state_->skillLevel(core::Skill::Mining), now) ==
+                                 state_->skillLevel(core::Skill::Mining),
+                                 core::kRockBalance.levelReq[tier], now) ==
                 core::GatherResult::Ok) {
                 cloneDeposit(core::kItemStone, core::kRockBalance.baseYield[tier]);
                 if (rollPct(core::kOreChancePct[tier])) cloneDeposit(core::kItemOre, 1);
@@ -2670,8 +2688,10 @@ void WorldScene::cloneAct(int32_t tx, int32_t ty) {
                 default:
                     return;
             }
-            if (core::gatherNode(t, kind, state_->skillLevel(core::Skill::Foraging), now) ==
-                core::GatherResult::Ok) {
+            // The node's own skill: mushrooms check (and train toward)
+            // Mycology, everything else Foraging.
+            if (core::gatherNode(t, kind, state_->skillLevel(bal->skill),
+                                 bal->levelReq[tier], now) == core::GatherResult::Ok) {
                 cloneDeposit(got, bal->baseYield[tier]);
                 state_->world.markDirty(tx, ty);
                 if (nearPlayer) platform::playSfx(platform::Sfx::Harvest);
@@ -2757,6 +2777,8 @@ int WorldScene::cloneTakeSeed() {
 namespace {
 
 // Ore node types, in depth order. Index = mine_ cell kind minus 10.
+// levelReq layers a Mining-skill gate over the floor-depth gate, so the
+// deep ores are double-locked: get down there AND be good enough.
 struct NodeInfo {
     int minFloor;
     int weight;
@@ -2764,16 +2786,17 @@ struct NodeInfo {
     int dropCount;
     core::ItemId bonus; // kItemNone = no bonus drop
     int xp;
+    int levelReq; // Mining level to crack it
 };
 constexpr NodeInfo kNodes[8] = {
-    /* stone    */ {1, 30, core::kItemStone, 2, core::kItemNone, 10},
-    /* coal     */ {1, 25, core::kItemCoal, 2, core::kItemStone, 12},
-    /* copper   */ {3, 18, core::kItemOre, 1, core::kItemStone, 16},
-    /* gold     */ {5, 10, core::kItemOre, 2, core::kItemNone, 20},
-    /* ruby     */ {5, 8, core::kItemRuby, 1, core::kItemNone, 25},
-    /* diamond  */ {7, 6, core::kItemDiamond, 1, core::kItemNone, 30},
-    /* emerald  */ {7, 6, core::kItemEmerald, 1, core::kItemNone, 30},
-    /* amethyst */ {9, 4, core::kItemAmethyst, 1, core::kItemNone, 35},
+    /* stone    */ {1, 30, core::kItemStone, 2, core::kItemNone, 10, 1},
+    /* coal     */ {1, 25, core::kItemCoal, 2, core::kItemStone, 12, 8},
+    /* copper   */ {3, 18, core::kItemOre, 1, core::kItemStone, 16, 18},
+    /* gold     */ {5, 10, core::kItemOre, 2, core::kItemNone, 20, 35},
+    /* ruby     */ {5, 8, core::kItemRuby, 1, core::kItemNone, 25, 45},
+    /* diamond  */ {7, 6, core::kItemDiamond, 1, core::kItemNone, 30, 60},
+    /* emerald  */ {7, 6, core::kItemEmerald, 1, core::kItemNone, 30, 60},
+    /* amethyst */ {9, 4, core::kItemAmethyst, 1, core::kItemNone, 35, 75},
 };
 
 } // namespace
@@ -3156,6 +3179,11 @@ void WorldScene::doMineAction() {
     }
     if (cell >= 10) { // ore node
         const NodeInfo& n = kNodes[cell - 10];
+        if (state_->skillLevel(core::Skill::Mining) < n.levelReq) {
+            setStatus("Need Mining Lv %d", n.levelReq);
+            platform::playSfx(platform::Sfx::Deny);
+            return;
+        }
         const core::ItemStack& sel = selectedStack();
         int amount = n.dropCount + (sel.item == core::kItemPickaxe ? 1 : 0);
         state_->inventory.add(n.drop, amount);

@@ -121,11 +121,12 @@ bool nodeReady(const Tile& tile, int64_t now) {
     return elapsedAtLeast(tile.timestamp, now, bal->respawnSec[clampTier(tile.decoTier)]);
 }
 
-GatherResult gatherNode(Tile& tile, Decoration expected, int skillLevel, int64_t now) {
+GatherResult gatherNode(Tile& tile, Decoration expected, int skillLevel, int levelReq,
+                        int64_t now) {
     const NodeBalance* bal = balanceFor(tile.decoration);
     if (!bal || tile.decoration != expected) return GatherResult::NotANode;
     if (!nodeReady(tile, now)) return GatherResult::Regrowing;
-    if (skillLevel < bal->levelReq[clampTier(tile.decoTier)]) return GatherResult::LevelTooLow;
+    if (skillLevel < levelReq) return GatherResult::LevelTooLow;
 
     tile.depleted = true;
     tile.timestamp = now;

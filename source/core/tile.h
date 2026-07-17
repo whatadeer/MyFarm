@@ -176,6 +176,10 @@ enum class GatherResult : uint8_t {
 // the right Decoration kind - `expected` - and passes the player's level in
 // that node's skill). On Ok the node is marked depleted with its respawn
 // clock started; yields/XP are the caller's job (see balance.h).
-GatherResult gatherNode(Tile& tile, Decoration expected, int skillLevel, int64_t now);
+// `levelReq` is supplied by the caller because it can be variant-aware
+// (each tree variation has its own requirement - see balance.h's
+// treeLevelReq); plain kinds just pass their NodeBalance levelReq[tier].
+GatherResult gatherNode(Tile& tile, Decoration expected, int skillLevel, int levelReq,
+                        int64_t now);
 
 } // namespace core

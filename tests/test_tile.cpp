@@ -142,23 +142,24 @@ static void test_gather_lifecycle_and_respawn() {
     tile.decoration = Decoration::Tree;
     tile.decoTier = 0;
 
-    CHECK(gatherNode(tile, Decoration::Rock, 1, 1000) == GatherResult::NotANode); // wrong kind
-    CHECK(gatherNode(tile, Decoration::Tree, 1, 1000) == GatherResult::Ok);
+    CHECK(gatherNode(tile, Decoration::Rock, 1, 1, 1000) == GatherResult::NotANode); // wrong kind
+    CHECK(gatherNode(tile, Decoration::Tree, 1, 1, 1000) == GatherResult::Ok);
     CHECK(tile.depleted);
-    CHECK(gatherNode(tile, Decoration::Tree, 1, 1000 + 5) == GatherResult::Regrowing);
+    CHECK(gatherNode(tile, Decoration::Tree, 1, 1, 1000 + 5) == GatherResult::Regrowing);
 
     int64_t respawned = 1000 + kTreeBalance.respawnSec[0];
-    CHECK(gatherNode(tile, Decoration::Tree, 1, respawned) == GatherResult::Ok);
+    CHECK(gatherNode(tile, Decoration::Tree, 1, 1, respawned) == GatherResult::Ok);
 }
 
 static void test_gather_gated_by_skill_level() {
     Tile tile;
     tile.decoration = Decoration::Rock;
-    tile.decoTier = 2; // gold rock needs Mining 12
-    CHECK(gatherNode(tile, Decoration::Rock, kRockBalance.levelReq[2] - 1, 1000) ==
-          GatherResult::LevelTooLow);
+    tile.decoTier = 2; // a boulder - the caller passes its variant req
+    CHECK(gatherNode(tile, Decoration::Rock, kRockBalance.levelReq[2] - 1,
+                     kRockBalance.levelReq[2], 1000) == GatherResult::LevelTooLow);
     CHECK(!tile.depleted); // failed attempt consumes nothing
-    CHECK(gatherNode(tile, Decoration::Rock, kRockBalance.levelReq[2], 1000) == GatherResult::Ok);
+    CHECK(gatherNode(tile, Decoration::Rock, kRockBalance.levelReq[2], kRockBalance.levelReq[2],
+                     1000) == GatherResult::Ok);
 }
 
 static void test_place_legality() {
