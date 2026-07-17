@@ -70,6 +70,9 @@ bool waterAt(uint32_t worldSeed, int32_t wx, int32_t wy) {
 // them.
 constexpr int64_t kTier1BandSq = 48 * 48;
 constexpr int64_t kTier2BandSq = 128 * 128;
+// Ancient giants: trees only - a rare tier 3 out past everything else.
+constexpr int64_t kAncientBandSq = 220 * 220;
+constexpr uint32_t kSaltAncient = 17;
 
 uint8_t rollTier(uint32_t worldSeed, int32_t wx, int32_t wy) {
     int64_t d2 = static_cast<int64_t>(wx) * wx + static_cast<int64_t>(wy) * wy;
@@ -270,29 +273,44 @@ void rollDeco(uint32_t worldSeed, int32_t wx, int32_t wy, Decoration* deco, uint
         // Loose pebbles: pick-up stones, no tier, no blocking.
         *deco = Decoration::Pebble;
         return;
+    } else if (decoRoll < 148) {
+        // Deadfall: pick-up wood, no tier, no blocking. Extends the roll
+        // table past the old bands so existing worlds only GAIN logs on
+        // tiles that previously rolled nothing.
+        *deco = Decoration::FallenLog;
+        return;
     }
     if (*deco != Decoration::None) *tier = rollTier(worldSeed, wx, wy);
+    // The far field grows ancient giants: past the ancient band, one tree
+    // in ~40 upgrades to the 3x3-tile tier 3.
+    if (*deco == Decoration::Tree &&
+        static_cast<int64_t>(wx) * wx + static_cast<int64_t>(wy) * wy >= kAncientBandSq &&
+        hashCoords(worldSeed, wx, wy, kSaltAncient) % 40 == 0) {
+        *tier = 3;
+    }
 }
 
-// Big boulders (rock tiers 1-2) draw 2-3 tiles wide, so they claim their
-// 8 neighbors: anything else that would spawn beside one is suppressed.
-// Between two adjacent big rocks, the lower (y, x) one wins.
-bool isBigRock(Decoration deco, uint8_t tier) {
-    return deco == Decoration::Rock && tier >= 1;
+// Big boulders (rock tiers 1-2) draw 2-3 tiles wide, and ancient trees
+// (tree tier 3) draw a full 3x3, so they claim their 8 neighbors:
+// anything else that would spawn beside one is suppressed. Between two
+// adjacent bigs, the lower (y, x) one wins.
+bool isBigDeco(Decoration deco, uint8_t tier) {
+    return (deco == Decoration::Rock && tier >= 1) ||
+           (deco == Decoration::Tree && tier >= 3);
 }
 
 bool suppressedByNeighbor(uint32_t worldSeed, int32_t wx, int32_t wy,
                           Decoration selfDeco, uint8_t selfTier) {
-    bool selfBig = isBigRock(selfDeco, selfTier);
+    bool selfBig = isBigDeco(selfDeco, selfTier);
     for (int32_t dy = -1; dy <= 1; dy++) {
         for (int32_t dx = -1; dx <= 1; dx++) {
             if (dx == 0 && dy == 0) continue;
             Decoration nd;
             uint8_t nt;
             rollDeco(worldSeed, wx + dx, wy + dy, &nd, &nt);
-            if (!isBigRock(nd, nt)) continue;
+            if (!isBigDeco(nd, nt)) continue;
             if (!selfBig) return true;
-            // Two big rocks side by side: earlier scan order wins.
+            // Two bigs side by side: earlier scan order wins.
             if (dy < 0 || (dy == 0 && dx < 0)) return true;
         }
     }

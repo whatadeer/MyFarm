@@ -290,6 +290,19 @@ SPRITES = {
     # for variety - see world_scene.cpp's kFruitTrees).
     "prop_tree":      (BIOM, 0, 0, 16, 32),
     "prop_tree_big":  (BIOM, 16, 0, 32, 32),
+    # The ancient giant (bottom-right of the trees sheet): 44x48px of
+    # canopy in a clean 3x3-cell block - the game's tree tier 3.
+    "tree_ancient": (TREES, 144, 48, 48, 48),
+    # Row 6 stump & deadfall variants: two small cuts, the broad and the
+    # grand rooted stumps (fruit/ancient tree leftovers), and three
+    # fallen logs (plain, sprouting, mossy-with-mushrooms).
+    "stump_v1": (TREES, 0, 96, 16, 16),
+    "stump_v2": (TREES, 16, 96, 16, 16),
+    "stump_broad": (TREES, 32, 96, 32, 16),
+    "stump_grand": (TREES, 64, 96, 32, 16),
+    "log_small": (TREES, 96, 96, 16, 16),
+    "log_sprout": (TREES, 112, 96, 32, 16),
+    "log_shroom": (TREES, 144, 96, 32, 16),
     "prop_tree_fruit_0": (TREES, 48, 0, 32, 32),
     "prop_tree_fruit_1": (TREES, 80, 0, 32, 32),
     "prop_tree_fruit_2": (TREES, 112, 0, 32, 32),

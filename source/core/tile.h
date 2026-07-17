@@ -45,6 +45,10 @@ enum class Decoration : uint8_t {
     // (then gone). Scattered by worldgen and by the occasional-spawn
     // sweep. Rocks themselves no longer regrow - mined is gone.
     Pebble = 8,
+    // Deadfall: a fallen log lying in the grass - the pebble's woody
+    // cousin. Non-blocking, picked up with A for wood; the mossy one
+    // grew mushrooms and shares them. Art hash-picked at draw time.
+    FallenLog = 9,
 };
 
 // Player-built structures occupying a tile. Bridge, Rug, Gate, and

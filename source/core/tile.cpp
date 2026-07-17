@@ -38,8 +38,9 @@ bool blocksMovement(const Tile& tile, bool waterFrozen, int64_t now) {
     if (tile.decoration != Decoration::None) {
         // Hedge-maze walls are always solid (no gather, no regrow).
         if (tile.decoration == Decoration::Hedge) return true;
-        // Loose pebbles are underfoot-small - never block.
-        if (tile.decoration == Decoration::Pebble) {
+        // Loose pebbles and fallen logs are underfoot-small - never block.
+        if (tile.decoration == Decoration::Pebble ||
+            tile.decoration == Decoration::FallenLog) {
             return waterBlocks || tile.terrain == Terrain::Hole;
         }
         // A chopped tree / picked patch is just a stump or sprout while

@@ -48,12 +48,19 @@ constexpr int kTreeBigReqByBiome[5] = {12, 22, 32, 42, 52}; // big (tier 1)
 constexpr int kTreeBigXpByBiome[5] = {30, 44, 58, 74, 92};
 constexpr int kTreeFruitReq = 65; // fruit tree (tier 2), any biome
 constexpr int kTreeFruitXp = 120;
+// The ancient giant (tree tier 3): a 3x3-tile monster from the far
+// field, the Logging capstone below the level-100 Clone Mirror era.
+constexpr int kTreeAncientReq = 85;
+constexpr int kTreeAncientXp = 400;
+constexpr int kTreeAncientYield = 8;
 inline int treeLevelReq(int tier, int biome) {
-    if (tier >= 2) return kTreeFruitReq;
+    if (tier >= 3) return kTreeAncientReq;
+    if (tier == 2) return kTreeFruitReq;
     return tier == 1 ? kTreeBigReqByBiome[biome] : kTreeReqByBiome[biome];
 }
 inline int treeXp(int tier, int biome) {
-    if (tier >= 2) return kTreeFruitXp;
+    if (tier >= 3) return kTreeAncientXp;
+    if (tier == 2) return kTreeFruitXp;
     return tier == 1 ? kTreeBigXpByBiome[biome] : kTreeXpByBiome[biome];
 }
 // Wild pumpkin/sunflower patches (single tier - clumps in the meadow).

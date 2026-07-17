@@ -320,7 +320,8 @@ Both scripts need Pillow (`pip install pillow`).
   `source/core/skills.cpp`; roughly 99k lifetime XP to max one). Unlocks
   span the whole 1-100 ladder: every tree VARIATION has its own Logging
   requirement (meadow 1 &rarr; birch 8 &rarr; cherry 16 &rarr; pine 24
-  &rarr; snow 32, big trees 12-52, fruit trees 65), rocks gate at
+  &rarr; snow 32, big trees 12-52, fruit trees 65, and the rare 3x3
+  Ancient Tree of the far field at 85), rocks gate at
   1/25/50, bushes 1/20/45, mushrooms (Mycology) 1/15/40, each crop
   species has a Farming level to plant, mine ores layer Mining levels
   over floor depth, cows need Herding 12, and the Building list climbs

@@ -1162,7 +1162,9 @@ void WorldScene::gatherAt(core::Tile& tile, int32_t tx, int32_t ty, core::Decora
     // distance from home, so each small/big tree is its own unlock.
     int biome = static_cast<int>(core::biomeAt(state_->worldSeed, tx, ty));
     bool isTree = kind == core::Decoration::Tree;
-    int req = isTree ? core::treeLevelReq(tier, biome) : bal.levelReq[tier];
+    // Trees use the RAW decoTier: 3 is the ancient giant, which clampTier
+    // (sized for the shared NodeBalance arrays) would fold into tier 2.
+    int req = isTree ? core::treeLevelReq(tile.decoTier, biome) : bal.levelReq[tier];
     core::GatherResult result = core::gatherNode(tile, kind, level, req, now);
     switch (result) {
         case core::GatherResult::NotANode:
@@ -1181,6 +1183,7 @@ void WorldScene::gatherAt(core::Tile& tile, int32_t tx, int32_t ty, core::Decora
     state_->world.markDirty(tx, ty);
     actionTimer_ = 20;
     int yield = bal.baseYield[tier] + core::yieldBonus(level);
+    if (isTree && tile.decoTier >= 3) yield = core::kTreeAncientYield + core::yieldBonus(level);
     char extra[32] = {0};
 
     switch (kind) {
@@ -1258,7 +1261,7 @@ void WorldScene::gatherAt(core::Tile& tile, int32_t tx, int32_t ty, core::Decora
         default:
             break;
     }
-    awardXp(bal.skill, isTree ? core::treeXp(tier, biome) : bal.xp[tier]);
+    awardXp(bal.skill, isTree ? core::treeXp(tile.decoTier, biome) : bal.xp[tier]);
 }
 
 bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
@@ -1959,6 +1962,21 @@ void WorldScene::doContextualAction() {
         return;
     }
 
+    // 3.6 Deadfall: haul the log home, no tool needed. The mossy one
+    // (same per-tile hash the draw uses) shares its mushrooms.
+    if (tile.decoration == core::Decoration::FallenLog) {
+        state_->inventory.add(core::kItemWood, 1);
+        bool shroomy = visHash(tx, ty) % 3 == 2;
+        if (shroomy) state_->inventory.add(core::kItemMushroom, 1);
+        tile.decoration = core::Decoration::None;
+        state_->world.markDirty(tx, ty);
+        awardXp(core::Skill::Logging, 2);
+        setStatus(shroomy ? "+1 Wood, +1 Mushroom" : "+1 Wood");
+        platform::playSfx(platform::Sfx::Chop);
+        actionTimer_ = 20;
+        return;
+    }
+
     // 4. Forage nodes need no tool. Exception: an Axe on a picked-over
     // bush (waiting on its regrow clock) clears the stump for good instead
     // of the usual toolless forage - the opposite tool from what "grows"
@@ -2546,11 +2564,14 @@ void WorldScene::updateClone(float dt) {
                 bool want = false;
                 int tier = clampTier(t.decoTier);
                 switch (cl.task) {
-                    case 1: // lumberjack
-                        want = t.decoration == core::Decoration::Tree &&
-                               core::nodeReady(t, now) &&
-                               state_->skillLevel(core::Skill::Logging) >=
-                                   core::kTreeBalance.levelReq[tier];
+                    case 1: // lumberjack (trees + fallen logs)
+                        want = (t.decoration == core::Decoration::Tree &&
+                                core::nodeReady(t, now) &&
+                                state_->skillLevel(core::Skill::Logging) >=
+                                    core::treeLevelReq(
+                                        t.decoTier,
+                                        static_cast<int>(core::biomeAt(state_->worldSeed, sx, sy)))) ||
+                               t.decoration == core::Decoration::FallenLog;
                         break;
                     case 2: // miner (rocks + loose pebbles)
                         want = (t.decoration == core::Decoration::Rock &&
@@ -2657,12 +2678,20 @@ void WorldScene::cloneAct(int32_t tx, int32_t ty) {
 
     switch (cl.task) {
         case 1: // lumberjack - same per-variation gates as the player
+            if (t.decoration == core::Decoration::FallenLog) {
+                cloneDeposit(core::kItemWood, 1);
+                t.decoration = core::Decoration::None;
+                state_->world.markDirty(tx, ty);
+                break;
+            }
             if (core::gatherNode(t, core::Decoration::Tree,
                                  state_->skillLevel(core::Skill::Logging),
                                  core::treeLevelReq(
-                                     tier, static_cast<int>(core::biomeAt(state_->worldSeed, tx, ty))),
+                                     t.decoTier,
+                                     static_cast<int>(core::biomeAt(state_->worldSeed, tx, ty))),
                                  now) == core::GatherResult::Ok) {
-                cloneDeposit(core::kItemWood, core::kTreeBalance.baseYield[tier]);
+                cloneDeposit(core::kItemWood, t.decoTier >= 3 ? core::kTreeAncientYield
+                                                              : core::kTreeBalance.baseYield[tier]);
                 poofs_.push_back({tx, ty, 0.0f});
                 state_->world.markDirty(tx, ty);
                 if (nearPlayer) platform::playSfx(platform::Sfx::Chop);
@@ -4793,6 +4822,7 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
                                                              atlas_stump_pine_idx};
                         int b = static_cast<int>(biome);
                         bool snowBiome = biome == core::Biome::Snow;
+                        int rawTier = tile.decoTier; // 3 = the ancient giant
                         if (!ready) {
                             // Tier 0 regrows as a sprout (also covers the
                             // player-planted sapling, which is tier 0);
@@ -4804,12 +4834,39 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
                                     core::kTreeBalance.respawnSec[tier];
                             if (sprouting) {
                                 items[count++] = {baseY, sx, sy, atlas_prop_sapling_idx, 0.5f};
+                            } else if (rawTier >= 3) {
+                                // A giant leaves a giant's stump: the grand
+                                // rooted cut (32x16-normalized).
+                                items[count++] = {baseY, sx - 16.0f, sy, atlas_stump_grand_idx,
+                                                  0.5f};
+                            } else if (tier == 2) {
+                                // Fruit trees leave the broad root-stump.
+                                items[count++] = {baseY, sx - 16.0f, sy, atlas_stump_broad_idx,
+                                                  0.5f};
                             } else if (b == 0) {
-                                // Meadow stump is 24x16-normalized.
-                                items[count++] = {baseY, sx - 8.0f, sy, kStumpByBiome[0], 0.5f};
+                                // Meadow stumps come in three cuts, hash-
+                                // picked per tile (the classic 24x16 one
+                                // plus the sheet's two 16x16 variants).
+                                switch (visHash(tx, ty) % 3) {
+                                    case 0:
+                                        items[count++] = {baseY, sx - 8.0f, sy, kStumpByBiome[0],
+                                                          0.5f};
+                                        break;
+                                    case 1:
+                                        items[count++] = {baseY, sx, sy, atlas_stump_v1_idx, 0.5f};
+                                        break;
+                                    default:
+                                        items[count++] = {baseY, sx, sy, atlas_stump_v2_idx, 0.5f};
+                                        break;
+                                }
                             } else {
                                 items[count++] = {baseY, sx, sy, kStumpByBiome[b], 0.5f};
                             }
+                        } else if (rawTier >= 3) {
+                            // The ancient giant: 48x48 art, a full three
+                            // tiles wide and tall, trunk rooted here.
+                            items[count++] = {baseY, sx - 32.0f, sy - 64.0f, atlas_tree_ancient_idx,
+                                              0.7f};
                         } else if (tier == 0) {
                             items[count++] = {baseY, sx, sy - 32.0f, kSlimByBiome[b], 0.7f};
                         } else if (snowBiome) {
@@ -4853,6 +4910,22 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
                     case core::Decoration::Pebble:
                         items[count++] = {baseY, sx, sy, atlas_prop_pebble_idx, 0.5f};
                         break;
+                    case core::Decoration::FallenLog: {
+                        // Deadfall, hash-picked: plain log (16px), the
+                        // sprouting log, or the mossy shroomy one (32px).
+                        switch (visHash(tx, ty) % 3) {
+                            case 0:
+                                items[count++] = {baseY, sx, sy, atlas_log_small_idx, 0.5f};
+                                break;
+                            case 1:
+                                items[count++] = {baseY, sx - 16.0f, sy, atlas_log_sprout_idx, 0.5f};
+                                break;
+                            default:
+                                items[count++] = {baseY, sx - 16.0f, sy, atlas_log_shroom_idx, 0.5f};
+                                break;
+                        }
+                        break;
+                    }
                     case core::Decoration::WildPumpkin: {
                         // Wild plants show their own lifecycle: sprouts,
                         // half-growns, and ripe ones mixed through the
@@ -5711,7 +5784,8 @@ void WorldScene::contextPrompts(char* aOut, size_t aN, char* bOut, size_t bN) co
         snprintf(aOut, aN, "Forage");
         return;
     }
-    if (tile.decoration == core::Decoration::Pebble) {
+    if (tile.decoration == core::Decoration::Pebble ||
+        tile.decoration == core::Decoration::FallenLog) {
         snprintf(aOut, aN, "Pick up");
         return;
     }
