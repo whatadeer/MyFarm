@@ -7,6 +7,8 @@ namespace core {
 namespace {
 
 constexpr char kMagic[4] = {'M', 'Y', 'F', 'M'};
+// v13: Mycology (10th skill) - mushroom foraging split out of Foraging.
+// Old saves keep their Foraging XP whole; Mycology starts undiscovered.
 // v12: Athletics + Swimming (skills 8-9) and the stamina pool.
 // v11: the tool bar - tools move out of the general inventory grid into
 // their own fixed ToolBelt slots (see inventory.h). v10: the Clone Mirror.
@@ -15,7 +17,7 @@ constexpr char kMagic[4] = {'M', 'Y', 'F', 'M'};
 // older saves load with the missing fields zeroed/empty instead of being
 // treated as "not found" - worlds are big enough now that wiping them
 // over an added field would be rude.
-constexpr uint8_t kVersion = 12;
+constexpr uint8_t kVersion = 13;
 constexpr uint8_t kMinVersion = 6;
 
 class ByteWriter {
@@ -273,9 +275,12 @@ bool deserializeSave(const std::vector<uint8_t>& bytes, GameState* outState) {
     state.lastFieldPos.y = r.f32();
     state.clockOffset = version >= 7 ? r.i64() : 0;
 
-    // Skill-slot count per era: v12 added Athletics/Swimming (9), v8 added
-    // Building (7), v6-v7 had the original six.
-    int skillsInFile = version >= 12 ? kSkillCount : (version >= 8 ? 7 : 6);
+    // Skill-slot count per era: v13 added Mycology (10), v12 added
+    // Athletics/Swimming (9), v8 added Building (7), v6-v7 the original six.
+    int skillsInFile = version >= 13 ? kSkillCount
+                       : version >= 12 ? 9
+                       : version >= 8  ? 7
+                                       : 6;
     for (int i = 0; i < skillsInFile; i++) state.skillXp[i] = r.u32();
     state.stamina = version >= 12 ? r.f32() : kStaminaBase;
 

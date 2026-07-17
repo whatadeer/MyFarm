@@ -30,8 +30,10 @@ constexpr NodeBalance kRockBalance = {
     Skill::Mining, {1, 5, 12}, {12, 26, 45}, {1, 2, 3}, {600, 900, 1200}};
 constexpr NodeBalance kBushBalance = {
     Skill::Foraging, {1, 4, 9}, {8, 18, 30}, {1, 2, 3}, {300, 450, 600}};
+// Mushrooms train (and gate on) Mycology, not Foraging - fungus is its
+// own discipline, split out in save v13.
 constexpr NodeBalance kMushroomBalance = {
-    Skill::Foraging, {1, 3, 7}, {6, 14, 24}, {1, 2, 3}, {360, 540, 720}};
+    Skill::Mycology, {1, 3, 7}, {6, 14, 24}, {1, 2, 3}, {360, 540, 720}};
 // Wild pumpkin/sunflower patches (single tier - clumps in the meadow).
 constexpr NodeBalance kWildPatchBalance = {
     Skill::Foraging, {1, 1, 1}, {8, 8, 8}, {1, 1, 1}, {600, 600, 600}};

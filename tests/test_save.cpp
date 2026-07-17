@@ -21,6 +21,7 @@ static void test_round_trip_preserves_everything() {
     state.skillXp[static_cast<int>(Skill::Herding)] = 42;
     state.skillXp[static_cast<int>(Skill::Athletics)] = 55; // v12 slots
     state.skillXp[static_cast<int>(Skill::Swimming)] = 21;
+    state.skillXp[static_cast<int>(Skill::Mycology)] = 12; // v13 slot
     state.clockOffset = 123456; // bed-sleep fast-forward (v7)
     state.stamina = 63.5f;      // mid-recovery sprint fuel (v12)
 
@@ -82,6 +83,7 @@ static void test_round_trip_preserves_everything() {
     CHECK(loaded.skillXp[static_cast<int>(Skill::Herding)] == 42);
     CHECK(loaded.skillXp[static_cast<int>(Skill::Athletics)] == 55);
     CHECK(loaded.skillXp[static_cast<int>(Skill::Swimming)] == 21);
+    CHECK(loaded.skillXp[static_cast<int>(Skill::Mycology)] == 12);
     CHECK(loaded.clockOffset == 123456);
     CHECK(loaded.stamina == 63.5f);
 

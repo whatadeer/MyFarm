@@ -5,8 +5,8 @@
 namespace core {
 
 const char* const kSkillNames[kSkillCount] = {
-    "Farming", "Logging", "Mining",    "Foraging",  "Herding",
-    "Fishing", "Building", "Athletics", "Swimming",
+    "Farming",  "Logging",  "Mining",    "Foraging", "Herding",
+    "Fishing",  "Building", "Athletics", "Swimming", "Mycology",
 };
 
 namespace {

@@ -21,8 +21,10 @@ enum class Skill : uint8_t {
     Athletics = 7, // sprinting overland (Circle Pad at its rim) - levels
                    // grow the stamina pool
     Swimming = 8,  // sprint-swimming - levels make hard swimming cheaper
+    Mycology = 9,  // mushroom foraging, split out of Foraging - gates the
+                   // mushroom tiers (skull mushrooms are for specialists)
 };
-constexpr int kSkillCount = 9;
+constexpr int kSkillCount = 10;
 
 extern const char* const kSkillNames[kSkillCount];
 

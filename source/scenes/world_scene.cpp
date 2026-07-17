@@ -93,9 +93,9 @@ constexpr float kTrashBtnW = 68.0f;
 
 // Skills tab: one row per skill, each with a full-width XP bar (25px
 // keeps all seven inside the frame ring below the held-item line).
-constexpr float kSkillRowH = 21.0f; // 9 rows must fit the 194px frame
-constexpr float kSkillBarX = 96.0f;
-constexpr float kSkillBarW = 210.0f;
+constexpr float kSkillRowH = 18.0f; // single-line rows: ten skills fit the frame
+constexpr float kSkillBarX = 140.0f;
+constexpr float kSkillBarW = 128.0f;
 
 // Chest-transfer layout (36px slots so two 3x8 grids fit).
 constexpr float kChestSlotPx = 36.0f;
@@ -295,7 +295,8 @@ void WorldScene::awardXp(core::Skill skill, int amount) {
         static const core::ItemId kSkillIcon[core::kSkillCount] = {
             core::kItemHoe,     core::kItemAxe, core::kItemPickaxe,  core::kItemBerries,
             core::kItemEgg,     core::kItemFishingRod, core::kItemHammer,
-            core::kItemNone /*Athletics*/, core::kItemNone /*Swimming*/};
+            core::kItemNone /*Athletics*/, core::kItemNone /*Swimming*/,
+            core::kItemMushroom};
         if (skill == core::Skill::Athletics) {
             emoteExtra_ = atlas_player_right_1_idx;
         } else if (skill == core::Skill::Swimming) {
@@ -5978,11 +5979,21 @@ void WorldScene::drawSkillsTab(const platform::Renderer& renderer) const {
         int into, span;
         core::xpProgress(xp, &into, &span);
 
+        // One line per skill: name | Lv | XP bar (progress text inside) |
+        // mastery stars. Ten discovered skills fill the frame exactly.
         char label[40];
         snprintf(label, sizeof(label), "%s", core::kSkillNames[i]);
-        renderer.drawTextFlat(label, 12.0f, y, 0.36f, C2D_Color32(0xD8, 0xE8, 0xC0, 0xFF));
+        renderer.drawTextFlat(label, 12.0f, y + 2.0f, 0.34f, C2D_Color32(0xD8, 0xE8, 0xC0, 0xFF));
         snprintf(label, sizeof(label), "Lv %d", level);
-        renderer.drawTextFlat(label, 12.0f, y + 11.0f, 0.3f, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+        renderer.drawTextFlat(label, 96.0f, y + 2.0f, 0.34f, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+
+        float barH = 10.0f;
+        C2D_DrawRectSolid(kSkillBarX, y + 3.0f, 0.0f, kSkillBarW, barH, C2D_Color32(0x14, 0x18, 0x10, 0xFF));
+        float fill = span > 0 ? static_cast<float>(into) / static_cast<float>(span) : 0.0f;
+        C2D_DrawRectSolid(kSkillBarX, y + 3.0f, 0.0f, kSkillBarW * fill, barH, C2D_Color32(0x88, 0xC8, 0x40, 0xFF));
+        snprintf(label, sizeof(label), "%d / %d", into, span);
+        renderer.drawTextFlat(label, kSkillBarX + 6.0f, y + 4.0f, 0.26f, C2D_Color32(0xE8, 0xF0, 0xD8, 0xFF));
+
         // A gold star every 5 levels, a half star at +2 or more toward
         // the next (premium UI star icons) - glanceable mastery.
         int stars = level / 5;
@@ -5991,15 +6002,8 @@ void WorldScene::drawSkillsTab(const platform::Renderer& renderer) const {
             int spr = s < stars ? atlas_ui_star_idx
                       : (s == stars && half) ? atlas_ui_star_half_idx
                                              : atlas_ui_star_empty_idx;
-            renderer.drawSpriteFlat(spr, 48.0f + s * 13.0f, y + 10.0f, 0.72f);
+            renderer.drawSpriteFlat(spr, 276.0f + s * 13.0f, y + 2.0f, 0.72f);
         }
-
-        float barH = 8.0f;
-        C2D_DrawRectSolid(kSkillBarX, y + 2.0f, 0.0f, kSkillBarW, barH, C2D_Color32(0x14, 0x18, 0x10, 0xFF));
-        float fill = span > 0 ? static_cast<float>(into) / static_cast<float>(span) : 0.0f;
-        C2D_DrawRectSolid(kSkillBarX, y + 2.0f, 0.0f, kSkillBarW * fill, barH, C2D_Color32(0x88, 0xC8, 0x40, 0xFF));
-        snprintf(label, sizeof(label), "%d / %d XP", into, span);
-        renderer.drawTextFlat(label, kSkillBarX + 4.0f, y + 11.0f, 0.28f, C2D_Color32(0xB8, 0xC8, 0xA0, 0xFF));
     }
 }
 

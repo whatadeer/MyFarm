@@ -6,10 +6,10 @@ else is earned from the world itself: forage bushes for seeds and berries,
 chop trees for wood and saplings, hammer rocks for stone and ore, dig holes
 and pour water to sculpt ponds, build fences/paths/bridges/chests and a
 camp (your teleport home), tame wild chickens and cows (five colors each,
-tamed as babies that grow up), go fishing, keep bees, and level nine
-RuneScape-style skills (Farming, Logging, Mining, Foraging, Herding,
-Fishing, Building, Athletics, Swimming - no level cap, each level slower
-than the last) to unlock
+tamed as babies that grow up), go fishing, keep bees, and level ten
+RuneScape-style skills (Farming, Logging, Mining, Foraging, Mycology,
+Herding, Fishing, Building, Athletics, Swimming - no level cap, each
+level slower than the last) to unlock
 higher-tier resource nodes found farther from spawn (fruit trees,
 boulders, skull mushrooms, exotic bushes). The world is split into
 biomes - meadow, birch, cherry-blossom, and pine regions, plus the
