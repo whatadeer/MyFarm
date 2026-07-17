@@ -587,6 +587,9 @@ SPRITES = {
     "ui_sad": (HAPPY, 80, 16, 16, 16),
 
     # --- Animals (frame 0/1 idle, w0/w1 walking) -----------------------------
+    # (Pig/fox/wolf are ORIGINAL sprites authored in-code further down -
+    # Cup Nooble's packs don't ship them, and the license invites making
+    # your own in the style. See emit_authored_critters().)
     "chicken_0":  (BASIC / "Characters/Free Chicken Sprites.png", 0, 0, 16, 16),
     "chicken_1":  (BASIC / "Characters/Free Chicken Sprites.png", 16, 0, 16, 16),
     "chicken_w0": (BASIC / "Characters/Free Chicken Sprites.png", 0, 16, 16, 16),
@@ -797,6 +800,182 @@ def keep_largest(img):
     return img
 
 
+# ---------------------------------------------------------------------------
+# Original critters: pig, fox, wolf (and the piglet). Cup Nooble's packs
+# ship only chickens and cows; these are hand-authored pixel grids in the
+# Sprout Lands style - the pack's #504086 outline, its pink/orange/grey
+# ramps sampled from real sprites, 16x16 left-facing bodies with the same
+# 2-frame idle bob + 2-frame leg-swap walk the pack animals use. The
+# license explicitly invites "making your own sprites in this style".
+CRITTER_OUTLINE = (0x50, 0x40, 0x86, 255)
+CRITTER_PALS = {
+    "pig": {"O": CRITTER_OUTLINE, "P": (0xE8, 0xB5, 0xAC, 255),
+            "L": (0xF3, 0xD8, 0xC5, 255), "D": (0xC5, 0x80, 0x86, 255)},
+    "fox": {"O": CRITTER_OUTLINE, "F": (0xEE, 0xBA, 0x77, 255),
+            "R": (0xBA, 0x7C, 0x54, 255), "W": (0xF3, 0xF2, 0xC0, 255)},
+    "wolf": {"O": CRITTER_OUTLINE, "G": (0x9D, 0xA8, 0x9A, 255),
+             "S": (0x6B, 0x74, 0x70, 255), "W": (0xC1, 0xC8, 0xB9, 255)},
+    "alpaca": {"O": CRITTER_OUTLINE, "W": (0xF3, 0xF2, 0xC0, 255),
+               "T": (0xE8, 0xCF, 0xA6, 255), "D": (0xC4, 0x9A, 0x6C, 255)},
+    "cat": {"O": CRITTER_OUTLINE, "C": (0xEE, 0xBA, 0x77, 255),
+            "W": (0xF3, 0xF2, 0xC0, 255), "D": (0xBA, 0x7C, 0x54, 255)},
+    "shroomling": {"O": CRITTER_OUTLINE, "M": (0xC5, 0x80, 0x86, 255),
+                   "L": (0xF3, 0xD8, 0xC5, 255), "W": (0xF3, 0xF2, 0xC0, 255)},
+}
+CRITTER_GRIDS = {
+    "pig": [
+        "................", "................", "................",
+        "...OO...........",
+        "..OPPO.OOOOOO...",
+        "..OPPPOLLLLLLO..",
+        ".OPPPLLLPPPPPPO.",
+        "ODDPPOPPPPPPPPO.",
+        "ODDPPPPPPPPPPPOO",
+        "OODPPPPPPPPPPPDO",
+        ".OPPPPPPPPPPPOO.",
+        ".ODPPPPPPPPPDO..",
+        "..OPPOOOOPPOO...",
+        "..ODPO..ODPO....",
+        "...OO....OO.....",
+        "................",
+    ],
+    "piglet": [
+        "................", "................", "................",
+        "................", "................", "................",
+        "................", "................",
+        "....OO..........",
+        "...OPPO.OOOO....",
+        "..ODDPPOLLPPO...",
+        "..ODPPPPPPPPO...",
+        "...OPPPPPPPDO...",
+        "...OPOO..OPO....",
+        "....O.....O.....",
+        "................",
+    ],
+    "fox": [
+        "................", "................", "................",
+        ".OO...OO........",
+        ".ORO.ORFO.......",
+        ".OFFOOFFFO......",
+        ".OFFFFFFFFO.....",
+        "OOFOFFFFFFOOOO..",
+        "OWFFFFFFFFOFFWO.",
+        ".OWWFFFFFFOFWWO.",
+        ".OWFFFFFFFFOWO..",
+        "..OFFFFFFFOOO...",
+        "..OFFOOOFFO.....",
+        "..OFRO.OFRO.....",
+        "...OO...OO......",
+        "................",
+    ],
+    "wolf": [
+        "................", "................",
+        ".OO....OO.......",
+        ".OSGO.OGSO......",
+        ".OGGGOOGGGO.....",
+        ".OGGGGGGGGO.....",
+        "OOGGOGGGGGGO....",
+        "OWGGGGGGGGGOO...",
+        "OWWGGGGGGGGGOSO.",
+        ".OWGGGGGGGGGGSO.",
+        "..OGGGGGGGGGOO..",
+        "..OGGGGGGGGO....",
+        "..OGGOOOOGGO....",
+        "..OGSO..OGSO....",
+        "...OO....OO.....",
+        "................",
+    ],
+}
+CRITTER_GRIDS["alpaca"] = [
+    "................",
+    "..OO.O..........",
+    ".OWWOWO.........",
+    ".OWWWWO.........",
+    ".OWOWWO.........",
+    "..OWWWO.........",
+    "..OWWWO.........",
+    "..OWWWWOOOOO....",
+    ".OWWWWWWWWWWWO..",
+    ".OWWWWWWWWWWWWO.",
+    ".ODWWWWWWWWWWDO.",
+    "..OWWWWWWWWWWO..",
+    "..OWTOOOOWTOO...",
+    "..OTTO..OTTO....",
+    "...OO....OO.....",
+    "................",
+]
+CRITTER_GRIDS["shroomling"] = [
+    "................", "................", "................",
+    "................", "................",
+    "...OOOOOO.......",
+    "..OMMMMMMO......",
+    ".OMLMMLMMMO.....",
+    ".OMMMMMMMMO.....",
+    "..OOOOOOOO......",
+    "...OWWWWO.......",
+    "...OWOOWO.......",
+    "...OWWWWO.......",
+    "...OWO.OWO......",
+    "....O...O.......",
+    "................",
+]
+CRITTER_GRIDS["cat"] = [
+    "................", "................", "................",
+    "................", "................",
+    ".OO..OO.........",
+    ".OCOOCO.........",
+    ".OCCCCCO....O...",
+    "OCOCCCCO...OCO..",
+    "OCCCCCCO..OCO...",
+    ".OCCCCCCOOCO....",
+    ".OWCCCCCCCO.....",
+    "..OCCCCCCO......",
+    "..OCOO.OCO......",
+    "..OO...OO.......",
+    "................",
+]
+# Rows that are LEGS (stay planted during the idle bob, swap during the
+# walk). Everything above them is the body.
+CRITTER_LEG_ROWS = {"pig": 12, "piglet": 13, "fox": 12, "wolf": 12,
+                    "alpaca": 12, "cat": 13, "shroomling": 13}
+
+
+def render_critter_grid(grid, pal):
+    img = Image.new("RGBA", (16, 16))
+    px = img.load()
+    for y, row_s in enumerate(grid):
+        for x, ch in enumerate(row_s):
+            if ch != ".":
+                px[x, y] = pal[ch]
+    return img
+
+
+def critter_frames(grid, pal, leg_row):
+    """(idle0, idle1, walk0, walk1): idle bob shifts the body 1px down over
+    planted legs; the walk swaps the leg halves 1px toward each other."""
+    base = render_critter_grid(grid, pal)
+    body = base.crop((0, 0, 16, leg_row))
+    legs = base.crop((0, leg_row, 16, 16))
+    idle0 = base
+    idle1 = Image.new("RGBA", (16, 16))
+    idle1.paste(body, (0, 1))
+    idle1.paste(legs, (0, leg_row), legs)
+    left = legs.crop((0, 0, 8, 16 - leg_row))
+    right = legs.crop((8, 0, 16, 16 - leg_row))
+    walk0 = Image.new("RGBA", (16, 16))
+    walk0.paste(body, (0, 0))
+    walk0.paste(left, (1, leg_row), left)
+    walk0.paste(right, (7, leg_row), right)
+    walk1 = Image.new("RGBA", (16, 16))
+    walk1.paste(body, (0, 0))
+    walk1.paste(left, (0, leg_row + 1), left)
+    walk1.paste(right, (8, leg_row + 1), right)
+    # The grids are authored facing left (easier to read in text), but the
+    # game's wild-animal pass assumes right-facing art and mirrors it when
+    # a critter heads left - so flip everything to match the pack.
+    return tuple(f.transpose(Image.FLIP_LEFT_RIGHT) for f in (idle0, idle1, walk0, walk1))
+
+
 def main():
     GFX_DIR.mkdir(exist_ok=True)
     # Wipe stale slices so renamed/removed sprites don't linger in the atlas.
@@ -820,6 +999,37 @@ def main():
 
     for name, (sheet, x, y, w, h) in SPRITES.items():
         emit(name, load(sheet).crop((x, y, x + w, y + h)))
+
+    # Original critters (CRITTER_GRIDS above): the pig in five colors like
+    # the pack animals, its piglet baby, and the wild fox/wolf pair (red +
+    # arctic fox for the Snowlands, grey + black wolf).
+    def emit_critter(prefix, grid_key, pal_key, recolor=None):
+        i0, i1, w0, w1 = critter_frames(CRITTER_GRIDS[grid_key], CRITTER_PALS[pal_key],
+                                        CRITTER_LEG_ROWS[grid_key])
+        for suffix, img in (("_0", i0), ("_1", i1), ("_w0", w0), ("_w1", w1)):
+            emit(prefix + suffix, recolor(img) if recolor else img)
+
+    PIG_COLORS = [None,
+                  lambda c: hue_shift(c, 25, None, 0.80, 0.88),   # rosy brown
+                  lambda c: darken(c, 0.62),                      # sooty
+                  lambda c: hue_shift(c, -30, None, 0.45, 1.08),  # cream
+                  lambda c: hue_shift(c, 150, None, 0.30, 0.92)]  # lilac-grey
+    for i, rc in enumerate(PIG_COLORS):
+        emit_critter("pig" if i == 0 else f"pig{i}", "pig", "pig", rc)
+        emit_critter(f"piglet{i}", "piglet", "pig", rc)
+    emit_critter("fox", "fox", "fox")
+    emit_critter("fox_snow", "fox", "fox", lambda c: hue_shift(c, 0, None, 0.15, 1.22))
+    emit_critter("wolf", "wolf", "wolf")
+    emit_critter("wolf_black", "wolf", "wolf", lambda c: darken(c, 0.55))
+    emit_critter("alpaca", "alpaca", "alpaca")
+    emit_critter("alpaca1", "alpaca", "alpaca", lambda c: hue_shift(c, 18, None, 0.85, 0.82))
+    emit_critter("shroomling", "shroomling", "shroomling")
+    emit_critter("shroomling1", "shroomling", "shroomling",
+                 lambda c: hue_shift(c, -60, None, 1.1, 0.9))  # dusk-purple cap
+    for i, rc in enumerate([None,
+                            lambda c: hue_shift(c, 0, None, 0.18, 0.95),  # grey tabby
+                            lambda c: darken(c, 0.52)]):                  # black cat
+        emit_critter("cat" if i == 0 else f"cat{i}", "cat", "cat", rc)
 
     # --- Autotile sets --------------------------------------------------------
     # Nearly every Sprout Lands ground tileset shares one "standard blob"

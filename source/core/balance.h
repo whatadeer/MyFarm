@@ -116,8 +116,11 @@ constexpr int kXpTame = 30;
 constexpr int kXpCollect = 6;
 constexpr int32_t kEggIntervalSec = 300;
 constexpr int32_t kMilkIntervalSec = 480;
+constexpr int32_t kTruffleIntervalSec = 360; // pig: snuffled mushrooms
+constexpr int32_t kAlpacaHayIntervalSec = 420; // alpaca: grazed hay
 constexpr int kCoopCapacity = 4;  // chickens per coop
-constexpr int kBarnCapacity = 2;  // cows per barn
+constexpr int kBarnCapacity = 3;  // cows/pigs/alpacas per barn, any mix
+constexpr int kCampCatCapacity = 2; // cats lounging at the Camp
 inline int tameCapacity(int herdingLevel) { return 1 + herdingLevel; } // total animals
 
 // A freshly tamed animal is a baby; it grows up (and starts producing) on
@@ -149,9 +152,32 @@ constexpr AnimalTaste kCowTastes[5] = {
     {kItemOrange, kItemCarrot},
     {kItemPear, kItemCorn},
 };
+constexpr AnimalTaste kPigTastes[5] = {
+    {kItemMushroom, kItemTurnip},
+    {kItemCarrot, kItemRadish},
+    {kItemBerries, kItemPumpkin},
+    {kItemRadish, kItemApple},
+    {kItemTurnip, kItemLettuce},
+};
+constexpr AnimalTaste kAlpacaTastes[2] = {
+    {kItemLettuce, kItemCarrot},
+    {kItemWheat, kItemCauliflower},
+};
+constexpr AnimalTaste kCatTastes[3] = {
+    {kItemFishSmall, kItemShrimp},
+    {kItemFishSmall, kItemClownfish},
+    {kItemShrimp, kItemFishMed},
+};
 // How many of the fancied food a tame consumes.
 constexpr int kTameFoodChicken = 3;
 constexpr int kTameFoodCow = 2;
+constexpr int kTameFoodPig = 2;
+constexpr int kTameFoodAlpaca = 2;
+constexpr int kTameFoodCat = 2;
+// Herding gates per species (chickens are level 1).
+constexpr int kTameCatMinHerding = 3;
+constexpr int kTamePigMinHerding = 6;
+constexpr int kTameAlpacaMinHerding = 18;
 
 // Beehive: produces Honey on its own clock, no animal needed. Collecting
 // grants Foraging XP.

@@ -1273,15 +1273,68 @@ bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
         setStatus("It darts away! (try the Fishing Rod)");
         return false;
     }
+    if (wild.kind == 5) { // fox
+        setStatus("The fox is far too sly for taming!");
+        return false;
+    }
+    if (wild.kind == 6) { // wolf
+        setStatus("The wolf regards you coolly. Best walk on.");
+        return false;
+    }
+    if (wild.kind == 9) { // wild slime
+        setStatus("Squish! It jiggles contentedly.");
+        return false;
+    }
+    if (wild.kind == 10) { // shroomling
+        setStatus("The shroomling toddles off - not the taming kind.");
+        return false;
+    }
 
     const core::ItemStack& sel = selectedStack();
-    bool isChicken = wild.kind == 0;
+    // Per-species tame rules: palate table, food count, Herding gate, and
+    // which building the newcomer moves into.
+    struct TameRules {
+        core::AnimalSpecies species;
+        const core::AnimalTaste* tastes;
+        int need;
+        int minHerding;
+        core::Placed home;
+        int capacity;
+        const char* speciesName;
+        const char* homeName;
+    };
+    TameRules rules;
+    switch (wild.kind) {
+        case 0:
+            rules = {core::AnimalSpecies::Chicken, core::kChickenTastes, core::kTameFoodChicken,
+                     1, core::Placed::Coop, core::kCoopCapacity, "chickens", "Coop"};
+            break;
+        case 4:
+            rules = {core::AnimalSpecies::Pig, core::kPigTastes, core::kTameFoodPig,
+                     core::kTamePigMinHerding, core::Placed::Barn, core::kBarnCapacity, "pigs",
+                     "Barn"};
+            break;
+        case 7:
+            rules = {core::AnimalSpecies::Alpaca, core::kAlpacaTastes, core::kTameFoodAlpaca,
+                     core::kTameAlpacaMinHerding, core::Placed::Barn, core::kBarnCapacity,
+                     "alpacas", "Barn"};
+            break;
+        case 8:
+            rules = {core::AnimalSpecies::Cat, core::kCatTastes, core::kTameFoodCat,
+                     core::kTameCatMinHerding, core::Placed::Camp, core::kCampCatCapacity, "cats",
+                     "Camp"};
+            break;
+        default:
+            rules = {core::AnimalSpecies::Cow, core::kCowTastes, core::kTameFoodCow,
+                     core::kTameCowMinHerding, core::Placed::Barn, core::kBarnCapacity, "cows",
+                     "Barn"};
+            break;
+    }
     // Every color has its own palate: exactly two foods this individual
     // will tame for. A refusal pops the speech bubble with ONE of them,
     // rolled fresh per ask - the animal never shows its whole hand, so
     // asking twice may reveal the other (or repeat itself, coyly).
-    const core::AnimalTaste& taste =
-        isChicken ? core::kChickenTastes[wild.variant] : core::kCowTastes[wild.variant];
+    const core::AnimalTaste& taste = rules.tastes[wild.variant];
     if (sel.item != taste.a && sel.item != taste.b) {
         wild.reqFood = (nextRand() % 2) ? taste.b : taste.a;
         setStatus("It fancies %s!", core::kItemTable[wild.reqFood].name);
@@ -1294,15 +1347,15 @@ bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
         setStatus("Herd full - level up Herding!");
         return false;
     }
-    if (!isChicken && herdingLv < core::kTameCowMinHerding) {
-        setStatus("Need Herding Lv %d for cows", core::kTameCowMinHerding);
+    if (herdingLv < rules.minHerding) {
+        setStatus("Need Herding Lv %d for %s", rules.minHerding, rules.speciesName);
         platform::playSfx(platform::Sfx::Deny);
         return false;
     }
 
-    // Find the nearest coop/barn (within ~16 tiles of the player) with room.
-    core::Placed wanted = isChicken ? core::Placed::Coop : core::Placed::Barn;
-    int capacity = isChicken ? core::kCoopCapacity : core::kBarnCapacity;
+    // Find the nearest home building (within ~16 tiles) with room.
+    core::Placed wanted = rules.home;
+    int capacity = rules.capacity;
     int32_t px = static_cast<int32_t>(std::floor(state_->playerPos.x));
     int32_t py = static_cast<int32_t>(std::floor(state_->playerPos.y));
     int32_t bestX = 0, bestY = 0;
@@ -1324,19 +1377,18 @@ bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
         }
     }
     if (bestDist == INT32_MAX) {
-        setStatus(isChicken ? "Need a Coop nearby" : "Need a Barn nearby");
+        setStatus("Need a %s nearby", rules.homeName);
         return false;
     }
 
     // Consume the offered food (either of its two tastes works).
-    int need = isChicken ? core::kTameFoodChicken : core::kTameFoodCow;
-    if (!state_->inventory.remove(sel.item, need)) {
-        setStatus("Need %d %s", need, core::kItemTable[sel.item].name);
+    if (!state_->inventory.remove(sel.item, rules.need)) {
+        setStatus("Need %d %s", rules.need, core::kItemTable[sel.item].name);
         return false;
     }
 
     core::TamedAnimal tamed;
-    tamed.species = isChicken ? core::AnimalSpecies::Chicken : core::AnimalSpecies::Cow;
+    tamed.species = rules.species;
     tamed.variant = wild.variant;
     tamed.homeX = bestX;
     tamed.homeY = bestY;
@@ -1353,27 +1405,54 @@ bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
 }
 
 void WorldScene::collectProduce(int32_t tx, int32_t ty, core::Placed building, int64_t now) {
-    bool coop = building == core::Placed::Coop;
-    int32_t interval = coop ? core::kEggIntervalSec : core::kMilkIntervalSec;
-    core::ItemId product = coop ? core::kItemEgg : core::kItemMilk;
+    (void)building;
+    // Per-animal produce: barns can mix cows, pigs, and alpacas now, so
+    // the product and clock come from each resident, not the building.
+    auto productOf = [](core::AnimalSpecies s) {
+        switch (s) {
+            case core::AnimalSpecies::Chicken: return core::kItemEgg;
+            case core::AnimalSpecies::Cow: return core::kItemMilk;
+            case core::AnimalSpecies::Pig: return core::kItemMushroom;
+            case core::AnimalSpecies::Alpaca: return core::kItemHay;
+            default: return core::kItemNone; // cats: company only
+        }
+    };
+    auto intervalOf = [](core::AnimalSpecies s) -> int32_t {
+        switch (s) {
+            case core::AnimalSpecies::Chicken: return core::kEggIntervalSec;
+            case core::AnimalSpecies::Cow: return core::kMilkIntervalSec;
+            case core::AnimalSpecies::Pig: return core::kTruffleIntervalSec;
+            default: return core::kAlpacaHayIntervalSec;
+        }
+    };
 
     int collected = 0;
     bool anyBaby = false;
+    core::ItemId lastProduct = core::kItemNone;
+    bool mixed = false;
     for (core::TamedAnimal& a : state_->animals) {
         if (a.homeX != tx || a.homeY != ty) continue;
+        core::ItemId product = productOf(a.species);
+        if (product == core::kItemNone) continue; // cats: purring is free
         if (!core::elapsedAtLeast(a.tamedAt, now, core::kBabyGrowSec)) {
             anyBaby = true; // still growing up - no produce yet
             continue;
         }
-        if (core::elapsedAtLeast(a.lastCollectedAt, now, interval)) {
+        if (core::elapsedAtLeast(a.lastCollectedAt, now, intervalOf(a.species))) {
             if (state_->inventory.add(product, 1) == 0) break; // full
             a.lastCollectedAt = now;
+            if (collected > 0 && product != lastProduct) mixed = true;
+            lastProduct = product;
             collected++;
         }
     }
     if (collected > 0) {
         awardXp(core::Skill::Herding, core::kXpCollect * collected);
-        setStatus("+%d %s", collected, core::kItemTable[product].name);
+        if (mixed) {
+            setStatus("+%d collected!", collected);
+        } else {
+            setStatus("+%d %s", collected, core::kItemTable[lastProduct].name);
+        }
         platform::playSfx(platform::Sfx::Harvest);
         // Happy herd! (premium mood icons, shown over the player's head)
         emoteSprite_ = atlas_ui_happy_idx;
@@ -1382,7 +1461,7 @@ void WorldScene::collectProduce(int32_t tx, int32_t ty, core::Placed building, i
     } else if (anyBaby) {
         setStatus("Still growing up...");
     } else {
-        setStatus(coop ? "No eggs yet" : "No milk yet");
+        setStatus("Nothing to collect yet");
         emoteSprite_ = atlas_ui_sad_idx;
         emoteExtra_ = -1;
         emoteT_ = 70;
@@ -2476,13 +2555,46 @@ void WorldScene::updateWildAnimals(float dt) {
                         }
                     }
                 }
-                uint32_t roll = nextRand() % 10;
-                if (nearWater && roll >= 6) {
+                // The neighborhood register: frogs by ponds, wolves in the
+                // far pines, foxes anywhere far, slimes and shroomlings as
+                // rare oddities, then the barnyard crowd.
+                core::Biome bio = core::biomeAt(state_->worldSeed, sx, sy);
+                bool farOut = static_cast<int64_t>(sx) * sx + static_cast<int64_t>(sy) * sy >
+                              60 * 60;
+                bool piney = bio == core::Biome::Pine || bio == core::Biome::Snow;
+                bool woodsy = bio == core::Biome::Birch || bio == core::Biome::Cherry || piney;
+                uint32_t roll = nextRand() % 100;
+                if (nearWater && roll >= 60) {
                     w.kind = 2; // frog
+                    w.variant = static_cast<uint8_t>(nextRand() % 2);
+                } else if (piney && farOut && roll < 8) {
+                    w.kind = 6; // wolf stalks the pines
+                    w.variant = static_cast<uint8_t>(nextRand() % 2);
+                } else if (farOut && roll < 15) {
+                    w.kind = 5; // fox (arctic coat in the Snowlands)
+                    w.variant = bio == core::Biome::Snow ? 1 : 0;
+                } else if (roll < 19) {
+                    w.kind = 9; // wild slime, escaped the mine
+                    w.variant = 0;
+                } else if (woodsy && roll < 25) {
+                    w.kind = 10; // shroomling on a woodland stroll
+                    w.variant = static_cast<uint8_t>(nextRand() % 2);
+                } else if (roll < 40) {
+                    w.kind = 4; // pig
+                    w.variant = static_cast<uint8_t>(nextRand() % 5);
+                } else if (roll < 48) {
+                    w.kind = 7; // alpaca
+                    w.variant = static_cast<uint8_t>(nextRand() % 2);
+                } else if (roll < 56) {
+                    w.kind = 8; // cat
+                    w.variant = static_cast<uint8_t>(nextRand() % 3);
+                } else if (roll < 72) {
+                    w.kind = 1; // cow
+                    w.variant = static_cast<uint8_t>(nextRand() % 5);
                 } else {
-                    w.kind = (roll < 3) ? 1 : 0; // 30% cow, else chicken
+                    w.kind = 0; // chicken
+                    w.variant = static_cast<uint8_t>(nextRand() % 5);
                 }
-                w.variant = static_cast<uint8_t>(nextRand() % 5);
                 w.x = w.tx = static_cast<float>(sx) + 0.5f;
                 w.y = w.ty = static_cast<float>(sy) + 0.5f;
                 w.moveTimer = 1.0f + static_cast<float>(nextRand() % 20) / 10.0f;
@@ -5306,10 +5418,24 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
             {atlas_calf0_0_idx, atlas_calf0_1_idx}, {atlas_calf1_0_idx, atlas_calf1_1_idx},
             {atlas_calf2_0_idx, atlas_calf2_1_idx}, {atlas_calf3_0_idx, atlas_calf3_1_idx},
             {atlas_calf4_0_idx, atlas_calf4_1_idx}};
+        static const int kPigIdle[5][2] = {
+            {atlas_pig_0_idx, atlas_pig_1_idx}, {atlas_pig1_0_idx, atlas_pig1_1_idx},
+            {atlas_pig2_0_idx, atlas_pig2_1_idx}, {atlas_pig3_0_idx, atlas_pig3_1_idx},
+            {atlas_pig4_0_idx, atlas_pig4_1_idx}};
+        static const int kPigBaby[5][2] = {
+            {atlas_piglet0_0_idx, atlas_piglet0_1_idx}, {atlas_piglet1_0_idx, atlas_piglet1_1_idx},
+            {atlas_piglet2_0_idx, atlas_piglet2_1_idx}, {atlas_piglet3_0_idx, atlas_piglet3_1_idx},
+            {atlas_piglet4_0_idx, atlas_piglet4_1_idx}};
+        static const int kAlpacaIdle[2][2] = {{atlas_alpaca_0_idx, atlas_alpaca_1_idx},
+                                              {atlas_alpaca1_0_idx, atlas_alpaca1_1_idx}};
+        static const int kCatIdle[3][2] = {{atlas_cat_0_idx, atlas_cat_1_idx},
+                                           {atlas_cat1_0_idx, atlas_cat1_1_idx},
+                                           {atlas_cat2_0_idx, atlas_cat2_1_idx}};
 
         float cx = (wx - camX) * kScreenTilePx + kTopScreenW / 2.0f;
         float feetY = (wy - camY) * kScreenTilePx + kTopScreenH / 2.0f;
         bool chicken = a.species == core::AnimalSpecies::Chicken;
+        bool cow = a.species == core::AnimalSpecies::Cow;
         bool grown = core::elapsedAtLeast(a.tamedAt, now, core::kBabyGrowSec);
         int v = a.variant % 5;
         int frame = (animFrame_ / 24) % 2;
@@ -5323,16 +5449,36 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
                 int sprite = egg ? ((animFrame_ / 20) % 2 ? atlas_egg_1_idx : atlas_egg_0_idx)
                                  : set[frame];
                 items[count++] = {wy, cx - 16.0f, feetY - 32.0f, sprite, 0.65f, !egg && faceL};
+            } else if (a.species == core::AnimalSpecies::Pig) {
+                const int* set = grown ? kPigIdle[v] : kPigBaby[v];
+                items[count++] = {wy, cx - 16.0f, feetY - 32.0f, set[frame], 0.65f, faceL};
+            } else if (a.species == core::AnimalSpecies::Alpaca) {
+                // No dedicated cria art - the fluff arrives fully fluffed.
+                items[count++] = {wy, cx - 16.0f, feetY - 32.0f, kAlpacaIdle[a.variant % 2][frame],
+                                  0.65f, faceL};
+            } else if (a.species == core::AnimalSpecies::Cat) {
+                items[count++] = {wy, cx - 16.0f, feetY - 32.0f, kCatIdle[a.variant % 3][frame],
+                                  0.65f, faceL};
             } else {
                 const int* set = grown ? kCowIdle[v] : kCowBaby[v];
                 items[count++] = {wy, cx - 32.0f, feetY - 64.0f, set[frame], 0.65f, faceL};
             }
-            int32_t interval = chicken ? core::kEggIntervalSec : core::kMilkIntervalSec;
-            if (grown && core::elapsedAtLeast(a.lastCollectedAt, now, interval)) {
-                float bob = std::sin(static_cast<float>(animFrame_) / 12.0f) * 2.0f;
-                items[count++] = {wy + 0.01f, cx - 16.0f,
-                                  feetY - (chicken ? 64.0f : 96.0f) + bob,
-                                  chicken ? atlas_item_egg_idx : atlas_item_milk_idx, 0.9f};
+            // Produce-ready icon per species (cats produce only company).
+            if (a.species != core::AnimalSpecies::Cat) {
+                int32_t interval = chicken ? core::kEggIntervalSec
+                                   : cow   ? core::kMilkIntervalSec
+                                   : a.species == core::AnimalSpecies::Pig
+                                       ? core::kTruffleIntervalSec
+                                       : core::kAlpacaHayIntervalSec;
+                int icon = chicken ? atlas_item_egg_idx
+                           : cow   ? atlas_item_milk_idx
+                           : a.species == core::AnimalSpecies::Pig ? atlas_prop_mushroom_idx
+                                                                   : atlas_item_hay_idx;
+                if (grown && core::elapsedAtLeast(a.lastCollectedAt, now, interval)) {
+                    float bob = std::sin(static_cast<float>(animFrame_) / 12.0f) * 2.0f;
+                    items[count++] = {wy + 0.01f, cx - 16.0f, feetY - (cow ? 96.0f : 64.0f) + bob,
+                                      icon, 0.9f};
+                }
             }
         }
     }
@@ -5361,6 +5507,33 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
             {atlas_cow2_0_idx, atlas_cow2_1_idx, atlas_cow2_w0_idx, atlas_cow2_w1_idx},
             {atlas_cow3_0_idx, atlas_cow3_1_idx, atlas_cow3_w0_idx, atlas_cow3_w1_idx},
             {atlas_cow4_0_idx, atlas_cow4_1_idx, atlas_cow4_w0_idx, atlas_cow4_w1_idx}};
+        // The authored critters (prep_assets emits idle0/idle1/walk0/walk1).
+        static const int kPigWild[5][4] = {
+            {atlas_pig_0_idx, atlas_pig_1_idx, atlas_pig_w0_idx, atlas_pig_w1_idx},
+            {atlas_pig1_0_idx, atlas_pig1_1_idx, atlas_pig1_w0_idx, atlas_pig1_w1_idx},
+            {atlas_pig2_0_idx, atlas_pig2_1_idx, atlas_pig2_w0_idx, atlas_pig2_w1_idx},
+            {atlas_pig3_0_idx, atlas_pig3_1_idx, atlas_pig3_w0_idx, atlas_pig3_w1_idx},
+            {atlas_pig4_0_idx, atlas_pig4_1_idx, atlas_pig4_w0_idx, atlas_pig4_w1_idx}};
+        static const int kFoxWild[2][4] = {
+            {atlas_fox_0_idx, atlas_fox_1_idx, atlas_fox_w0_idx, atlas_fox_w1_idx},
+            {atlas_fox_snow_0_idx, atlas_fox_snow_1_idx, atlas_fox_snow_w0_idx,
+             atlas_fox_snow_w1_idx}};
+        static const int kWolfWild[2][4] = {
+            {atlas_wolf_0_idx, atlas_wolf_1_idx, atlas_wolf_w0_idx, atlas_wolf_w1_idx},
+            {atlas_wolf_black_0_idx, atlas_wolf_black_1_idx, atlas_wolf_black_w0_idx,
+             atlas_wolf_black_w1_idx}};
+        static const int kAlpacaWild[2][4] = {
+            {atlas_alpaca_0_idx, atlas_alpaca_1_idx, atlas_alpaca_w0_idx, atlas_alpaca_w1_idx},
+            {atlas_alpaca1_0_idx, atlas_alpaca1_1_idx, atlas_alpaca1_w0_idx, atlas_alpaca1_w1_idx}};
+        static const int kCatWild[3][4] = {
+            {atlas_cat_0_idx, atlas_cat_1_idx, atlas_cat_w0_idx, atlas_cat_w1_idx},
+            {atlas_cat1_0_idx, atlas_cat1_1_idx, atlas_cat1_w0_idx, atlas_cat1_w1_idx},
+            {atlas_cat2_0_idx, atlas_cat2_1_idx, atlas_cat2_w0_idx, atlas_cat2_w1_idx}};
+        static const int kShroomWild[2][4] = {
+            {atlas_shroomling_0_idx, atlas_shroomling_1_idx, atlas_shroomling_w0_idx,
+             atlas_shroomling_w1_idx},
+            {atlas_shroomling1_0_idx, atlas_shroomling1_1_idx, atlas_shroomling1_w0_idx,
+             atlas_shroomling1_w1_idx}};
 
         for (const WildAnimal& w : wild_) {
             if (w.x < tileMinX || w.x > tileMaxX + 1 || w.y < tileMinY || w.y > tileMaxY + 1) continue;
@@ -5387,6 +5560,38 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
             } else if (w.kind == 0) {
                 int sprite = movingNow ? kChickWild[v][2 + fastFrame] : kChickWild[v][slowFrame];
                 items[count++] = {w.y, cx - 16.0f, feetY - 32.0f, sprite, 0.65f, w.faceLeft};
+            } else if (w.kind == 4) { // pig
+                int sprite = movingNow ? kPigWild[v][2 + fastFrame] : kPigWild[v][slowFrame];
+                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f, sprite, 0.65f, w.faceLeft};
+            } else if (w.kind == 5) { // fox
+                const int* set = kFoxWild[w.variant % 2];
+                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f,
+                                  movingNow ? set[2 + fastFrame] : set[slowFrame], 0.65f,
+                                  w.faceLeft};
+            } else if (w.kind == 6) { // wolf
+                const int* set = kWolfWild[w.variant % 2];
+                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f,
+                                  movingNow ? set[2 + fastFrame] : set[slowFrame], 0.65f,
+                                  w.faceLeft};
+            } else if (w.kind == 7) { // alpaca
+                const int* set = kAlpacaWild[w.variant % 2];
+                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f,
+                                  movingNow ? set[2 + fastFrame] : set[slowFrame], 0.65f,
+                                  w.faceLeft};
+            } else if (w.kind == 8) { // cat
+                const int* set = kCatWild[w.variant % 3];
+                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f,
+                                  movingNow ? set[2 + fastFrame] : set[slowFrame], 0.65f,
+                                  w.faceLeft};
+            } else if (w.kind == 9) { // wild slime, hopping free
+                int sprite = movingNow ? (fastFrame ? atlas_slime_2_idx : atlas_slime_1_idx)
+                                       : atlas_slime_0_idx;
+                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f, sprite, 0.65f, w.faceLeft};
+            } else if (w.kind == 10) { // shroomling out for a stroll
+                const int* set = kShroomWild[w.variant % 2];
+                items[count++] = {w.y, cx - 16.0f, feetY - 32.0f,
+                                  movingNow ? set[2 + fastFrame] : set[slowFrame], 0.65f,
+                                  w.faceLeft};
             } else {
                 int sprite = movingNow ? kCowWild[v][2 + fastFrame] : kCowWild[v][slowFrame];
                 items[count++] = {w.y, cx - 32.0f, feetY - 64.0f, sprite, 0.65f, w.faceLeft};
@@ -5396,19 +5601,22 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
             // this ask (each color fancies two foods - see kChickenTastes/
             // kCowTastes - but only ever shows one at a time). The tail
             // tip rests just above the head; bobs with the produce icons.
-            if (w.reqT > 0 && w.kind <= 1 && count < 278) {
+            bool tameable = w.kind <= 1 || w.kind == 4 || w.kind == 7 || w.kind == 8;
+            if (w.reqT > 0 && tameable && count < 278) {
                 float bob = std::sin(static_cast<float>(animFrame_) / 12.0f) * 2.0f;
-                float headTop = feetY - (w.kind == 0 ? 32.0f : 64.0f);
+                float headTop = feetY - (w.kind == 1 ? 64.0f : 32.0f);
                 if (w.reqT > kReqBubbleFrames - kReqBubblePopFrames) {
                     items[count++] = {w.y + 0.01f, cx - 18.0f, headTop - 46.0f + bob,
                                       atlas_req_bubble_0_idx, 0.9f};
                 } else {
                     items[count++] = {w.y + 0.01f, cx - 31.0f, headTop - 66.0f + bob,
                                       atlas_req_bubble_1_idx, 0.9f};
-                    core::ItemId shown =
-                        w.reqFood != core::kItemNone
-                            ? w.reqFood
-                            : (w.kind == 0 ? core::kChickenTastes[v].a : core::kCowTastes[v].a);
+                    core::ItemId fallback = core::kCowTastes[v].a;
+                    if (w.kind == 0) fallback = core::kChickenTastes[v].a;
+                    if (w.kind == 4) fallback = core::kPigTastes[v].a;
+                    if (w.kind == 7) fallback = core::kAlpacaTastes[w.variant % 2].a;
+                    if (w.kind == 8) fallback = core::kCatTastes[w.variant % 3].a;
+                    core::ItemId shown = w.reqFood != core::kItemNone ? w.reqFood : fallback;
                     items[count++] = {w.y + 0.011f, cx - 16.0f, headTop - 56.0f + bob,
                                       spriteForItem(shown), 0.92f};
                 }

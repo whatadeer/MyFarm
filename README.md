@@ -5,9 +5,11 @@ open, procedurally generated world with **just five tools**, and everything
 else is earned from the world itself: forage bushes for seeds and berries,
 chop trees for wood and saplings, hammer rocks for stone and ore, dig holes
 and pour water to sculpt ponds, build fences/paths/bridges/chests and a
-camp (your teleport home), tame wild chickens and cows (five colors each,
-tamed as babies that grow up - each color has its own two favorite
-foods), go fishing, keep bees, and level ten
+camp (your teleport home), tame wild chickens, cows, pigs, and alpacas
+(multiple colors each, tamed as babies that grow up - every color has
+its own two favorite foods), win over a cat with fresh fish (it moves in
+at your Camp), spot foxes, wolves, wild slimes, and strolling shroomlings
+out in the far country, go fishing, keep bees, and level ten
 RuneScape-style skills (Farming, Logging, Mining, Foraging, Mycology,
 Herding, Fishing, Building, Athletics, Swimming - capped at level 100,
 each level slower than the last) to unlock

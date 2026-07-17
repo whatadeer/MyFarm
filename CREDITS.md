@@ -21,6 +21,12 @@
     licenses permit modifying the assets.
   - Credit line, as requested by the author: *Assets - From: Sprout Lands
     - By: Cup Nooble*.
+  - The pig, piglet, fox, wolf, alpaca, cat, and shroomling sprites are
+    ORIGINAL pixel art authored for this project in the Sprout Lands
+    style (the packs ship only chickens and cows) - drawn in-code by
+    `tools/prep_assets.py` using palettes sampled from Cup Nooble's own
+    sprites. The pack license explicitly welcomes "making your own
+    sprites in this style"; these are ours, offered in homage.
 - Button-prompt glyphs (the A/B/X/Y/L/R icons in the HUD): from the
   **Controllers & Keyboard** pack by **Vryell**
   ([vryell.itch.io](https://vryell.itch.io/)) - purchased pack; the source

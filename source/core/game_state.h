@@ -25,7 +25,13 @@ struct HomeAnchor {
     int32_t y = 0;
 };
 
-enum class AnimalSpecies : uint8_t { Chicken = 0, Cow = 1 };
+enum class AnimalSpecies : uint8_t {
+    Chicken = 0,
+    Cow = 1,
+    Pig = 2,    // barn-dweller; snuffles up truffle mushrooms
+    Alpaca = 3, // barn-dweller; grazes hay right into your hands
+    Cat = 4,    // moves in at the Camp; produces nothing but company
+};
 
 // A tamed animal lives at the Coop/Barn tile it was assigned to when tamed
 // and produces on a real-time clock (egg/milk) - collect by pressing A on
