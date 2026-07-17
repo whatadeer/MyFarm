@@ -4214,6 +4214,9 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
         atlas_at_path_4_idx,  atlas_at_path_5_idx,  atlas_at_path_6_idx,  atlas_at_path_7_idx,
         atlas_at_path_8_idx,  atlas_at_path_9_idx,  atlas_at_path_10_idx, atlas_at_path_11_idx,
         atlas_at_path_12_idx, atlas_at_path_13_idx, atlas_at_path_14_idx, atlas_at_path_15_idx};
+    // Raw dirt speckled flats, mixed in by visHash like the grass flats.
+    static const int kDirtVariants[4] = {atlas_dirt_v1_idx, atlas_dirt_v2_idx, atlas_dirt_v3_idx,
+                                         atlas_dirt_v4_idx};
     static const int kAtPStone[16] = {
         atlas_at_pstone_0_idx,  atlas_at_pstone_1_idx,  atlas_at_pstone_2_idx,
         atlas_at_pstone_3_idx,  atlas_at_pstone_4_idx,  atlas_at_pstone_5_idx,
@@ -4344,9 +4347,18 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
                                                      : kWaterFrames[(animFrame_ / 16) % 4],
                                             sx, sy, 0.0f, eye, kSpriteScale);
                         break;
-                    case core::Terrain::Dirt:
-                        renderer.drawSprite(atlas_tile_dirt_idx, sx, sy, 0.0f, eye, kSpriteScale);
+                    case core::Terrain::Dirt: {
+                        // Bare soil (filled holes, un-tilled beds, dug-up
+                        // paths) draws flat - its rounded edges live on the
+                        // NEIGHBORING grass tiles via the dirt-skirt pass
+                        // below, because the basic pack authors its dirt
+                        // blob as bleed-over skirts, not in-tile edges.
+                        int dv = static_cast<int>(visHash(tx, ty) % 100);
+                        renderer.drawSprite(dv < 72 ? atlas_tile_dirt_idx
+                                                    : kDirtVariants[(dv - 72) % 4],
+                                            sx, sy, 0.0f, eye, kSpriteScale);
                         break;
+                    }
                     case core::Terrain::Hole:
                         renderer.drawSprite(atlas_tile_hole_idx, sx, sy, 0.0f, eye, kSpriteScale);
                         break;
@@ -4472,6 +4484,34 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
                         }
                         break;
                     }
+                }
+
+                // Second ground layer: raw-dirt skirts. The basic pack
+                // authors its dirt blob as overlays - the patch's rounded
+                // lip bleeds ONTO the surrounding turf tiles instead of
+                // living inside the dirt tile's own bounds - so grass
+                // bordering dirt composites the matching skirt pieces over
+                // its turf. Cardinal skirts span the whole shared edge;
+                // diagonal nubs only fill corners no cardinal skirt
+                // already covers.
+                if (tile.terrain == core::Terrain::Grass) {
+                    auto dirtAt = [&](int32_t x, int32_t y) {
+                        return state_->world.tileAt(x, y).terrain == core::Terrain::Dirt;
+                    };
+                    bool dN = dirtAt(tx, ty - 1), dE = dirtAt(tx + 1, ty);
+                    bool dS = dirtAt(tx, ty + 1), dW = dirtAt(tx - 1, ty);
+                    if (dN) renderer.drawSprite(atlas_dirt_skirt_n_idx, sx, sy, 0.015f, eye, kSpriteScale);
+                    if (dE) renderer.drawSprite(atlas_dirt_skirt_e_idx, sx, sy, 0.015f, eye, kSpriteScale);
+                    if (dS) renderer.drawSprite(atlas_dirt_skirt_s_idx, sx, sy, 0.015f, eye, kSpriteScale);
+                    if (dW) renderer.drawSprite(atlas_dirt_skirt_w_idx, sx, sy, 0.015f, eye, kSpriteScale);
+                    if (!dN && !dE && dirtAt(tx + 1, ty - 1))
+                        renderer.drawSprite(atlas_dirt_nub_ne_idx, sx, sy, 0.015f, eye, kSpriteScale);
+                    if (!dN && !dW && dirtAt(tx - 1, ty - 1))
+                        renderer.drawSprite(atlas_dirt_nub_nw_idx, sx, sy, 0.015f, eye, kSpriteScale);
+                    if (!dS && !dE && dirtAt(tx + 1, ty + 1))
+                        renderer.drawSprite(atlas_dirt_nub_se_idx, sx, sy, 0.015f, eye, kSpriteScale);
+                    if (!dS && !dW && dirtAt(tx - 1, ty + 1))
+                        renderer.drawSprite(atlas_dirt_nub_sw_idx, sx, sy, 0.015f, eye, kSpriteScale);
                 }
             }
 

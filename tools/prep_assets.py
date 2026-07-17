@@ -859,6 +859,34 @@ def main():
             emit(f"{prefix}_n{nm}", recolor(t) if recolor else t)
 
     emit_autotile("at_grass", load(BASIC / "Tilesets/Grass.png"))
+    # Raw dirt (filled holes, un-tilled beds, dug-up paths). The basic
+    # pack's "Tilled Dirt.png" authors its dirt blob as OVERLAYS: only
+    # the blob's center cell (2,4) is a full dirt tile - the 8 cells
+    # around it are bleed skirts meant to be composited onto the
+    # NEIGHBORING grass tiles (a 5-6px rounded dirt lip hanging over the
+    # shared edge; every cell's alpha bbox confirms it). So the game
+    # draws dirt tiles flat (tile_dirt plus the speckled variants below)
+    # and grass tiles bordering dirt add the matching skirt pieces - see
+    # the dirt-skirt pass in world_scene.cpp. Pieces are named for WHERE
+    # THE DIRT NEIGHBOR IS relative to the grass tile that draws them.
+    dirt_sheet = load(BASIC / "Tilesets/Tilled Dirt.png")
+    DIRT_PIECES = {
+        "dirt_skirt_n": (2, 5),  # dirt north of me: lip along my top edge
+        "dirt_skirt_s": (2, 3),  # dirt south: lip along my bottom edge
+        "dirt_skirt_e": (1, 4),  # dirt east: lip along my right edge
+        "dirt_skirt_w": (3, 4),  # dirt west: lip along my left edge
+        "dirt_nub_ne": (1, 5),   # diagonal-only bleed: one rounded nub
+        "dirt_nub_nw": (3, 5),
+        "dirt_nub_se": (1, 3),
+        "dirt_nub_sw": (3, 3),
+        # Speckled flat variants, mixed in by visHash like the grass flats.
+        "dirt_v1": (1, 0),
+        "dirt_v2": (2, 0),
+        "dirt_v3": (1, 1),
+        "dirt_v4": (2, 1),
+    }
+    for name, (c, r) in DIRT_PIECES.items():
+        emit(name, dirt_sheet.crop((c * 16, r * 16, c * 16 + 16, r * 16 + 16)))
     emit_autotile("at_path", load(SOIL))
     # Stone path gets a desaturated grey take on the same blob so the path
     # family reads distinctly: dirt (brown), stone (grey + stone scatter),
