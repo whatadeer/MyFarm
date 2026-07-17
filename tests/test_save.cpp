@@ -79,11 +79,12 @@ static void test_round_trip_preserves_everything() {
     CHECK(loaded.skillXp[static_cast<int>(Skill::Herding)] == 42);
     CHECK(loaded.clockOffset == 123456);
 
-    // Axe-only starter kit from newGame() should have round-tripped too
-    // (every other tool is crafted at the Workbench now).
-    CHECK(loaded.inventory.countOf(kItemAxe) == 1);
-    CHECK(loaded.inventory.countOf(kItemHoe) == 0);
-    CHECK(loaded.inventory.countOf(kItemHammer) == 0);
+    // Axe-only starter kit from newGame() should have round-tripped too -
+    // into the v11 tool belt, not the general grid (every other tool is
+    // crafted at the Workbench now).
+    CHECK(loaded.toolBelt.countOf(kItemAxe) == 1);
+    CHECK(loaded.toolBelt.countOf(kItemHoe) == 0);
+    CHECK(loaded.toolBelt.countOf(kItemHammer) == 0);
     CHECK(loaded.inventory.countOf(kItemWheatSeed) == 0); // no free seeds either
 
     CHECK(loaded.animals.size() == 1);
