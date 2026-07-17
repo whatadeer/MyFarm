@@ -1,0 +1,23 @@
+function wbRoleForCell(x, y, cell) {
+  if (!WALKBEHIND) return cell.role;
+  if (cell.isCap || (cell.em & 4)) return cell.role;
+  // Round a side contact into a corner only where it's ISOLATED (1 tall) — a
+  // real corner. A straight vertical wall (a run of side contacts) keeps its
+  // edge tile (w2/w8/w10). Confirmed on the 1-cell pits; fixes room walls.
+  const e = (cell.em & 2) && !isOpen(x + 1, y - 1) && !isOpen(x + 1, y + 1);
+  const w = (cell.em & 8) && !isOpen(x - 1, y - 1) && !isOpen(x - 1, y + 1);
+  if (e && w) return "kn2";
+  if (e) return "kne";
+  if (w) return "knw";
+  if (cell.em & (2 | 8)) return cell.role; // straight side edge, kept
+  return "w0"; // fully enclosed / diagonal-only contact → core
+}
+// The rim tile a top-rim wall casts up onto the floor cell (x,y) to its north.
+function wbOverlayRole(x, y) {
+  if (!WALKBEHIND) return null;
+  const sy = y + 1;
+  if (!isWallCell(cellAt(x, sy))) return null;
+  const sc = computeWallCell(x, sy);
+  if ((sc.em & 1) && !(sc.em & 4) && !sc.isCap) return sc.role;
+  return null;
+}

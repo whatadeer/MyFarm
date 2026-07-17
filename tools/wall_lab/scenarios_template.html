@@ -1,0 +1,1641 @@
+<title>MyFarm Wall Scenario Verifier</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --void: #1a1420; --panel: #241b2e; --panel-2: #2c2138; --line: #3d2f4d;
+    --ink: #f0e5d2; --muted: #a08fae; --gold: #f2b23e; --gold-dim: #8a6a2e;
+    --sage: #b7c4b0; --bad: #e2637a; --good: #7ec98f;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --sans: system-ui, "Segoe UI", sans-serif;
+  }
+  html { background: var(--void); }
+  body { font-family: var(--sans); color: var(--ink); margin: 0; padding: 16px; font-size: 14px; line-height: 1.45; overflow-x: hidden; }
+  * { box-sizing: border-box; }
+  h1 { font-family: var(--mono); font-size: 18px; letter-spacing: .06em; margin: 0; color: var(--gold); }
+  .sub { color: var(--muted); margin: 4px 0 14px; max-width: 78ch; }
+  .sub b { color: var(--ink); }
+  .lab { display: grid; grid-template-columns: minmax(0,1fr) minmax(420px, 46vw); gap: 14px; align-items: start; }
+  @media (max-width: 1000px) { .lab { grid-template-columns: 1fr; } }
+  .editorwrap { display: flex; flex-direction: column; max-height: 96vh; overflow: auto; padding: 10px; }
+  .editortitle { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .editorhead { font-family: var(--mono); font-size: 11.5px; color: var(--sage); margin-bottom: 8px; }
+  .editorhead b { color: var(--ink); }
+  .reviewbox { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .reviewbox summary { cursor: pointer; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .scn.active { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold) inset; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+  .card h2 { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 10px; }
+  .bar label { display: inline-flex; gap: 5px; align-items: center; color: var(--muted); cursor: pointer; user-select: none; }
+  .bar input[type=checkbox], .bar input[type=radio] { accent-color: var(--gold); }
+  button, select { font-family: var(--mono); font-size: 12px; background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 5px 10px; cursor: pointer; }
+  button:hover { border-color: var(--gold-dim); }
+  button.primary { background: var(--gold); color: #241b0a; border-color: var(--gold); font-weight: 600; }
+  canvas { display: block; image-rendering: pixelated; }
+  .sticky { position: sticky; top: 12px; }
+  .toptabs { display: flex; gap: 6px; margin: 10px 0 12px; }
+  .toptabs button { font-size: 13px; padding: 7px 18px; }
+  .toptabs button.on { background: var(--gold); color: #241b0a; border-color: var(--gold); font-weight: 600; }
+  .groupHead { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); border-bottom: 1px solid var(--line); padding: 14px 0 4px; margin: 6px 0 10px; }
+  .groupDesc { color: var(--muted); font-size: 12.5px; margin: -6px 0 10px; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .scn .cv { align-self: start; }
+  .scn { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 9px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .scn.flagged { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad) inset; }
+  .scn.approved { border-color: var(--good); box-shadow: 0 0 0 1px var(--good) inset; }
+  /* done = "finished with", and rides ON TOP of a verdict rather than replacing
+     it: the fade says checked-off, the border keeps saying wrong vs approved.
+     Only an unjudged card takes the gold border. */
+  .scn.done { opacity: 0.82; }
+  .scn.done:not(.flagged):not(.approved) { border-color: var(--gold-dim); }
+  .scn.done:hover { opacity: 1; }
+  .chk { flex: 0 0 auto; font-size: 11px; padding: 4px 8px; }
+  .chk.on { background: var(--gold-dim); color: var(--ink); border-color: var(--gold); }
+  .scn .title { font-size: 12.5px; font-weight: 600; }
+  .scn .desc { font-size: 11.5px; color: var(--muted); }
+  .scn .roles { font-family: var(--mono); font-size: 10.5px; color: var(--sage); white-space: pre-wrap; }
+  .scn .cv { background: var(--void); border: 1px solid var(--line); border-radius: 4px; align-self: center; max-width: 100%; height: auto; cursor: pointer; }
+  .tilechips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .tilechips .chip { padding: 2px 7px; font-size: 10.5px; }
+  .tilechips .chip.on { background: var(--bad); color: #2a0f16; border-color: var(--bad); }
+  .clr { align-self: flex-start; font-size: 10.5px; padding: 3px 8px; color: var(--muted); }
+  .scn .foot { display: flex; gap: 6px; align-items: center; }
+  .scn .mark { flex: 1; font-size: 11px; padding: 4px 6px; }
+  .scn.flagged .mark { background: var(--bad); color: #2a0f16; border-color: var(--bad); font-weight: 600; }
+  .scn.approved .ok { background: var(--good); color: #0f2a16; border-color: var(--good); font-weight: 600; }
+  .fix { display: none; flex-direction: column; gap: 6px; border-top: 1px dashed var(--line); padding-top: 7px; margin-top: 2px; }
+  .fix.open { display: flex; }
+  .layerblock { border: 1px solid var(--line); border-radius: 5px; padding: 7px; display: flex; flex-direction: column; gap: 6px; }
+  .layerblock.active { border-color: var(--gold-dim); background: rgba(242,178,62,0.05); }
+  .lhead { font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: pointer; }
+  .lhead b { color: var(--ink); }
+  .slots { display: flex; gap: 6px; flex-wrap: wrap; }
+  .phint { font-size: 11.5px; color: var(--muted); margin: 2px 0 0; }
+  .phint b { color: var(--gold); text-transform: capitalize; }
+  .pscroll { max-height: 50vh; }
+  .quickentry { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-family: var(--mono); font-size: 11px; color: var(--muted); margin: 2px 0 5px; }
+  .quickentry input { width: 54px; font-family: var(--mono); font-size: 11px; background: var(--void); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 3px 5px; }
+  .quickentry select { padding: 3px 6px; font-size: 11px; }
+  .quickentry input:focus { outline: 1px solid var(--gold); }
+  .ltools { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .ltools button { padding: 2px 7px; font-size: 11px; min-width: 24px; }
+  .ltools .conv { color: var(--gold); border-color: var(--gold-dim); }
+  .slot { flex: 1 1 200px; display: grid; grid-template-columns: 46px 1fr; gap: 7px; align-items: center; border: 1px solid var(--line); border-radius: 4px; padding: 5px; cursor: pointer; }
+  .slot.active { border-color: var(--gold); background: var(--panel-2); }
+  .slot .lab2 { font-family: var(--mono); font-size: 10.5px; }
+  .slot .lab2 .k { color: var(--gold); }
+  .slot .lab2 .cur { color: var(--muted); }
+  .slot .lab2 .cor { color: var(--good); }
+  .slot canvas { width: 40px; height: 40px; background: var(--void); border: 1px solid var(--line); border-radius: 3px; }
+  /* Sits between the two kit slots; never grows, so the slots keep the space. */
+  .syncbtn { flex: 0 0 auto; align-self: center; font-size: 11px; padding: 5px 7px; white-space: nowrap; font-family: var(--mono); }
+  .syncbtn:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+  .syncbtn:not(:disabled):hover { background: var(--gold); color: #241b0a; }
+  .syncbtn:disabled { opacity: 0.35; cursor: default; }
+  .fix textarea { width: 100%; box-sizing: border-box; height: 42px; font-family: var(--mono); font-size: 11px; background: var(--void); color: var(--sage); border: 1px solid var(--line); border-radius: 4px; padding: 6px; resize: vertical; }
+  .sheettabs { display: flex; gap: 4px; margin: 8px 0 6px; flex-wrap: wrap; }
+  .sheettabs button { padding: 3px 8px; font-size: 11px; }
+  .sheettabs button.on { background: var(--gold-dim); border-color: var(--gold); color: var(--ink); }
+  .scroller { overflow: auto; border: 1px solid var(--line); border-radius: 4px; background: var(--void); max-width: 100%; }
+  #paletteWrap { max-height: 320px; }
+  .target { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 2px 0 6px; min-height: 1.3em; }
+  .target b { color: var(--gold); }
+  textarea#exp { width: 100%; box-sizing: border-box; height: 150px; font-family: var(--mono); font-size: 10.5px; background: var(--void); color: var(--sage); border: 1px solid var(--line); border-radius: 4px; padding: 8px; resize: vertical; }
+  .flash { color: var(--gold); font-family: var(--mono); font-size: 12px; margin-left: 8px; }
+  .count { font-family: var(--mono); color: var(--bad); }
+  .hint { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+  .paintbar span { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: .1em; }
+</style>
+
+<h1>MYFARM DUNGEON WALL LAB</h1>
+<div class="toptabs">
+  <button id="tabScn" class="on">Scenarios</button>
+  <button id="tabDun">Dungeon</button>
+  <button id="tabHedge">Hedge</button>
+</div>
+
+<div id="panelDun" hidden>
+  <p class="sub">The full dungeon at real scale, rendered with the <b>same engine + rule</b> as the Scenarios tab — rooms, corridors, a door, a rail spur, in both kits. This is where the rule gets stress-tested against geometry the 5×5 cards can't show. The LAYERS / walk-behind / <span style="color:#6cb8ff;font-family:var(--mono)">#</span> toggles below apply here too.</p>
+  <div class="bar">
+    <button id="dunReroll">↻ Reroll</button>
+    <select id="dunSize" aria-label="Dungeon size">
+      <option value="small" selected>Small · 1 room</option>
+      <option value="medium">Medium · 3 rooms</option>
+      <option value="large">Large · 5 rooms</option>
+      <option value="huge">Huge · 8 rooms</option>
+    </select>
+    <select id="dunZoom" aria-label="Zoom"><option value="2">2×</option><option value="3" selected>3×</option><option value="4">4×</option></select>
+    <span style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em">PAINT:</span>
+    <label><input type="radio" name="dpb" value="" checked> off</label>
+    <label><input type="radio" name="dpb" value="."> floor</label>
+    <label><input type="radio" name="dpb" value="#"> wall</label>
+  </div>
+  <div class="scroller" style="max-height:82vh"><canvas id="dungeon"></canvas></div>
+  <p class="hint" id="dunInfo" style="font-family:var(--mono);color:var(--sage)"></p>
+</div>
+
+<div id="panelHedge" hidden>
+  <p class="sub">The overworld hedge maze — a standard 16-mask blob autotile with real inner-corner notches at crossings. Separate system from the dungeon walls; included here so this one page replaces the old lab.</p>
+  <div class="bar">
+    <span style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em">PAINT:</span>
+    <label><input type="radio" name="hbr" value="" checked> off</label>
+    <label><input type="radio" name="hbr" value="."> grass</label>
+    <label><input type="radio" name="hbr" value="H"> hedge</label>
+  </div>
+  <div class="scroller" style="display:inline-block"><canvas id="hedge"></canvas></div>
+</div>
+
+<div id="panelScn">
+<p class="sub">Every distinct wall/floor situation the autotiler produces, laid out deterministically and rendered with the <b>exact rules the game uses</b>, in <b>both kits</b>. When a whole scenario looks right, hit <b>✓ Looks right</b> to lock it in. To fix something, <b>click any cell</b> — it turns gold and its <b>three layers (floor / wall / overlay)</b> open below, each showing what the algorithm currently draws there (or “not drawn”). Set the correct tile for each layer — floor from the floor strip, wall &amp; overlay from the tile sheets (per kit) — to describe the true picture; layers that aren't drawn there yet can still be set. Add a note per layer. Corrected cells are outlined by layer (floor teal, wall red, overlay purple). Just paint the right pictures and I'll work out the rules. Miss a case? Paint it on the board at the bottom and <b>add it as a new scenario</b>. When done, <b>Copy corrections</b> and paste the JSON back to Claude.</p>
+
+<div class="bar">
+  <label><input type="checkbox" id="flavor"> show random face flavor (windows/moss/sprout)</label>
+  <select id="zoomSel" aria-label="Zoom"><option value="2">2×</option><option value="3" selected>3×</option><option value="4">4×</option></select>
+  <span style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em">SHOW:</span>
+  <label><input type="checkbox" id="vwUnrev" checked> needs review</label>
+  <label><input type="checkbox" id="vwWrong" checked> flagged</label>
+  <label><input type="checkbox" id="vwOk" checked> approved</label>
+  <label title="Checked-off cards keep their verdict — this decides whether they're shown at all"><input type="checkbox" id="vwDone" checked> include done</label>
+  <span style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em">LAYERS:</span>
+  <label><input type="checkbox" id="lyrFloor" checked> floor</label>
+  <label><input type="checkbox" id="lyrWalls" checked> wall faces</label>
+  <label><input type="checkbox" id="lyrCaps" checked> caps</label>
+  <label><input type="checkbox" id="lyrOverlay" checked> overlays</label>
+  <label style="margin-left:6px"><input type="checkbox" id="wallMark" checked> <span style="color:#6cb8ff;font-family:var(--mono)">#</span> wall cells</label>
+</div>
+
+<div class="lab">
+  <div id="gallery"></div>
+  <div class="editorcol">
+    <div class="card sticky editorwrap">
+      <div class="card-h2 editortitle">Editor</div>
+      <div id="editor"></div>
+      <details class="reviewbox">
+        <summary>Review · export · save/load <span class="count" id="count">0</span></summary>
+        <textarea id="exp" spellcheck="false" aria-label="Corrections JSON"></textarea>
+        <div class="bar" style="margin:8px 0 0">
+          <button class="primary" id="copyBtn">Copy corrections</button>
+          <button id="clearBtn">Clear all</button>
+          <span class="flash" id="flash"></span>
+        </div>
+        <div class="bar" style="margin:6px 0 0">
+          <button id="saveBtn">💾 Save file</button>
+          <button id="loadBtn">📂 Load file</button>
+          <input type="file" id="loadFile" accept="application/json,.json" style="display:none">
+        </div>
+        <p class="hint" style="margin-top:4px">Save/Load keeps all your work (corrections, approvals, done) as a file — back it up or move devices.</p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h2>Paint your own scenario</h2>
+  <div class="bar paintbar">
+    <span>PAINT:</span>
+    <label><input type="radio" name="pb" value="#" checked> wall</label>
+    <label><input type="radio" name="pb" value="."> floor</label>
+    <span style="margin-left:10px">CENTER:</span>
+    <label><input type="radio" name="pb" value="C"> set center</label>
+    <button id="clearBoard">Clear board</button>
+    <button class="primary" id="addScn">Add as new scenario</button>
+  </div>
+  <div class="scroller" style="display:inline-block"><canvas id="board"></canvas></div>
+  <p class="hint">Paint any wall/floor shape, mark one cell as the CENTER (the cell you're judging), then add it. It drops into a <b>Custom</b> group above, ready to mark and correct like the rest.</p>
+</div>
+</div><!-- /panelScn -->
+
+<script>
+"use strict";
+/* ============================ ENGINE (ported verbatim from lab_v3) ============================ */
+const SHEET_SRC = [
+  { name: "Walls", b64: "%%WALLS%%" },
+  { name: "Decor/Gates", b64: "%%DECOR%%" },
+  { name: "Rails", b64: "%%RAILS%%" },
+  { name: "Props", b64: "%%PROBS%%" },
+  { name: "Ground", b64: "%%GROUND%%" },
+  { name: "Rocks", b64: "%%ROCKS%%" },
+  { name: "Items", b64: "%%ITEMS%%" },
+  { name: "Bush", b64: "%%BUSH%%" },
+];
+const FLOOR_B64 = "%%FLOOR%%";
+
+const GAME_DEFAULTS = {
+  boulder: {
+    w0:[0,1,13], w1:[0,1,12], w2:[0,2,13], w3:[0,2,12], w4:[0,1,16], w5:[0,1,15], w6:[0,2,16], w7:[0,2,16],
+    w8:[0,0,13], w9:[0,0,12], w10:[0,3,13], w11:[0,3,12], w12:[0,0,16], w13:[0,0,16], w14:[0,3,14], w15:[0,3,16],
+    r0:[0,1,14], r1:[0,1,15], r2:[0,5,15], r3:[0,3,15], r8:[0,0,14], r9:[0,0,15],
+    rcapL:[0,0,15], rcapM:[0,1,15], rcapR:[0,2,15],
+    r2w:[0,2,14], r8j:[0,6,15],
+    dface1:[0,1,19], dface2:[0,2,19], dface3:[0,3,19], dface4:[0,4,19],
+    fcl:[0,5,16], fcr:[0,6,16],
+    ccne:[0,5,13], ccnw:[0,6,13], ccnw2:[0,7,13], ccne2:[0,4,13],
+    knw:[0,6,14], kne:[0,5,14], ksw:[0,6,13], kse:[0,5,13],
+    kn2:[0,8,14], ks2:[0,8,13], knw2:[0,7,14], kne2:[0,4,14],
+    // Symmetric double cap: a cap sitting above a wall that opens to floor on
+    // BOTH sides (add = E+W). Reuses the "both corners" tile (8,13).
+    capBoth:[0,8,13],
+    // Tiles the user's round-4 corrections ask for that had no name, so the rule
+    // had no way to emit them (10 of the 73 fixes). Columns follow the sheet:
+    // 4 = E-variant, 7 = NW-variant (the same columns kne2/knw2 live in), 8 = both.
+    rimE2:[0,4,12], rimW2:[0,7,12],     // rim row, corner-variant columns
+    capE2:[0,4,15], capW2:[0,7,15],     // cap row, same
+    faceBoth:[0,8,16]                   // face row, both-sides return (cf. fcl/fcr)
+  },
+  brick: {
+    w0:[0,1,3], w1:[0,1,2], w2:[0,2,3], w3:[0,2,2], w4:[0,1,6], w5:[0,1,5], w6:[0,2,6], w7:[0,2,6],
+    w8:[0,0,3], w9:[0,0,2], w10:[0,3,3], w11:[0,3,2], w12:[0,0,6], w13:[0,0,6], w14:[0,3,4], w15:[0,3,6],
+    r0:[0,1,4], r1:[0,1,5], r2:[0,5,5], r3:[0,3,5], r8:[0,0,4], r9:[0,0,5],
+    rcapL:[0,0,5], rcapM:[0,1,5], rcapR:[0,2,5],
+    r2w:[0,2,4], r8j:[0,6,5],
+    ccne:[0,5,3], ccnw:[0,6,3], ccnw2:[0,7,3], ccne2:[0,4,3],
+    knw:[0,6,4], kne:[0,5,4], ksw:[0,6,3], kse:[0,5,3],
+    kn2:[0,8,4], ks2:[0,8,3], knw2:[0,7,4], kne2:[0,4,4],
+    fwin:[0,5,9], fmoss:[0,9,9], fcrack:[0,3,6], arch:[0,7,9],
+    fcl:[0,5,6], fcr:[0,6,6], capBoth:[0,8,3],
+    // Same tiles as the boulder kit's, 10 rows up (see counterpartCell).
+    rimE2:[0,4,2], rimW2:[0,7,2],
+    capE2:[0,4,5], capW2:[0,7,5],
+    faceBoth:[0,8,6]
+  },
+  extras: {
+    rh:[2,1,2], rhl:[2,0,2], rhr:[2,2,2], rv:[2,3,1], rvt:[2,3,0], rvb:[2,3,2],
+    rcne:[2,0,1], rcnw:[2,1,1], rcse:[2,0,0], rcsw:[2,1,0]
+  },
+  hedge: {
+    h0:[7,3,3], h1:[7,3,2], h2:[7,0,3], h4:[7,3,0], h8:[7,2,3], h5:[7,3,1], h10:[7,1,3],
+    h3:[7,0,2], h9:[7,2,2], h6:[7,0,0], h12:[7,2,0], h7:[7,0,1], h13:[7,2,1], h14:[7,1,0],
+    h11:[7,1,2], h15:[7,1,1]
+  }
+};
+// The two dungeon kits are the same layout twice over: brick sits exactly 10 rows
+// above boulder, same sheet, same column. Verified across all 42 roles the kits
+// share, with zero exceptions - boulder lives in rows 12-19, brick in rows 2-9.
+// So picking a tile for one kit determines the other, and the Sync button in the
+// editor just walks this offset.
+const KIT_SHEET = 0;            // only the Walls sheet is doubled up like this
+const KIT_ROW_OFFSET = 10;
+const KIT_ROWS = { boulder: [12, 19], brick: [2, 9] };
+const otherKit = k => (k === "boulder" ? "brick" : "boulder");
+
+// The same tile in the other kit, or null when there isn't one: a cell off the
+// Walls sheet, or one outside its kit's row band (the sheet has decor rows above
+// and below that aren't part of either kit).
+function counterpartCell(cell, fromKit) {
+  if (!cell || cell[0] !== KIT_SHEET) return null;
+  const to = otherKit(fromKit);
+  const row = fromKit === "boulder" ? cell[2] - KIT_ROW_OFFSET : cell[2] + KIT_ROW_OFFSET;
+  const [lo, hi] = KIT_ROWS[to];
+  if (row < lo || row > hi) return null;
+  return [cell[0], cell[1], row];
+}
+
+const BUSH_SHEET = 7;
+// Fixed 8px patches on the Bush sheet composited for hedge inner-corner notches.
+const HEDGE_NOTCH_PATCH = { nw: [96, 32], ne: [88, 32], sw: [96, 24], se: [88, 24] };
+
+const T = 16;
+let mapping = JSON.parse(JSON.stringify(GAME_DEFAULTS));
+// Per-scenario grid globals (set before computing/rendering each scenario).
+let map = [], MAP_W = 0, MAP_H = 0;
+let SHOW_FLAVOR = false;
+// Toggleable render layers: floor, wall faces/bodies, cap-row tiles, overlays
+// (lone-pillar crowns + walk-behind ridges).
+let LYR = { floor: true, walls: true, caps: true, overlay: true };
+let SHOW_WALLMARK = true; // blue "#" overlay marking which cells are walls
+let WALKBEHIND = true;    // proposed walk-behind reframe as the default output
+
+function cellAt(x, y) { return (x >= 0 && y >= 0 && x < MAP_W && y < MAP_H) ? map[y][x] : "#"; }
+function isWallCell(c) { return c === "#"; }
+function isOpen(x, y) { return x >= 0 && y >= 0 && x < MAP_W && y < MAP_H && !isWallCell(map[y][x]); }
+
+function baseMask(x, y) {
+  return (isOpen(x, y - 1) ? 1 : 0) | (isOpen(x + 1, y) ? 2 : 0) |
+         (isOpen(x, y + 1) ? 4 : 0) | (isOpen(x - 1, y) ? 8 : 0);
+}
+function effMask(x, y) {
+  let m = baseMask(x, y);
+  if (!(m & 4) && isWallCell(cellAt(x, y + 1))) {
+    if (!(m & 2) && isOpen(x + 1, y + 1)) m |= 2;
+    if (!(m & 8) && isOpen(x - 1, y + 1)) m |= 8;
+  }
+  return m;
+}
+const CAP_ROLE = { 4: "r0", 5: "r1", 6: "r2", 7: "r3", 12: "r8", 13: "r9", 14: "w14", 15: "w15" };
+
+function visHash(x, y) {
+  let h = Math.imul(x | 0, 0x85EBCA6B) >>> 0;
+  h = (h ^ Math.imul(y | 0, 0xC2B2AE35)) >>> 0;
+  h ^= h >>> 13; h = Math.imul(h, 0x27D4EB2F) >>> 0; h ^= h >>> 16;
+  return h >>> 0;
+}
+
+// Verbatim from lab: geometry never depends on material.
+function computeWallCell(x, y) {
+  const em = effMask(x, y);
+  let role = em === 14 ? "w15" : "w" + em, isCap = false, isCorner = false;
+  if (em === 5) role = "w4";
+  // Side-wall junction only applies to a true vertical side wall (floor to one
+  // side, NO floor to its own south) — otherwise a convex S+E / S+W corner
+  // sitting diagonally above a run end wrongly grabbed fcl/fcr (should be w6/w12).
+  const is1TallRun = (xx, yy) => isWallCell(cellAt(xx, yy)) && (effMask(xx, yy) & 5) === 5;
+  const eJ = !(em & 4) && (em & 2) && is1TallRun(x + 1, y + 1);
+  const wJ = !(em & 4) && (em & 8) && is1TallRun(x - 1, y + 1);
+  if (eJ && wJ) role = "faceBoth";      // 1-tall runs butt BOTH sides (cross ┼)
+  else if (eJ) role = "fcl";
+  else if (wJ) role = "fcr";
+  if (isWallCell(cellAt(x, y + 1))) {
+    const bm = effMask(x, y + 1);
+    const add = bm & ~em & (2 | 8);
+    if (bm & 4) {
+      isCap = true;
+      const key = (em | add | 4) & 15;
+      const is1TallWall = (xx, yy) => isWallCell(cellAt(xx, yy)) && (effMask(xx, yy) & 5) === 5;
+      if (key === 6) role = is1TallWall(x + 1, y + 1) ? "r2" : "r2w";
+      else if (key === 12 && is1TallWall(x - 1, y + 1)) role = "r8j";
+      else role = CAP_ROLE[key] || ("w" + key);
+    } else if (add) {
+      isCap = true;
+      const variant = em !== 0;
+      // The cell below flanks a 2-tall wall (its side neighbour is a face) →
+      // the top-down corner curve. Both sides open → symmetric cap. variant
+      // (this row also opens elsewhere) → the ccne2/ccnw2 corner.
+      // (An earlier "thin wall → fcl/fcr" special case lived here; the user's
+      // round-3 corrections put these cells back to plain ccne/ccnw.)
+      if ((add & 2) && (add & 8)) role = "capBoth";
+      // Round-4 corrections reversed the round-1 "thin wall -> fcl/fcr" idea:
+      // a plain corner-cap is ALWAYS the top-down curve (ccne=kse / ccnw=ksw),
+      // however thin the wall it flanks (N+S thin, N+E+S end, N+S+W end).
+      else if (add & 2) role = variant ? "ccne2" : "ccne";
+      else role = variant ? "ccnw2" : "ccnw";
+    }
+  }
+  if (!isCap) {
+    const nwD = isOpen(x - 1, y - 1) && !(em & 1) && !(em & 8) && !(em & 4);
+    const neD = isOpen(x + 1, y - 1) && !(em & 1) && !(em & 2) && !(em & 4);
+    const swD = isOpen(x - 1, y + 1) && !(em & 4) && !(em & 8);
+    const seD = isOpen(x + 1, y + 1) && !(em & 4) && !(em & 2);
+    const cornerVariant = em !== 0;
+    if (nwD && neD) { role = "kn2"; isCorner = true; }
+    else if (swD && seD) { role = "ks2"; isCorner = true; }
+    else if (nwD) { role = cornerVariant ? "knw2" : "knw"; isCorner = true; }
+    else if (neD) { role = cornerVariant ? "kne2" : "kne"; isCorner = true; }
+    else if (swD) { role = cornerVariant ? "ccnw2" : "ksw"; isCorner = true; }
+    else if (seD) { role = cornerVariant ? "ccne2" : "kse"; isCorner = true; }
+  }
+  return { em, role, isCap, isCorner };
+}
+
+// N/E/S/W flag names for a mask.
+function maskStr(m) {
+  const p = [];
+  if (m & 1) p.push("N"); if (m & 2) p.push("E"); if (m & 4) p.push("S"); if (m & 8) p.push("W");
+  return p.length ? p.join("+") : "none";
+}
+
+/* ============================ IMAGES ============================ */
+const sheets = SHEET_SRC.map(s => { const im = new Image(); im.src = "data:image/png;base64," + s.b64; return im; });
+const floorImg = new Image();
+floorImg.src = "data:image/png;base64," + FLOOR_B64;
+
+function drawCell(ctx, m, dx, dy, z) { ctx.drawImage(sheets[m[0]], m[1] * T, m[2] * T, T, T, dx, dy, T * z, T * z); }
+function drawFloorIdx(ctx, i, dx, dy, z) { ctx.drawImage(floorImg, i * T, 0, T, T, dx, dy, T * z, T * z); }
+
+// The role actually drawn for a wall cell, including brick face flavor (only
+// when SHOW_FLAVOR). Kept separate so the readout matches the pixels.
+function drawnRole(material, x, y, cell) {
+  let role = wbRoleForCell(x, y, cell);
+  if (SHOW_FLAVOR && !cell.isCap && !cell.isCorner && (role === "w4" || role === "w5")) {
+    if (material === "brick") {
+      const fh = visHash(x * 3 + 1, y * 7 + 1) % 20;
+      if (fh === 0) role = "fwin"; else if (fh === 1) role = "fmoss"; else if (fh === 2) role = "fcrack";
+    } else {
+      const fh = visHash(x * 5 + 2, y * 11 + 1) % 24;
+      if (fh < 4) role = "dface" + (fh + 1);
+    }
+  }
+  return role;
+}
+
+// Render one kit of the current scenario grid into ctx. Ported from drawPane's
+// wall+floor branches (door/rail dropped). Overlays (crown / walk-behind ridge)
+// drawn above face/pillar cells exactly as the game does.
+// ovr = applied corrections: {floor:{"x,y":idx}, wall:{"x,y":{boulder,brick}},
+// overlay:{"x,y":{boulder,brick}}} — so the preview shows the corrected picture.
+function drawScenario(ctx, material, offX, offY, Z, roleGrid, ovr, deco) {
+  ovr = ovr || { floor: {}, wall: {}, overlay: {} };
+  const M = mapping[material];
+  const wallCell = fk => ovr.wall[fk] && ovr.wall[fk][material];
+  const ovCell = fk => ovr.overlay[fk] && ovr.overlay[fk][material];
+  const decoCell = (lay, fk) => deco && deco[lay][fk] && deco[lay][fk][material];
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const px = offX + x * T * Z, py = offY + y * T * Z;
+      const fk = x + "," + y;
+      if (isWallCell(map[y][x])) {
+        // Floor under the wall (shows through the wall's transparent edges),
+        // drawn first. Default = complement rule (15 - openMask); painted wins.
+        if (LYR.floor) drawFloorIdx(ctx, ovr.floor[fk] != null ? ovr.floor[fk] : (15 - baseMask(x, y)), px, py, Z);
+        const cell = roleGrid[y][x];
+        const baseVisible = cell.isCap ? LYR.caps : LYR.walls;
+        if (baseVisible) {
+          drawCell(ctx, wallCell(fk) || M[drawnRole(material, x, y, cell)], px, py, Z);
+          // Proposed decoration (door quadrants etc.) composites over the
+          // wall art - unless the user has corrected this cell themselves.
+          const dc = !wallCell(fk) && decoCell("wall", fk);
+          if (dc) drawCell(ctx, dc, px, py, Z);
+        }
+        continue;
+      }
+      if (LYR.floor) drawFloorIdx(ctx, ovr.floor[fk] != null ? ovr.floor[fk] : floorIndexAt(x, y), px, py, Z);
+      if (LYR.walls) {
+        const wc = wallCell(fk) || decoCell("wall", fk);
+        if (wc) drawCell(ctx, wc, px, py, Z); // wall/deco painted onto a floor cell
+      }
+    }
+  }
+  // pass 2: overlays on top — user override, else proposed deco, else the
+  // crown/ridge or walk-behind rim the rule casts.
+  if (LYR.overlay) for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
+    const fk = x + "," + y;
+    let oc = ovCell(fk) || decoCell("overlay", fk);
+    if (!oc) { const r = overlayRoleAt(x, y); if (r) oc = M[r]; }
+    if (oc) drawCell(ctx, oc, offX + x * T * Z, offY + y * T * Z, Z);
+  }
+}
+
+/* ============================ SCENARIO DEFINITIONS ============================ */
+// A scenario is an all-wall grid of size w×h with a list of floor cells and a
+// center cell (the one being judged). floors: [[x,y],...].
+function scn(group, name, desc, w, h, cx, cy, floors, deco) {
+  // deco: first-stab decoration cells (doors, arches) the ALGORITHM proposes,
+  // drawn into the base render so there's something to correct FROM. Entries:
+  // {x, y, layer: "wall"|"overlay", cell: {boulder:[s,cx,cy], brick:[s,cx,cy]}}.
+  // A user correction on the same cell+layer replaces it.
+  return { id: group.replace(/\W+/g,"") + "_" + name.replace(/\W+/g,"_"), group, name, desc, w, h, cx, cy, floors, deco: deco || null };
+}
+// deco list -> per-layer lookup keyed like corrections ("x,y@wall" / "x,y@overlay").
+function decoMap(s) {
+  if (!s || !s.deco) return null;
+  const m = { wall: {}, overlay: {} };
+  for (const d of s.deco) m[d.layer][d.x + "," + d.y] = d.cell;
+  return m;
+}
+
+const SCENARIOS = [];
+
+// ---- GROUP A: base 4-neighbour masks 0..15 (isolated, no cap/corner context) ----
+// Center at (2,2) in a 5×5 all-wall grid; set orthogonal cells per mask bits.
+for (let m = 0; m < 16; m++) {
+  const f = [];
+  if (m & 1) f.push([2,1]); if (m & 2) f.push([3,2]); if (m & 4) f.push([2,3]); if (m & 8) f.push([1,2]);
+  const names = {0:"core (enclosed)",1:"floor N",2:"floor E",3:"floor N+E",4:"floor S — FACE",5:"floor N+S (h-run mid)",6:"floor S+E",7:"floor N+E+S (run end E)",8:"floor W",9:"floor N+W",10:"floor E+W (v-thin mid)",11:"floor N+E+W (v top end)",12:"floor S+W",13:"floor N+S+W (run end W)",14:"floor E+S+W (v bottom end)",15:"floor all (lone pillar)"};
+  SCENARIOS.push(scn("A · Base masks", "m"+m+" "+maskStr(m), names[m], 5, 5, 2, 2, f));
+}
+
+// ---- GROUP B: diagonal-only corners ----
+SCENARIOS.push(scn("B · Diagonal corners","NW only","floor only at the NW diagonal, orthogonals wall",5,5,2,2,[[1,1]]));
+SCENARIOS.push(scn("B · Diagonal corners","NE only","floor only at the NE diagonal",5,5,2,2,[[3,1]]));
+SCENARIOS.push(scn("B · Diagonal corners","SW only","floor only at the SW diagonal (watch the bleed rule)",5,5,2,2,[[1,3]]));
+SCENARIOS.push(scn("B · Diagonal corners","SE only","floor only at the SE diagonal (watch the bleed rule)",5,5,2,2,[[3,3]]));
+SCENARIOS.push(scn("B · Diagonal corners","both top","floor at NW + NE diagonals",5,5,2,2,[[1,1],[3,1]]));
+SCENARIOS.push(scn("B · Diagonal corners","both bottom","floor at SW + SE diagonals (bleed makes this a v-wall)",5,5,2,2,[[1,3],[3,3]]));
+SCENARIOS.push(scn("B · Diagonal corners","NW + floor E","NW diagonal, and the row also opens east",5,5,2,2,[[1,1],[3,2]]));
+SCENARIOS.push(scn("B · Diagonal corners","NE + floor W","NE diagonal, and the row also opens west",5,5,2,2,[[3,1],[1,2]]));
+SCENARIOS.push(scn("B · Diagonal corners","SW + floor N","SW diagonal, and the row also opens north",5,5,2,2,[[1,3],[2,1]]));
+SCENARIOS.push(scn("B · Diagonal corners","SE + floor N","SE diagonal, and the row also opens north",5,5,2,2,[[3,3],[2,1]]));
+
+// ---- GROUP C: cap row (center sits above a south-facing face) ----
+// Face below: (2,3) wall, (2,4) floor. Vary center N/E/W + run diagonal.
+SCENARIOS.push(scn("C · Cap row","S only","cap directly above a plain south face",5,6,2,2,[[2,4]]));
+SCENARIOS.push(scn("C · Cap row","N+S thin","cap above a face, this row also opens north",5,6,2,2,[[2,1],[2,4]]));
+SCENARIOS.push(scn("C · Cap row","S+E wide notch","cap above a face, opens east; SE is NOT a 1-tall run",5,6,2,2,[[3,2],[2,4]]));
+SCENARIOS.push(scn("C · Cap row","S+E jamb","cap above a face, opens east; SE IS a 1-tall run",5,6,2,2,[[3,2],[2,4],[3,4]]));
+SCENARIOS.push(scn("C · Cap row","S+W plain","cap above a face, opens west; SW not a run",5,6,2,2,[[1,2],[2,4]]));
+SCENARIOS.push(scn("C · Cap row","S+W jamb","cap above a face, opens west; SW IS a 1-tall run",5,6,2,2,[[1,2],[2,4],[1,4]]));
+SCENARIOS.push(scn("C · Cap row","N+E+S end","cap above a face at an east end",5,6,2,2,[[2,1],[3,2],[2,4]]));
+SCENARIOS.push(scn("C · Cap row","N+S+W end","cap above a face at a west end",5,6,2,2,[[2,1],[1,2],[2,4]]));
+
+// ---- GROUP D: corner caps (side wall meets a cap row; the cell below adds a side one row down) ----
+SCENARIOS.push(scn("D · Corner caps","ccne","wall stub whose lower cell opens to the east",5,6,2,2,[[3,4]]));
+SCENARIOS.push(scn("D · Corner caps","ccnw","wall stub whose lower cell opens to the west",5,6,2,2,[[1,4]]));
+SCENARIOS.push(scn("D · Corner caps","ccne2","lower cell opens east; this row also opens north",5,6,2,2,[[3,4],[2,1]]));
+SCENARIOS.push(scn("D · Corner caps","ccnw2","lower cell opens west; this row also opens north",5,6,2,2,[[1,4],[2,1]]));
+
+// ---- GROUP E: horizontal 1-tall runs + walk-behind + side junctions ----
+// A 3-long run at row2 (cols1-3), open floor above/below, open ends at col0/4.
+const runFloors = [[0,1],[1,1],[2,1],[3,1],[4,1],[0,2],[4,2],[0,3],[1,3],[2,3],[3,3],[4,3]];
+SCENARIOS.push(scn("E · Horizontal runs","run middle (rcapM)","1-tall run, walls both sides → w4 + rcapM overlay",5,5,2,2,runFloors));
+SCENARIOS.push(scn("E · Horizontal runs","run left end (rcapL)","open to the left → w4 + rcapL",5,5,1,2,runFloors));
+SCENARIOS.push(scn("E · Horizontal runs","run right end (rcapR)","open to the right → w4 + rcapR",5,5,3,2,runFloors));
+// fcl: center is a mid-vertical-wall cell (wall above/below), floor E, 1-tall run at SE.
+SCENARIOS.push(scn("E · Horizontal runs","side junction fcl","run butts the wall's east side → fcl (5,16)",6,6,2,2,[[3,2],[3,4]]));
+SCENARIOS.push(scn("E · Horizontal runs","side junction fcr","run butts the wall's west side → fcr (6,16)",6,6,3,2,[[2,2],[2,4]]));
+
+// ---- GROUP H: doors, arches, ladders (first stab - PROPOSED cells, correct freely) ----
+// The deco entries are the algorithm's opening bid, composited over the wall
+// render; correct any cell/layer and your pick replaces the proposal.
+{
+  const D = (x, y, layer, b, k) => ({ x, y, layer, cell: { boulder: b, brick: k || b } });
+  // Big mineshaft door: the pack's lantern-lit doorway (Walls sheet 32x32 at
+  // cols 0-1, rows 20-21), EMBEDDED in a 2-tall wall face - the game today
+  // draws this art freestanding on an open floor cell instead, which is the
+  // "doors aren't rendering" complaint. Top half sits on the cap row, bottom
+  // half on the face row.
+  SCENARIOS.push(scn("H · Doors & arches", "mineshaft door (big)",
+    "32px lantern doorway embedded in a straight 2-tall wall - top half on the cap row, bottom on the face",
+    6, 6, 2, 2,
+    [[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5]],
+    [D(2,1,"wall",[0,0,20]), D(3,1,"wall",[0,1,20]),
+     D(2,2,"wall",[0,0,21]), D(3,2,"wall",[0,1,21])]));
+  // Brick doorway as the game builds it (k==7): a 1-wide passage piercing a
+  // 2-row south wall. Passage cells are OPEN (walkable); the dark interior
+  // paints on the wall layer and the arch frame on the OVERLAY layer of the
+  // outer cell (its interior is transparent).
+  SCENARIOS.push(scn("H · Doors & arches", "brick doorway (lantern arch)",
+    "game k7 passage: dark interior both cells, lantern arch (8,9) overlaid on the outer face cell",
+    6, 6, 2, 2,
+    [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[2,1],[2,2],[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5]],
+    [D(2,1,"wall",[0,1,13],[0,1,3]),
+     D(2,2,"wall",[0,1,13],[0,1,3]), D(2,2,"overlay",[0,8,9])]));
+  SCENARIOS.push(scn("H · Doors & arches", "brick doorway (plain arch)",
+    "same passage, plain arch variant (7,9) on the outer cell",
+    6, 6, 2, 2,
+    [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[2,1],[2,2],[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5]],
+    [D(2,1,"wall",[0,1,13],[0,1,3]),
+     D(2,2,"wall",[0,1,13],[0,1,3]), D(2,2,"overlay",[0,7,9])]));
+  // Descend hole / ladder down: today the game draws its own sprite on an
+  // open floor cell. No proposal here - mark the cell that SHOULD carry the
+  // ladder/hole art (any sheet) and correct it in.
+  SCENARIOS.push(scn("H · Doors & arches", "descend hole / ladder",
+    "open floor pocket in front of a wall - paint the hole/ladder art you want on the center cell",
+    6, 6, 2, 3,
+    [[1,3],[2,3],[3,3],[4,3],[1,4],[2,4],[3,4],[4,4],[1,2],[2,2],[3,2],[4,2]]));
+}
+
+// ---- GROUP F: vertical thin walls & turns (the known gap) ----
+SCENARIOS.push(scn("F · Vertical walls","v-thin middle (em10)","floor E+W, wall N+S → w10 (no ridge/overlay yet)",5,5,2,2,[[1,1],[3,1],[1,2],[3,2],[1,3],[3,3]]));
+SCENARIOS.push(scn("F · Vertical walls","v-thin top end (em11)","wall column starts here → w11",5,5,2,2,[[1,1],[2,1],[3,1],[1,2],[3,2],[1,3],[3,3]]));
+SCENARIOS.push(scn("F · Vertical walls","v-thin bottom end (em14)","wall column ends here → forced w15 face (is that right?)",5,5,2,2,[[1,2],[3,2],[1,3],[2,3],[3,3],[1,1],[3,1]]));
+// Thin L-corners: 1-wide wall turning. Legs are single tiles.
+SCENARIOS.push(scn("F · Vertical walls","L-turn ┘ (walls E+S)","thin wall from S turning W → em9 (floor N+W)",5,5,2,2,[[0,0],[1,0],[2,0],[3,0],[4,0],[0,1],[1,1],[2,1],[0,2],[1,2],[0,3],[1,3],[0,4],[1,4],[3,4],[4,4],[3,3],[4,3],[4,2]]));
+SCENARIOS.push(scn("F · Vertical walls","L-turn └ (walls E+W?)","thin wall from S turning E → em3 (floor N+E)",5,5,2,2,[[0,0],[1,0],[2,0],[3,0],[4,0],[2,1],[3,1],[4,1],[3,2],[4,2],[3,3],[4,3],[3,4],[4,4],[0,1],[0,2],[0,3],[0,4],[1,4]]));
+SCENARIOS.push(scn("F · Vertical walls","L-turn ┐ (walls S+W)","thin wall from N turning W → em6 (floor S+E)",5,5,2,2,[[0,4],[1,4],[2,4],[3,4],[4,4],[0,3],[1,3],[2,3],[0,2],[1,2],[0,1],[1,1],[0,0],[1,0],[3,0],[4,0],[3,1],[4,1],[4,2]]));
+SCENARIOS.push(scn("F · Vertical walls","L-turn ┌ (walls S+E)","thin wall from N turning E → em12 (floor S+W)",5,5,2,2,[[0,4],[1,4],[2,4],[3,4],[4,4],[2,3],[3,3],[4,3],[3,2],[4,2],[3,1],[4,1],[3,0],[4,0],[0,0],[1,0],[0,1],[1,1],[0,2],[0,3],[1,3]]));
+// Thin T and cross.
+SCENARIOS.push(scn("F · Vertical walls","T-junction ┤","v-wall with a west branch → floor E only (em2)",5,5,2,2,[[3,0],[4,0],[3,1],[4,1],[3,2],[4,2],[3,3],[4,3],[3,4],[4,4],[0,2],[1,2]]));
+SCENARIOS.push(scn("F · Vertical walls","cross ┼","two thin walls crossing → em0 core (does a crossing need a special?)",5,5,2,2,[[0,0],[1,0],[3,0],[4,0],[0,1],[1,1],[3,1],[4,1],[0,3],[1,3],[3,3],[4,3],[0,4],[1,4],[3,4],[4,4]]));
+SCENARIOS.push(scn("F · Vertical walls","v-wall meets h-run","vertical thin wall bottom joins a horizontal run",6,6,2,3,[[1,0],[3,0],[1,1],[3,1],[1,2],[3,2],[0,4],[1,4],[3,4],[4,4],[5,4],[0,3],[5,3]]));
+
+// ---- GROUP G: isolated masses ----
+SCENARIOS.push(scn("G · Isolated masses","lone pillar (em15)","1×1 wall, floor all around → w15 + r3 crown above",5,5,2,2,[[2,1],[1,2],[3,2],[2,3],[1,1],[3,1],[1,3],[3,3]]));
+SCENARIOS.push(scn("G · Isolated masses","2×1 horizontal","two-wide block, floor around — left cell (run end W)",6,5,2,2,[[1,1],[2,1],[3,1],[4,1],[1,2],[4,2],[1,3],[2,3],[3,3],[4,3]]));
+SCENARIOS.push(scn("G · Isolated masses","1×3 vertical","three-tall thin column — middle cell (em10)",5,6,2,2,[[1,1],[3,1],[1,2],[3,2],[1,3],[3,3],[1,4],[3,4],[2,0],[2,5]]));
+SCENARIOS.push(scn("G · Isolated masses","2×2 block","four-cell block, floor around — top-left corner cell",6,6,2,2,[[1,1],[2,1],[3,1],[1,2],[4,2],[1,3],[4,3],[1,4],[2,4],[3,4],[4,4],[4,1]]));
+
+/* ============================ CORRECTIONS STATE ============================ */
+const LS = "myfarm-wall-scenarios";
+let corrections = {}; // scnId -> { note, boulder:[s,cx,cy]|null, brick:[...]|null }
+let approvals = {};   // scnId -> true — "this render is correct, preserve it"
+let customScns = [];  // user-painted scenarios (persist grids)
+let cardUI = {};      // scnId -> { kit:'boulder'|'brick', sheet:int } — inline-palette state
+// unreviewed/wrong/ok are VERDICTS (mutually exclusive - a card is exactly one).
+// done is a separate axis: "I'm finished with this card", true of a corrected one
+// you checked off and of any approved one. So it ANDs with the verdict rather
+// than competing with it.
+let viewShow = { unreviewed: true, wrong: true, ok: true, done: true };
+let doneSet = {}; // scnId -> true: checked off (collapsed) but corrections kept
+function filterActive() { return !(viewShow.unreviewed && viewShow.wrong && viewShow.ok && viewShow.done); }
+const PZ = 3;         // inline palette zoom
+
+// Restore state from a parsed object (localStorage or a loaded file), migrating
+// any legacy shapes. Shared by loadState() and the file-load handler.
+function restoreState(s) {
+  corrections = s.corrections || {};
+  approvals = s.approvals || {};
+  doneSet = s.done || {};
+  customScns = (s.customScns || []).map(c => {
+    const sc = scn("Custom · painted", c.name, c.desc || "user-painted", c.w, c.h, c.cx, c.cy, c.floors);
+    // Keep the id the card was born with: corrections/approvals/done are keyed
+    // by it. Without this, every reload minted a fresh derived id and orphaned
+    // whatever the user had marked on the custom card.
+    if (c.id) sc.id = c.id;
+    return sc;
+  });
+  for (const id of Object.keys(corrections)) {
+    const c = corrections[id];
+    if (!c) continue;
+    if (!c.tiles) {
+      const sc0 = SCENARIOS.concat(customScns).find(x => x.id === id);
+      const key = (sc0 ? sc0.cx + "," + sc0.cy : "2,2") + "@wall";
+      corrections[id] = { tiles: { [key]: { boulder: c.boulder || null, brick: c.brick || null, note: c.note || "" } } };
+      continue;
+    }
+    for (const k of Object.keys(c.tiles)) {
+      if (k.includes("@")) continue;
+      const nk = k.endsWith("#ov") ? k.slice(0, -3) + "@overlay" : k + "@wall";
+      c.tiles[nk] = c.tiles[k]; delete c.tiles[k];
+    }
+  }
+}
+function loadState() { try { restoreState(JSON.parse(localStorage.getItem(LS) || "{}")); } catch (e) {} }
+// The exact round-trippable state (what save-file writes / load-file reads).
+function stateBlob() {
+  return JSON.stringify({
+    corrections, approvals, done: doneSet,
+    customScns: customScns.map(c => ({ id: c.id, name: c.name, desc: c.desc, w: c.w, h: c.h, cx: c.cx, cy: c.cy, floors: c.floors }))
+  });
+}
+function saveState() {
+  try {
+    localStorage.setItem(LS, JSON.stringify({
+      corrections, approvals, done: doneSet,
+      customScns: customScns.map(c => ({ id: c.id, name: c.name, desc: c.desc, w: c.w, h: c.h, cx: c.cx, cy: c.cy, floors: c.floors }))
+    }));
+  } catch (e) {}
+}
+// Customs FIRST: the paint hint promises the new card "drops into a Custom
+// group above", and the add-handler scrolls to the first group head. With
+// customs appended last, adding a scenario scrolled you to the top while the
+// card materialized off-screen at the bottom - a perfect illusion of a no-op.
+function allScns() { return customScns.concat(SCENARIOS); }
+
+/* ============================ GRID SETUP FROM A SCENARIO ============================ */
+function loadScenarioGrid(s) {
+  MAP_W = s.w; MAP_H = s.h;
+  map = Array.from({ length: MAP_H }, () => Array(MAP_W).fill("#"));
+  for (const [x, y] of s.floors) if (y >= 0 && y < MAP_H && x >= 0 && x < MAP_W) map[y][x] = ".";
+}
+function computeRoleGrid() {
+  const rg = Array.from({ length: MAP_H }, () => Array(MAP_W).fill(null));
+  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) if (isWallCell(map[y][x])) rg[y][x] = computeWallCell(x, y);
+  return rg;
+}
+
+/* ============================ RENDER GALLERY ============================ */
+const gallery = document.getElementById("gallery");
+function zoom() { return parseInt(document.getElementById("zoomSel").value, 10); }
+
+function renderGallery() {
+  gallery.textContent = "";
+  const groups = [];
+  const byGroup = {};
+  for (const s of allScns()) { if (!byGroup[s.group]) { byGroup[s.group] = []; groups.push(s.group); } byGroup[s.group].push(s); }
+  for (const g of groups) {
+    const visible = byGroup[g].filter(s => {
+      // Verdict and done are independent, so they filter independently: pick the
+      // verdicts you want to see, then "done" decides whether finished cards are
+      // among them. (As one exclusive 4-way state, "done" swallowed "approved"
+      // the moment approving started checking cards off, and the approved
+      // checkbox stopped matching anything at all.)
+      const verdict = corrections[s.id] ? "wrong" : approvals[s.id] ? "ok" : "unreviewed";
+      return viewShow[verdict] && (doneSet[s.id] ? viewShow.done : true);
+    });
+    if (!visible.length) continue;
+    const head = document.createElement("div"); head.className = "groupHead"; head.textContent = g; gallery.appendChild(head);
+    const grid = document.createElement("div"); grid.className = "grid";
+    for (const s of visible) grid.appendChild(renderCard(s));
+    gallery.appendChild(grid);
+  }
+}
+
+/* -------- per-tile correction helpers -------- */
+const tk = (x, y) => x + "," + y;
+// Every cell has three correctable layers. Keys are "x,y@floor|wall|overlay".
+function keyOf(x, y, layer) { return x + "," + y + "@" + layer; }
+function parseKey(k) { const [pos, layer] = k.split("@"); const [x, y] = pos.split(",").map(Number); return { x, y, layer: layer || "wall" }; }
+// The overlay tile a floor cell (x,y) carries, from the wall one row below it.
+function overlayAt(x, y) {
+  const by = y + 1;
+  if (!isWallCell(cellAt(x, by))) return null;
+  const em = effMask(x, by);
+  if (em === 15) return { role: "r3" };
+  if (em === 5 || em === 7 || em === 13) {
+    const cr = ((em & 8) && !(em & 2)) ? "rcapL" : ((em & 2) && !(em & 8)) ? "rcapR" : "rcapM";
+    return { role: cr };
+  }
+  return null;
+}
+// The floor-strip index the algorithm draws on an open cell (mirrors drawScenario).
+function floorIndexAt(x, y) {
+  const m = baseMask(x, y);
+  if (m === 15) {
+    const nm = (!isOpen(x - 1, y - 1) ? 1 : 0) | (!isOpen(x + 1, y - 1) ? 2 : 0) | (!isOpen(x - 1, y + 1) ? 4 : 0) | (!isOpen(x + 1, y + 1) ? 8 : 0);
+    if (nm) return 15 + nm;
+    const h = visHash(x * 7 + 3, y * 13 + 1) % 100; return h < 70 ? 31 : 31 + 1 + h % 3;
+  }
+  return m;
+}
+
+/* -------- WALK-BEHIND REFRAME (proposed default) --------
+   Derived from the user's corrections and confirmed 45/45:
+   - a south-facing FACE (floor S) or a CAP (above a face) is kept as-is;
+   - every other wall cell is decided by E/W floor only (N & diagonals ignored):
+       E+W → kn2, E → kne, W → knw, neither → w0 core;
+   - a top-rim wall (floor N, not a face) lifts its rim tile up onto the floor
+     cell to its north as an overlay. */
+// Walk-behind rule, round 4. Derived from the user's corrections under a hard
+// constraint: satisfy all 73 marked cells while moving NONE of the 3005 cells
+// they reviewed and left alone (tests/js/test_wall_rule.js enforces this).
+// The organizing idea: a non-face wall's N floor contact PEELS UP into an
+// overlay on the floor cell above, so the wall renders as if that N floor
+// weren't there (em2 = em & ~1) - faces, junctions, and corner caps excepted.
+function wbRoleForCell(x, y, cell) {
+  if (!WALKBEHIND) return cell.role;
+  if (cell.em & 4) return cell.role;                 // south-facing face: untouched
+  if (cell.role === "fcl" || cell.role === "fcr" || cell.role === "faceBoth")
+    return cell.role;                                // side junction wins
+  const em2 = cell.em & ~1;
+  if (cell.isCap) {
+    // Corner caps keep their identity; the variant only exists while some E/W
+    // floor justifies it, so peeling N alone drops ccne2 -> ccne (=kse).
+    if (cell.role === "ccne" || cell.role === "ccne2") return em2 ? "ccne2" : "ccne";
+    if (cell.role === "ccnw" || cell.role === "ccnw2") return em2 ? "ccnw2" : "ccnw";
+    if (cell.role === "capBoth") return cell.role;
+    if (em2 === 10) {
+      // Floor on both sides: this cap sits at a turn. Lean toward whichever
+      // side the wall mass continues diagonally below.
+      const se = !isOpen(x + 1, y + 1), sw = !isOpen(x - 1, y + 1);
+      if (se && !sw) return "capE2";
+      if (sw && !se) return "capW2";
+      return cell.role;
+    }
+    if (!(cell.em & 1)) return cell.role;            // nothing peeled
+    return em2 === 2 ? "r2w" : em2 === 8 ? "r8" : "r0";
+  }
+  // A side floor whose run ENDS going down rounds into a corner; a leftover
+  // bit on the opposite side picks the connected variant (kne2/knw2).
+  const e = (cell.em & 2) && !isOpen(x + 1, y + 1);
+  const w = (cell.em & 8) && !isOpen(x - 1, y + 1);
+  if (e && w) return "kn2";
+  if (e) return (cell.em & 8) ? "kne2" : "kne";
+  if (w) return (cell.em & 2) ? "knw2" : "knw";
+  if (cell.em & (2 | 8)) return "w" + em2;           // straight side edge, N peeled
+  return "w0";                                       // enclosed / diagonal-only: core
+}
+// The rim a wall lifts onto the floor cell (x,y) to its north. Caps cast too -
+// the peeled N has to land somewhere - but faces never do.
+function wbOverlayRole(x, y) {
+  if (!WALKBEHIND) return null;
+  const sy = y + 1;
+  if (!isWallCell(cellAt(x, sy))) return null;
+  const sc = computeWallCell(x, sy);
+  if (!(sc.em & 1) || (sc.em & 4)) return null;
+  if ((sc.em & 10) === 10) {
+    // A rim with BOTH side bits where exactly one is bleed-borrowed is a turn:
+    // the rim connects sideways into a perpendicular run one row down, and the
+    // variant leans toward the borrowed (wall) side. A single borrowed bit is
+    // just a 2-tall side rim - plain w9/w3, confirmed by the user's keeps.
+    const bm = baseMask(x, sy);
+    const eB = !(bm & 2), wB = !(bm & 8);
+    if (eB && !wB) return "rimE2";
+    if (wB && !eB) return "rimW2";
+  }
+  return "w" + sc.em;
+}
+// Overlay role drawn at floor cell (x,y): crown/ridge (rcap), else the walk-behind rim.
+function overlayRoleAt(x, y) {
+  const a = overlayAt(x, y);
+  if (a) return a.role;
+  return wbOverlayRole(x, y);
+}
+function hasCorr(id) { const c = corrections[id]; return !!(c && c.tiles && Object.keys(c.tiles).length); }
+function ensureTile(id, key) {
+  const c = corrections[id] || (corrections[id] = { tiles: {} });
+  if (!c.tiles) c.tiles = {};
+  return c.tiles[key] || (c.tiles[key] = { boulder: null, brick: null, note: "" });
+}
+function pruneTile(id, key) {
+  const c = corrections[id]; if (!c || !c.tiles) return;
+  const t = c.tiles[key];
+  const empty = t && !t.boulder && !t.brick && t.floorIdx == null && !(t.note && t.note.trim());
+  if (empty) delete c.tiles[key];
+  if (c.tiles && !Object.keys(c.tiles).length) delete corrections[id];
+}
+// The selected CELL (any cell — wall or floor); ui.activeLayer picks which of its
+// three layers (floor / wall / overlay) the palette targets.
+function selOf(s) {
+  const ui = cardUI[s.id] || (cardUI[s.id] = { kit: "boulder", sheet: 0, sel: [s.cx, s.cy], activeLayer: "wall", editing: false });
+  if (!ui.sel) ui.sel = [s.cx, s.cy];
+  let [x, y] = ui.sel;
+  if (!(x >= 0 && y >= 0 && x < MAP_W && y < MAP_H)) { x = s.cx; y = s.cy; ui.sel = [x, y]; }
+  if (!ui.activeLayer) ui.activeLayer = "wall";
+  return { ui, x, y };
+}
+// The three layers of a single cell, each with its "set" state (what the
+// algorithm currently draws there) so the user can correct the finished picture.
+function layersAt(x, y, rg) {
+  const open = isOpen(x, y);
+  const wallRole = isWallCell(map[y][x]) ? wbRoleForCell(x, y, rg[y][x]) : null;
+  const ovR = overlayRoleAt(x, y);
+  const ovProposed = !!ovR && !overlayAt(x, y); // a walk-behind rim (not an rcap/crown)
+  return [
+    { layer: "floor", key: keyOf(x, y, "floor"), x, y, set: true, proposed: !open, floorIdx: open ? floorIndexAt(x, y) : (15 - baseMask(x, y)), label: "Floor" },
+    { layer: "wall", key: keyOf(x, y, "wall"), x, y, set: !!wallRole, role: wallRole, label: "Wall" },
+    { layer: "overlay", key: keyOf(x, y, "overlay"), x, y, set: !!ovR, proposed: ovProposed, role: ovR, label: "Overlay" },
+  ];
+}
+
+function renderCard(s) {
+  const Z = zoom();
+  loadScenarioGrid(s);
+  const rg = computeRoleGrid();
+  const { ui, x: cx, y: cy } = selOf(s);
+  const layers = layersAt(cx, cy, rg);
+  if (!layers.find(l => l.layer === ui.activeLayer)) ui.activeLayer = "wall";
+  const active = layers.find(l => l.layer === ui.activeLayer) || layers[1];
+  const cellWall = isWallCell(map[cy][cx]) ? rg[cy][cx] : null;
+  const done = !!doneSet[s.id];
+  const isActive = activeCard === s.id;
+
+  const el = document.createElement("div");
+  // Two independent things, so two independent classes: the VERDICT is the
+  // border colour (flagged/approved), being FINISHED WITH is the fade (done).
+  // Letting done win here made approved cards render identically to
+  // corrected-and-checked-off ones, which reads as a state that doesn't exist.
+  const verdict = hasCorr(s.id) ? " flagged" : approvals[s.id] ? " approved" : "";
+  el.className = "scn" + verdict + (done ? " done" : "") + (isActive ? " active" : "");
+  el.id = "card-" + s.id;
+
+  const title = document.createElement("div"); title.className = "title"; title.textContent = (done ? "✔ " : "") + s.name; el.appendChild(title);
+  const desc = document.createElement("div"); desc.className = "desc"; desc.textContent = s.desc; el.appendChild(desc);
+
+  // canvas: both kits side by side. Clickable — pick any wall tile to correct.
+  const paneW = MAP_W * T * Z, paneH = MAP_H * T * Z, gap = 14, lh = 14;
+  const cv = document.createElement("canvas"); cv.className = "cv";
+  cv.width = paneW * 2 + gap; cv.height = paneH + lh;
+  const ctx = cv.getContext("2d"); ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = "#3a2e3c"; ctx.fillRect(0, 0, cv.width, cv.height);
+  // corrections applied to the preview so it shows the corrected picture
+  const ovr = { floor: {}, wall: {}, overlay: {} };
+  if (corrections[s.id] && corrections[s.id].tiles) for (const k of Object.keys(corrections[s.id].tiles)) {
+    const { x, y, layer } = parseKey(k); const t = corrections[s.id].tiles[k]; const fk = x + "," + y;
+    if (layer === "floor" && t.floorIdx != null) ovr.floor[fk] = t.floorIdx;
+    else if (layer === "wall" && (t.boulder || t.brick)) ovr.wall[fk] = t;
+    else if (layer === "overlay" && (t.boulder || t.brick)) ovr.overlay[fk] = t;
+  }
+  const dk = decoMap(s);
+  drawScenario(ctx, "boulder", 0, lh, Z, rg, ovr, dk);
+  drawScenario(ctx, "brick", paneW + gap, lh, Z, rg, ovr, dk);
+  const box = (gx, gy, col, lw) => {
+    ctx.strokeStyle = col; ctx.lineWidth = lw;
+    ctx.strokeRect(gx * T * Z + 1, lh + gy * T * Z + 1, T * Z - 2, T * Z - 2);
+    ctx.strokeRect(paneW + gap + gx * T * Z + 1, lh + gy * T * Z + 1, T * Z - 2, T * Z - 2);
+  };
+  // blue "#" marking wall cells, for readability
+  if (SHOW_WALLMARK) {
+    ctx.font = `bold ${Math.round(T * Z * 0.62)}px ui-monospace, Consolas, monospace`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
+      if (!isWallCell(map[y][x])) continue;
+      for (const ox of [0, paneW + gap]) {
+        const mx = ox + x * T * Z + T * Z / 2, my = lh + y * T * Z + T * Z / 2;
+        ctx.lineWidth = Math.max(2, Z); ctx.strokeStyle = "rgba(10,14,25,0.85)"; ctx.strokeText("#", mx, my);
+        ctx.fillStyle = "rgba(108,184,255,0.9)"; ctx.fillText("#", mx, my);
+      }
+    }
+    ctx.textBaseline = "alphabetic";
+  }
+  // corrected cells → colour by layer: floor teal / wall red / overlay purple
+  const layerCol = { floor: "#5aa0c8", wall: "#e2637a", overlay: "#c88be0" };
+  if (hasCorr(s.id)) for (const k of Object.keys(corrections[s.id].tiles)) { const { x, y, layer } = parseKey(k); box(x, y, layerCol[layer] || "#e2637a", 2); }
+  if (isActive) box(cx, cy, "#f2b23e", 2); // selected cell (only on the active card)
+  ctx.font = "10px ui-monospace, Consolas, monospace"; ctx.fillStyle = "#a08fae"; ctx.textAlign = "center";
+  ctx.fillText("boulder", paneW / 2, 10); ctx.fillText("brick", paneW + gap + paneW / 2, 10);
+  cv.addEventListener("click", e => {
+    loadScenarioGrid(s); // globals may have moved since render
+    const r = cv.getBoundingClientRect();
+    let px = (e.clientX - r.left) * (cv.width / r.width);
+    const py = (e.clientY - r.top) * (cv.height / r.height);
+    let kitPane = "boulder";
+    if (px >= paneW + gap) { px -= paneW + gap; kitPane = "brick"; }
+    else if (px >= paneW) return; // clicked the gap
+    const gx = Math.floor(px / (T * Z)), gy = Math.floor((py - lh) / (T * Z));
+    if (gx < 0 || gy < 0 || gx >= MAP_W || gy >= MAP_H) return;
+    ui.sel = [gx, gy]; ui.kit = kitPane; ui.editing = true;
+    // default the active layer to whatever's most salient at this cell
+    ui.activeLayer = isWallCell(map[gy][gx]) ? "wall" : (overlayAt(gx, gy) ? "overlay" : "floor");
+    const t = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[keyOf(gx, gy, ui.activeLayer)];
+    if (t && t[kitPane]) ui.sheet = t[kitPane][0];
+    setActive(s);
+  });
+  el.appendChild(cv);
+
+  // readout: the clicked cell + which of its 3 layers the algorithm currently draws
+  const [fl, wl, ol] = layers;
+  const roles = document.createElement("div"); roles.className = "roles";
+  let head = `cell (${cx},${cy})`;
+  if (cellWall) head += `  mask=${maskStr(cellWall.em)}` + (cellWall.isCap ? " [cap]" : "") + (cellWall.isCorner ? " [corner]" : "");
+  roles.textContent = head + `\nlayers: floor=${fl.set ? "#" + fl.floorIdx : "—"}  wall=${wl.set ? wl.role : "—"}  overlay=${ol.set ? ol.role : "—"}`;
+  el.appendChild(roles);
+
+  // foot
+  const foot = document.createElement("div"); foot.className = "foot";
+  const ok = document.createElement("button"); ok.className = "mark ok";
+  ok.textContent = approvals[s.id] ? "✓ approved — click to clear" : "✓ Looks right";
+  ok.addEventListener("click", () => {
+    // Approving checks off too — approving IS reviewing it. Clearing undoes both.
+    if (approvals[s.id]) { delete approvals[s.id]; delete doneSet[s.id]; }
+    else { approvals[s.id] = true; doneSet[s.id] = true; delete corrections[s.id]; if (cardUI[s.id]) cardUI[s.id].editing = false; }
+    saveState();
+    if (filterActive()) renderGallery(); else updateCard(s);
+    if (activeCard === s.id) renderEditor();
+    renderExport();
+  });
+  foot.appendChild(ok);
+  const edit = document.createElement("button"); edit.className = "mark";
+  edit.textContent = isActive ? "✎ editing →" : "✎ Edit tiles";
+  edit.addEventListener("click", () => { ui.editing = true; delete doneSet[s.id]; saveState(); setActive(s); });
+  foot.appendChild(edit);
+  const dn = document.createElement("button"); dn.className = "chk" + (done ? " on" : "");
+  dn.textContent = done ? "✔ done" : "check off";
+  dn.title = "mark this scenario reviewed (keeps its corrections)";
+  dn.addEventListener("click", () => {
+    if (done) { delete doneSet[s.id]; } else { doneSet[s.id] = true; }
+    saveState();
+    if (filterActive()) renderGallery(); else updateCard(s);
+  });
+  foot.appendChild(dn);
+  if (s.group.startsWith("Custom")) {
+    const del = document.createElement("button"); del.textContent = "✕"; del.title = "remove custom scenario";
+    del.style.flex = "0"; del.addEventListener("click", () => {
+      customScns = customScns.filter(c => c.id !== s.id); delete corrections[s.id]; delete cardUI[s.id];
+      if (activeCard === s.id) { activeCard = null; renderEditor(); }
+      saveState(); renderGallery(); renderExport();
+    });
+    foot.appendChild(del);
+  }
+  el.appendChild(foot);
+  return el;
+}
+
+// Replace one card in place (fast path for palette interactions).
+function updateCard(s) {
+  const old = document.getElementById("card-" + s.id);
+  if (old) old.replaceWith(renderCard(s));
+}
+
+/* ============================ RIGHT-PANE EDITOR ============================ */
+// The card whose fix UI is shown in the sticky editor pane on the right.
+let activeCard = null;
+// Make s the active card (its layers/palette show in the editor pane).
+function setActive(s) {
+  const prev = activeCard;
+  activeCard = s.id;
+  if (prev && prev !== s.id) { const ps = allScns().find(x => x.id === prev); if (ps) updateCard(ps); }
+  updateCard(s); renderEditor();
+}
+// Re-render both the card's preview and (if it's active) the editor pane.
+function syncEdit(s) { updateCard(s); if (activeCard === s.id) renderEditor(); }
+
+function renderEditor() {
+  const host = document.getElementById("editor"); if (!host) return;
+  host.textContent = "";
+  if (!activeCard) {
+    const p = document.createElement("p"); p.className = "hint";
+    p.innerHTML = "Click a tile in any scenario on the left. Its <b>floor / wall / overlay</b> layers and the tile palette open here — no scrolling.";
+    host.appendChild(p); return;
+  }
+  const s = allScns().find(x => x.id === activeCard);
+  if (!s) { activeCard = null; return renderEditor(); }
+  loadScenarioGrid(s); const rg = computeRoleGrid();
+  const { x: cx, y: cy } = selOf(s);
+  const cellWall = isWallCell(map[cy][cx]) ? rg[cy][cx] : null;
+  const head = document.createElement("div"); head.className = "editorhead";
+  head.innerHTML = `<b>${s.name}</b> · cell (${cx},${cy})`
+    + (cellWall ? ` · mask=${maskStr(cellWall.em)}` + (cellWall.isCap ? " [cap]" : "") + (cellWall.isCorner ? " [corner]" : "") : "");
+  host.appendChild(head);
+  host.appendChild(buildFixUI(s));
+}
+
+// The per-cell layer editor (chips + floor/wall/overlay blocks + tools + palette).
+function buildFixUI(s) {
+  loadScenarioGrid(s); const rg = computeRoleGrid();
+  const { ui, x: cx, y: cy } = selOf(s);
+  const layers = layersAt(cx, cy, rg);
+  if (!layers.find(l => l.layer === ui.activeLayer)) ui.activeLayer = "wall";
+  const active = layers.find(l => l.layer === ui.activeLayer) || layers[1];
+  const fix = document.createElement("div"); fix.className = "fix open";
+  const chips = document.createElement("div"); chips.className = "tilechips";
+  chips.innerHTML = `<span class="phint">Set the correct tile per layer to describe the true picture (layers not currently drawn can still be set).</span>`;
+  if (hasCorr(s.id)) for (const k of Object.keys(corrections[s.id].tiles)) {
+    const b = document.createElement("button"); const { x, y, layer } = parseKey(k);
+    b.textContent = `(${x},${y}) ${layer[0]}`;
+    b.className = "chip" + (x === cx && y === cy && layer === ui.activeLayer ? " on" : "");
+    b.addEventListener("click", () => { ui.sel = [x, y]; ui.activeLayer = layer; syncEdit(s); });
+    chips.appendChild(b);
+  }
+  fix.appendChild(chips);
+  for (const Ldef of layers) {
+    const block = document.createElement("div"); block.className = "layerblock" + (Ldef.layer === ui.activeLayer ? " active" : "");
+    const h = document.createElement("div"); h.className = "lhead";
+    const curTxt = Ldef.layer === "floor" ? ("floor #" + Ldef.floorIdx + (Ldef.proposed ? " · proposed" : "")) : (Ldef.set ? (Ldef.role + (Ldef.proposed ? " · proposed" : "")) : "not drawn here");
+    h.innerHTML = `<b>${Ldef.label}</b> <span class="cur">${curTxt}</span>`;
+    h.addEventListener("click", () => { ui.activeLayer = Ldef.layer; syncEdit(s); });
+    block.appendChild(h);
+    const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+    const slots = document.createElement("div"); slots.className = "slots";
+    if (Ldef.layer === "floor") slots.appendChild(makeFloorSlot(s, Ldef));
+    else {
+      // boulder | sync | brick — pick either kit, then mirror it across.
+      slots.appendChild(makeSlot(s, "boulder", Ldef));
+      slots.appendChild(makeSyncBtn(s, Ldef));
+      slots.appendChild(makeSlot(s, "brick", Ldef));
+    }
+    block.appendChild(slots);
+    if (Ldef.layer === ui.activeLayer) block.appendChild(buildLayerTools(s, Ldef));
+    const note = document.createElement("textarea"); note.placeholder = `note for this ${Ldef.layer} tile…`;
+    note.value = tile ? tile.note : "";
+    note.addEventListener("input", () => { const t = ensureTile(s.id, Ldef.key); t.note = note.value; saveState(); renderExport(); });
+    block.appendChild(note);
+    if (tile) {
+      const clr = document.createElement("button"); clr.className = "clr"; clr.textContent = "clear this layer";
+      clr.addEventListener("click", () => { delete corrections[s.id].tiles[Ldef.key]; pruneTile(s.id, Ldef.key); saveState(); syncEdit(s); renderExport(); });
+      block.appendChild(clr);
+    }
+    fix.appendChild(block);
+  }
+  fix.appendChild(buildInlinePalette(s, active));
+  return fix;
+}
+
+// Sits between the boulder and brick slots. Pick a tile for either kit, hit this,
+// and the other kit gets its twin (brick = boulder - 10 rows). The arrow always
+// points at the slot being written, so it's obvious which way the copy runs.
+function makeSyncBtn(s, Ldef) {
+  const ui = cardUI[s.id];
+  const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+  const b = document.createElement("button");
+  b.className = "syncbtn";
+  const has = { boulder: tile && tile.boulder, brick: tile && tile.brick };
+  // Source is whichever kit you picked; if you've picked both, the one you're on.
+  const src = (has.boulder && has.brick) ? ui.kit : has.boulder ? "boulder" : has.brick ? "brick" : null;
+  const cell = src && has[src];
+  const dst = counterpartCell(cell, src);
+
+  if (!src) {
+    b.disabled = true; b.textContent = "⇄ sync";
+    b.title = "Pick a tile for either kit first, then sync copies it to the other.";
+  } else if (!dst) {
+    b.disabled = true; b.textContent = "⇄ sync";
+    b.title = `${SHEET_SRC[cell[0]].name} ${cell[1]},${cell[2]} has no ${otherKit(src)} twin — ` +
+              `it's outside the ${src} rows (${KIT_ROWS[src].join("-")}).`;
+  } else {
+    b.textContent = src === "boulder" ? "sync →" : "← sync";
+    b.title = `Copy ${src} ${cell[1]},${cell[2]} → ${otherKit(src)} ${dst[1]},${dst[2]}`;
+    b.addEventListener("click", e => {
+      e.stopPropagation();                    // the slots themselves are click targets
+      ensureTile(s.id, Ldef.key)[otherKit(src)] = dst.slice();
+      delete approvals[s.id];
+      saveState(); syncEdit(s); renderExport();
+    });
+  }
+  return b;
+}
+
+function makeSlot(s, kitName, Ldef) {
+  const ui = cardUI[s.id];
+  const isActive = ui.kit === kitName && ui.activeLayer === Ldef.layer;
+  const slot = document.createElement("div");
+  slot.className = "slot" + (isActive ? " active" : "");
+  const curCell = Ldef.role ? mapping[kitName][Ldef.role] : null;
+  const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+  const corr = tile && tile[kitName];
+  const th = document.createElement("canvas"); th.width = 40; th.height = 40;
+  const tc = th.getContext("2d"); tc.imageSmoothingEnabled = false;
+  const showCell = corr || curCell;
+  if (showCell && sheets[showCell[0]].complete) drawCell(tc, showCell, 0, 0, 40 / T);
+  slot.appendChild(th);
+  const lab = document.createElement("div"); lab.className = "lab2";
+  lab.innerHTML = `<span class="k">${kitName}</span> ${isActive ? "◀ picking" : ""}<br>cur <span class="cur">${curCell ? SHEET_SRC[curCell[0]].name + " " + curCell[1] + "," + curCell[2] : "— not drawn"}</span>`
+    + (corr ? `<br>→ <span class="cor">should be ${SHEET_SRC[corr[0]].name} ${corr[1]},${corr[2]}</span>` : "");
+  slot.appendChild(lab);
+  slot.addEventListener("click", () => { ui.kit = kitName; ui.activeLayer = Ldef.layer; if (corr) ui.sheet = corr[0]; syncEdit(s); });
+  return slot;
+}
+
+// Floor layer has a single tile (shared by both kits), picked from the floor strip.
+function makeFloorSlot(s, Ldef) {
+  const ui = cardUI[s.id];
+  const isActive = ui.activeLayer === "floor";
+  const slot = document.createElement("div");
+  slot.className = "slot" + (isActive ? " active" : "");
+  const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+  const corrIdx = tile && tile.floorIdx != null ? tile.floorIdx : null;
+  const showIdx = corrIdx != null ? corrIdx : Ldef.floorIdx;
+  const th = document.createElement("canvas"); th.width = 40; th.height = 40;
+  const tc = th.getContext("2d"); tc.imageSmoothingEnabled = false;
+  if (showIdx != null && floorImg.complete) drawFloorIdx(tc, showIdx, 0, 0, 40 / T);
+  slot.appendChild(th);
+  const lab = document.createElement("div"); lab.className = "lab2";
+  lab.innerHTML = `<span class="k">floor</span> ${isActive ? "◀ picking" : ""}<br>cur <span class="cur">#${Ldef.floorIdx}${Ldef.proposed ? " (proposed)" : ""}</span>`
+    + (corrIdx != null ? `<br>→ <span class="cor">should be #${corrIdx}</span>` : "");
+  slot.appendChild(lab);
+  slot.addEventListener("click", () => { ui.activeLayer = "floor"; syncEdit(s); });
+  return slot;
+}
+
+// Quick actions for the active layer: copy its tile to a neighbour's same layer,
+// and (wall only) convert to overlay — move the tile up as an overlay + core here.
+function buildLayerTools(s, Ldef) {
+  const wrap = document.createElement("div"); wrap.className = "ltools";
+  const corrOf = () => corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+  const shownKit = kit => { const c = corrOf(); return (c && c[kit]) || (Ldef.role ? mapping[kit][Ldef.role] : null); };
+  const shownFloor = () => { const c = corrOf(); return c && c.floorIdx != null ? c.floorIdx : Ldef.floorIdx; };
+  wrap.appendChild(document.createTextNode("copy "));
+  for (const [lbl, dx, dy] of [["↑", 0, -1], ["↓", 0, 1], ["←", -1, 0], ["→", 1, 0]]) {
+    const b = document.createElement("button"); b.textContent = lbl; b.title = "copy this " + Ldef.layer + " tile to the neighbour";
+    b.addEventListener("click", () => {
+      const nx = Ldef.x + dx, ny = Ldef.y + dy;
+      if (nx < 0 || ny < 0 || nx >= s.w || ny >= s.h) return;
+      if (Ldef.layer === "floor") { const v = shownFloor(); if (v == null) return; ensureTile(s.id, keyOf(nx, ny, "floor")).floorIdx = v; }
+      else for (const kit of ["boulder", "brick"]) { const v = shownKit(kit); if (v) ensureTile(s.id, keyOf(nx, ny, Ldef.layer))[kit] = v.slice(); }
+      delete approvals[s.id]; saveState(); syncEdit(s); renderExport();
+    });
+    wrap.appendChild(b);
+  }
+  if (Ldef.layer === "wall") {
+    const cb = document.createElement("button"); cb.className = "conv"; cb.textContent = "→ overlay ↑ + core";
+    cb.title = "move this wall tile up as an overlay, and make this cell solid core";
+    cb.addEventListener("click", () => {
+      for (const kit of ["boulder", "brick"]) {
+        const v = shownKit(kit); if (!v) continue;
+        if (Ldef.y - 1 >= 0) ensureTile(s.id, keyOf(Ldef.x, Ldef.y - 1, "overlay"))[kit] = v.slice();
+        ensureTile(s.id, Ldef.key)[kit] = mapping[kit].w0.slice();
+      }
+      delete approvals[s.id]; saveState(); syncEdit(s); renderExport();
+    });
+    wrap.appendChild(cb);
+  }
+  return wrap;
+}
+
+// Tile palette inside the card. For wall/overlay layers it's the sheet picker
+// (per kit); for the floor layer it's the floor-strip picker (shared).
+function buildInlinePalette(s, active) {
+  const ui = cardUI[s.id];
+  const key = active.key, layer = active.layer;
+  const wrap = document.createElement("div");
+  const hint = document.createElement("div"); hint.className = "phint";
+  if (layer === "floor") {
+    hint.innerHTML = `Picking the <b>floor</b> tile — click one (0–15 edge masks, 16–30 notches, 31+ fills) or type the index:`;
+    wrap.appendChild(hint);
+    {
+      const qe = document.createElement("div"); qe.className = "quickentry";
+      const cur = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[key];
+      const iin = document.createElement("input"); iin.type = "number"; iin.min = 0; iin.placeholder = "idx";
+      iin.value = cur && cur.floorIdx != null ? cur.floorIdx : "";
+      iin.addEventListener("change", () => {
+        const idx = parseInt(iin.value, 10);
+        if (Number.isNaN(idx) || idx < 0 || (floorImg.naturalWidth && idx >= floorImg.naturalWidth / T)) return;
+        const t = ensureTile(s.id, key); t.floorIdx = idx; delete approvals[s.id];
+        saveState(); syncEdit(s); renderExport();
+      });
+      qe.append("floor idx ", iin);
+      wrap.appendChild(qe);
+    }
+    const sc = document.createElement("div"); sc.className = "scroller pscroll";
+    const cv = document.createElement("canvas");
+    const FCOLS = 12; // wrap the floor strip into a grid, same tile size as the wall sheet
+    if (floorImg.complete && floorImg.naturalWidth) {
+      const n = floorImg.naturalWidth / T, rows = Math.ceil(n / FCOLS);
+      cv.width = FCOLS * T * PZ; cv.height = rows * T * PZ;
+      const c = cv.getContext("2d"); c.imageSmoothingEnabled = false;
+      c.fillStyle = "#141019"; c.fillRect(0, 0, cv.width, cv.height);
+      for (let i = 0; i < n; i++) {
+        const gx = i % FCOLS, gy = (i / FCOLS) | 0;
+        c.drawImage(floorImg, i * T, 0, T, T, gx * T * PZ, gy * T * PZ, T * PZ, T * PZ);
+      }
+      c.strokeStyle = "rgba(255,255,255,0.08)"; c.lineWidth = 1;
+      for (let gx = 0; gx <= FCOLS; gx++) { c.beginPath(); c.moveTo(gx * T * PZ + 0.5, 0); c.lineTo(gx * T * PZ + 0.5, cv.height); c.stroke(); }
+      for (let gy = 0; gy <= rows; gy++) { c.beginPath(); c.moveTo(0, gy * T * PZ + 0.5); c.lineTo(cv.width, gy * T * PZ + 0.5); c.stroke(); }
+      const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[key];
+      const ci = tile && tile.floorIdx != null ? tile.floorIdx : null;
+      if (ci != null) { const gx = ci % FCOLS, gy = (ci / FCOLS) | 0; c.strokeStyle = "#7ec98f"; c.lineWidth = 3; c.strokeRect(gx * T * PZ + 1, gy * T * PZ + 1, T * PZ - 2, T * PZ - 2); }
+    }
+    cv.addEventListener("click", e => {
+      if (!floorImg.complete || !floorImg.naturalWidth) return;
+      const n = floorImg.naturalWidth / T;
+      const r = cv.getBoundingClientRect();
+      const sx = (e.clientX - r.left) * (cv.width / r.width) / PZ, sy = (e.clientY - r.top) * (cv.height / r.height) / PZ;
+      const gx = Math.floor(sx / T), gy = Math.floor(sy / T), idx = gy * FCOLS + gx;
+      if (gx < 0 || gx >= FCOLS || idx < 0 || idx >= n) return;
+      const t = ensureTile(s.id, key); t.floorIdx = idx;
+      delete approvals[s.id];
+      saveState(); syncEdit(s); renderExport();
+    });
+    sc.appendChild(cv); wrap.appendChild(sc);
+    return wrap;
+  }
+  hint.innerHTML = `Picking <b>${ui.kit}</b> · <b>${layer}</b> layer — click a tile, or type pack + x,y:`;
+  wrap.appendChild(hint);
+  {
+    const qe = document.createElement("div"); qe.className = "quickentry";
+    const cur = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[key] && corrections[s.id].tiles[key][ui.kit];
+    const sel = document.createElement("select");
+    SHEET_SRC.forEach((sh, i) => { const o = document.createElement("option"); o.value = i; o.textContent = sh.name; if (i === ui.sheet) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener("change", () => { ui.sheet = +sel.value; syncEdit(s); });
+    const xin = document.createElement("input"); xin.type = "number"; xin.min = 0; xin.placeholder = "x"; xin.value = cur ? cur[1] : "";
+    const yin = document.createElement("input"); yin.type = "number"; yin.min = 0; yin.placeholder = "y"; yin.value = cur ? cur[2] : "";
+    const apply = () => {
+      const cx = parseInt(xin.value, 10), cy = parseInt(yin.value, 10), sh = +sel.value;
+      if (Number.isNaN(cx) || Number.isNaN(cy)) return;
+      const img = sheets[sh];
+      if (img.naturalWidth && (cx < 0 || cy < 0 || cx >= img.naturalWidth / T || cy >= img.naturalHeight / T)) return;
+      const t = ensureTile(s.id, key); t[ui.kit] = [sh, cx, cy]; delete approvals[s.id];
+      saveState(); syncEdit(s); renderExport();
+    };
+    xin.addEventListener("change", apply); yin.addEventListener("change", apply);
+    qe.append("pack ", sel, " x ", xin, " y ", yin);
+    wrap.appendChild(qe);
+  }
+  const tabs = document.createElement("div"); tabs.className = "sheettabs";
+  SHEET_SRC.forEach((sh, i) => {
+    const b = document.createElement("button"); b.textContent = sh.name; b.className = i === ui.sheet ? "on" : "";
+    b.addEventListener("click", () => { ui.sheet = i; syncEdit(s); });
+    tabs.appendChild(b);
+  });
+  wrap.appendChild(tabs);
+  const sc = document.createElement("div"); sc.className = "scroller pscroll";
+  const cv = document.createElement("canvas");
+  const img = sheets[ui.sheet];
+  if (img.complete && img.naturalWidth) {
+    cv.width = img.naturalWidth * PZ; cv.height = img.naturalHeight * PZ;
+    const c = cv.getContext("2d"); c.imageSmoothingEnabled = false;
+    c.fillStyle = "#141019"; c.fillRect(0, 0, cv.width, cv.height);
+    c.drawImage(img, 0, 0, cv.width, cv.height);
+    c.strokeStyle = "rgba(255,255,255,0.08)"; c.lineWidth = 1;
+    for (let x = 0; x <= img.naturalWidth / T; x++) { c.beginPath(); c.moveTo(x * T * PZ + 0.5, 0); c.lineTo(x * T * PZ + 0.5, cv.height); c.stroke(); }
+    for (let y = 0; y <= img.naturalHeight / T; y++) { c.beginPath(); c.moveTo(0, y * T * PZ + 0.5); c.lineTo(cv.width, y * T * PZ + 0.5); c.stroke(); }
+    const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[key];
+    const corr = tile && tile[ui.kit];
+    if (corr && corr[0] === ui.sheet) { c.strokeStyle = "#7ec98f"; c.lineWidth = 3; c.strokeRect(corr[1] * T * PZ + 1, corr[2] * T * PZ + 1, T * PZ - 2, T * PZ - 2); }
+  }
+  cv.addEventListener("click", e => {
+    if (!img.complete || !img.naturalWidth) return;
+    const r = cv.getBoundingClientRect();
+    const sx = (e.clientX - r.left) * (cv.width / r.width) / PZ, sy = (e.clientY - r.top) * (cv.height / r.height) / PZ;
+    const cx = Math.floor(sx / T), cy = Math.floor(sy / T);
+    if (cx < 0 || cy < 0 || cx >= img.naturalWidth / T || cy >= img.naturalHeight / T) return;
+    const t = ensureTile(s.id, key); t[ui.kit] = [ui.sheet, cx, cy];
+    delete approvals[s.id];
+    saveState(); syncEdit(s); renderExport();
+  });
+  sc.appendChild(cv); wrap.appendChild(sc);
+  return wrap;
+}
+
+/* ============================ EXPORT ============================ */
+function renderExport() {
+  const wrong = [], ok = []; let tileTotal = 0;
+  for (const s of allScns()) {
+    const flagged = hasCorr(s.id), appr = approvals[s.id];
+    if (!flagged && !appr) continue;
+    loadScenarioGrid(s); const rg = computeRoleGrid(); const cc = rg[s.cy][s.cx];
+    const base = {
+      id: s.id, group: s.group, name: s.name,
+      grid: { w: s.w, h: s.h, center: [s.cx, s.cy], floors: s.floors }
+    };
+    if (flagged) {
+      const tiles = [];
+      for (const k of Object.keys(corrections[s.id].tiles)) {
+        const { x, y, layer } = parseKey(k);
+        const t = corrections[s.id].tiles[k];
+        if (layer === "floor") {
+          tiles.push({ xy: [x, y], layer: "floor", current_floor: isOpen(x, y) ? floorIndexAt(x, y) : (15 - baseMask(x, y)), correct_floor: t.floorIdx != null ? t.floorIdx : null, note: t.note || "" });
+        } else {
+          const role = layer === "overlay" ? overlayRoleAt(x, y)
+                     : (isWallCell(map[y][x]) && rg[y][x] ? wbRoleForCell(x, y, rg[y][x]) : null);
+          tiles.push(Object.assign(
+            { xy: [x, y], layer },
+            layer === "wall" && role ? { mask: maskStr(rg[y][x].em) } : {},
+            {
+              role,
+              current_cell: role ? { boulder: mapping.boulder[role], brick: mapping.brick[role] } : null,
+              correct_cell: { boulder: t.boulder || null, brick: t.brick || null }, note: t.note || ""
+            }
+          ));
+        }
+      }
+      tileTotal += tiles.length;
+      wrong.push(Object.assign(base, { tiles }));
+    } else {
+      // Report the role that's actually DRAWN, exactly as the corrections branch
+      // above does. This used to report cc.role - the raw computeWallCell role
+      // from BEFORE walk-behind is applied - so for every cell walk-behind
+      // rewrites (10 of 25 approvals in round 4: m2 said w2 while the page drew
+      // kne) the export named a tile that was never on screen. The user approves
+      // the PICTURE, so the export has to describe the picture.
+      const role = isWallCell(map[s.cy][s.cx]) ? wbRoleForCell(s.cx, s.cy, cc) : null;
+      ok.push(Object.assign(base, {
+        mask: maskStr(cc.em), role,
+        cell: role ? { boulder: mapping.boulder[role], brick: mapping.brick[role] } : null,
+      }));
+    }
+  }
+  document.getElementById("exp").value = JSON.stringify({ corrections: wrong, approved: ok }, null, 1);
+  document.getElementById("count").innerHTML =
+    `<span style="color:var(--bad)">${wrong.length} flagged · ${tileTotal} tiles</span> · <span style="color:var(--good)">${ok.length} approved</span>`;
+}
+function flash(msg) { const f = document.getElementById("flash"); f.textContent = msg; setTimeout(() => { if (f.textContent === msg) f.textContent = ""; }, 2200); }
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const txt = document.getElementById("exp").value;
+  try { await navigator.clipboard.writeText(txt); flash("copied ✓"); } catch (e) { document.getElementById("exp").select(); flash("select + ctrl-C"); }
+});
+let clearArmed = false;
+document.getElementById("clearBtn").addEventListener("click", () => {
+  const b = document.getElementById("clearBtn");
+  if (!clearArmed) {
+    clearArmed = true; b.textContent = "click again to clear"; b.classList.add("primary");
+    setTimeout(() => { clearArmed = false; b.textContent = "Clear all"; b.classList.remove("primary"); }, 3000);
+    return;
+  }
+  clearArmed = false; b.textContent = "Clear all"; b.classList.remove("primary");
+  corrections = {}; approvals = {}; doneSet = {}; cardUI = {}; activeCard = null;
+  saveState(); renderGallery(); renderEditor(); renderExport(); flash("cleared ✓");
+});
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const json = stateBlob();
+  try {
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "wall-corrections.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    flash("saved file ✓");
+  } catch (e) { document.getElementById("exp").value = json; flash("download blocked — copy the box"); }
+});
+document.getElementById("loadBtn").addEventListener("click", () => document.getElementById("loadFile").click());
+document.getElementById("loadFile").addEventListener("change", e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const st = JSON.parse(r.result);
+      if (!st.corrections && !st.approvals && !st.done && !st.customScns) throw new Error("not a state file");
+      restoreState(st); cardUI = {}; activeCard = null; saveState(); renderGallery(); renderEditor(); renderExport(); flash("loaded ✓");
+    } catch (err) { flash("couldn't read that file"); }
+  };
+  r.readAsText(f); e.target.value = "";
+});
+document.getElementById("flavor").addEventListener("change", e => { SHOW_FLAVOR = e.target.checked; renderGallery(); });
+document.getElementById("zoomSel").addEventListener("change", renderGallery);
+for (const [id, key] of [["lyrFloor","floor"],["lyrWalls","walls"],["lyrCaps","caps"],["lyrOverlay","overlay"]])
+  document.getElementById(id).addEventListener("change", e => { LYR[key] = e.target.checked; renderGallery(); renderBoard(); });
+document.getElementById("wallMark").addEventListener("change", e => { SHOW_WALLMARK = e.target.checked; renderGallery(); });
+// (The walk-behind toggle is gone: round 4 landed it as THE behaviour - it's
+// in the game now, not a proposal. WALKBEHIND stays a const true.)
+for (const [id, key] of [["vwUnrev","unreviewed"],["vwWrong","wrong"],["vwOk","ok"],["vwDone","done"]])
+  document.getElementById(id).addEventListener("change", e => { viewShow[key] = e.target.checked; renderGallery(); });
+
+/* ============================ PAINT-YOUR-OWN BOARD ============================ */
+const BW = 7, BH = 7, BZ = 4;
+let board = Array.from({ length: BH }, () => Array(BW).fill("#"));
+let boardCenter = [3, 3];
+let pbrush = "#";
+const bCan = document.getElementById("board"), bCtx = bCan.getContext("2d");
+function renderBoard() {
+  const saveW = MAP_W, saveH = MAP_H, saveMap = map;
+  MAP_W = BW; MAP_H = BH; map = board;
+  const rg = computeRoleGrid();
+  bCan.width = BW * T * BZ; bCan.height = BH * T * BZ;
+  bCtx.imageSmoothingEnabled = false; bCtx.fillStyle = "#3a2e3c"; bCtx.fillRect(0, 0, bCan.width, bCan.height);
+  drawScenario(bCtx, "boulder", 0, 0, BZ, rg);
+  bCtx.strokeStyle = "rgba(255,255,255,.08)";
+  for (let y = 0; y < BH; y++) for (let x = 0; x < BW; x++) bCtx.strokeRect(x * T * BZ + .5, y * T * BZ + .5, T * BZ - 1, T * BZ - 1);
+  bCtx.strokeStyle = "#f2b23e"; bCtx.lineWidth = 2;
+  bCtx.strokeRect(boardCenter[0] * T * BZ + 1, boardCenter[1] * T * BZ + 1, T * BZ - 2, T * BZ - 2);
+  MAP_W = saveW; MAP_H = saveH; map = saveMap;
+}
+bCan.addEventListener("pointerdown", e => {
+  const r = bCan.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) * (bCan.width / r.width) / (T * BZ));
+  const y = Math.floor((e.clientY - r.top) * (bCan.height / r.height) / (T * BZ));
+  if (x < 0 || y < 0 || x >= BW || y >= BH) return;
+  if (pbrush === "C") boardCenter = [x, y]; else board[y][x] = pbrush;
+  renderBoard();
+});
+for (const rb of document.querySelectorAll('input[name=pb]')) rb.addEventListener("change", () => pbrush = rb.value);
+document.getElementById("clearBoard").addEventListener("click", () => { board = Array.from({ length: BH }, () => Array(BW).fill("#")); renderBoard(); });
+document.getElementById("addScn").addEventListener("click", () => {
+  const floors = [];
+  for (let y = 0; y < BH; y++) for (let x = 0; x < BW; x++) if (board[y][x] === ".") floors.push([x, y]);
+  const n = customScns.length + 1;
+  const s = scn("Custom · painted", "custom #" + n, "user-painted scenario", BW, BH, boardCenter[0], boardCenter[1], floors);
+  // ensure unique id
+  s.id = "Custompainted_custom_" + Date.now();
+  customScns.push(s); cardUI[s.id] = { kit: "boulder", sheet: 0, sel: [boardCenter[0], boardCenter[1]], editing: true };
+  // A brand-new card is "unreviewed" - if that filter is off, the card would be
+  // born invisible and the add would look like it did nothing. Force it on.
+  if (!viewShow.unreviewed) { viewShow.unreviewed = true; document.getElementById("vwUnrev").checked = true; }
+  saveState(); renderGallery(); renderExport();
+  flash("added custom #" + n + " ✓");
+  document.querySelector(".groupHead")?.scrollIntoView();
+});
+
+/* ============================ DUNGEON TAB (ported from the lab) ============================ */
+// Same engine + rule as the Scenarios tab — just a real dungeon instead of 5x5 cards.
+const SLOT_W = 13, SLOT_H = 12;
+const SIZE_PRESETS = { small:{cols:1,rows:1,rooms:1}, medium:{cols:2,rows:2,rooms:3}, large:{cols:3,rows:2,rooms:5}, huge:{cols:3,rows:3,rooms:8} };
+let dunGrid = [], DUN_W = 15, DUN_H = 14, dbrush = "";
+function carveRoom(g, rx, ry, rw, rh) {
+  const ri = n => Math.floor(Math.random() * n);
+  for (let y = ry; y < ry + rh; y++) for (let x = rx; x < rx + rw; x++)
+    g[y][x] = (x === rx || x === rx + rw - 1 || y <= ry + 1 || y >= ry + rh - 2) ? "#" : ".";
+  const west = ri(2) === 0, bx = west ? rx + 2 + ri(2) : rx + rw - 4 - ri(2);
+  g[ry+2][bx] = "#"; g[ry+2][bx+1] = "#"; g[ry+3][bx] = "#"; g[ry+3][bx+1] = "#";
+  for (let k = 0; k < 30; k++) { const px = rx+2+ri(Math.max(1,rw-4)), py = ry+3+ri(Math.max(1,rh-6)); if (g[py][px] === ".") { g[py][px] = "#"; break; } }
+  return { cx: rx + (rw >> 1), cy: ry + (rh >> 1) };
+}
+function carveDoorAndSpur(g, rx, ry, rw, rh) {
+  const ri = n => Math.floor(Math.random() * n);
+  const dx = rx + 2 + ri(Math.max(1, rw - 4));
+  g[ry+rh-2][dx] = "D"; g[ry+rh-1][dx] = "D";
+  for (let y = ry + rh; y < Math.min(DUN_H - 1, ry + rh + 3); y++) g[y][dx] = ".";
+  const sy = ry + 2 + ri(Math.max(1, rh - 5)), tx = Math.min(DUN_W - 3, rx + rw + 1 + ri(3));
+  for (let x = rx + rw - 1; x <= tx; x++) g[sy][x] = ".";
+  const legEnd = Math.min(DUN_H - 2, sy + 2 + ri(2));
+  for (let y = sy; y <= legEnd; y++) g[y][tx] = ".";
+  const rry = ry + 3 + ri(Math.max(1, rh - 6));
+  for (let x = rx + 2; x <= rx + 4; x++) if (g[rry][x] === ".") g[rry][x] = "R";
+}
+function connectRooms(g, a, b) {
+  const ri = n => Math.floor(Math.random() * n);
+  let x = a.cx, y = a.cy;
+  const open = () => { if (g[y][x] === "#") g[y][x] = "."; };
+  const wx = () => { while (x !== b.cx) { open(); x += x < b.cx ? 1 : -1; } };
+  const wy = () => { while (y !== b.cy) { open(); y += y < b.cy ? 1 : -1; } };
+  if (ri(2) === 0) { wx(); wy(); } else { wy(); wx(); }
+  open();
+}
+function buildDungeon() {
+  const sel = document.getElementById("dunSize");
+  const preset = SIZE_PRESETS[sel ? sel.value : "small"] || SIZE_PRESETS.small;
+  DUN_W = preset.cols * SLOT_W + 2; DUN_H = preset.rows * SLOT_H + 2;
+  const ri = n => Math.floor(Math.random() * n);
+  const g = Array.from({ length: DUN_H }, () => Array(DUN_W).fill("#"));
+  const slots = []; for (let sc = 0; sc < preset.cols; sc++) for (let sr = 0; sr < preset.rows; sr++) slots.push({ sc, sr });
+  for (let i = slots.length - 1; i > 0; i--) { const j = ri(i + 1); [slots[i], slots[j]] = [slots[j], slots[i]]; }
+  const rooms = [];
+  for (const slot of slots.slice(0, preset.rooms)) {
+    const rw = 8 + ri(3), rh = 8 + ri(2);
+    const rx = 1 + slot.sc * SLOT_W + ri(Math.max(1, SLOT_W - rw - 1));
+    const ry = 1 + slot.sr * SLOT_H + ri(Math.max(1, SLOT_H - rh - 1));
+    rooms.push(Object.assign({ rx, ry, rw, rh }, carveRoom(g, rx, ry, rw, rh)));
+  }
+  if (rooms.length) carveDoorAndSpur(g, rooms[0].rx, rooms[0].ry, rooms[0].rw, rooms[0].rh);
+  for (let i = 1; i < rooms.length; i++) connectRooms(g, rooms[i - 1], rooms[i]);
+  dunGrid = g;
+}
+function renderDungeon() {
+  const cv = document.getElementById("dungeon"); if (!cv) return;
+  if (!dunGrid.length) buildDungeon();
+  const zs = document.getElementById("dunZoom");
+  const Z = parseInt(zs ? zs.value : "3", 10) || 3;
+  map = dunGrid; MAP_W = DUN_W; MAP_H = DUN_H;   // point the engine at the dungeon
+  const rg = computeRoleGrid();
+  const paneW = DUN_W * T * Z, paneH = DUN_H * T * Z, gap = 24, lh = 18;
+  cv.width = paneW * 2 + gap; cv.height = paneH + lh;
+  const ctx = cv.getContext("2d"); ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = "#3a2e3c"; ctx.fillRect(0, 0, cv.width, cv.height);
+  drawScenario(ctx, "boulder", 0, lh, Z, rg, null);
+  drawScenario(ctx, "brick", paneW + gap, lh, Z, rg, null);
+  for (let y = 0; y < DUN_H; y++) for (let x = 0; x < DUN_W; x++) {
+    const c = dunGrid[y][x]; if (c !== "R" && c !== "D") continue;
+    for (const [ox, mat] of [[0, "boulder"], [paneW + gap, "brick"]]) {
+      const M = mapping[mat], px = ox + x * T * Z, py = lh + y * T * Z;
+      if (c === "R") {
+        const isRail = (xx, yy) => xx >= 0 && yy >= 0 && xx < DUN_W && yy < DUN_H && dunGrid[yy][xx] === "R";
+        const r = (isRail(x,y-1)?1:0)|(isRail(x+1,y)?2:0)|(isRail(x,y+1)?4:0)|(isRail(x-1,y)?8:0);
+        let rr = "rh";
+        if (r===5) rr="rv"; else if (r===4) rr="rvt"; else if (r===1) rr="rvb";
+        else if (r===2) rr="rhl"; else if (r===8) rr="rhr";
+        else if (r===3) rr="rcne"; else if (r===9) rr="rcnw";
+        else if (r===6) rr="rcse"; else if (r===12) rr="rcsw";
+        drawCell(ctx, mapping.extras[rr], px, py, Z);
+      } else {
+        drawCell(ctx, M.w0, px, py, Z);
+        if (!(dunGrid[y+1] && dunGrid[y+1][x] === "D") && M.arch) drawCell(ctx, M.arch, px, py, Z);
+      }
+    }
+  }
+  if (SHOW_WALLMARK) {
+    ctx.font = `bold ${Math.round(T * Z * 0.62)}px ui-monospace, Consolas, monospace`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (let y = 0; y < DUN_H; y++) for (let x = 0; x < DUN_W; x++) {
+      if (!isWallCell(dunGrid[y][x])) continue;
+      for (const ox of [0, paneW + gap]) {
+        const mx = ox + x*T*Z + T*Z/2, my = lh + y*T*Z + T*Z/2;
+        ctx.lineWidth = Math.max(2, Z); ctx.strokeStyle = "rgba(10,14,25,0.8)"; ctx.strokeText("#", mx, my);
+        ctx.fillStyle = "rgba(108,184,255,0.5)"; ctx.fillText("#", mx, my);
+      }
+    }
+    ctx.textBaseline = "alphabetic";
+  }
+  ctx.font = "bold 12px ui-monospace, Consolas, monospace"; ctx.fillStyle = "#a08fae"; ctx.textAlign = "center";
+  ctx.fillText("BOULDER", paneW / 2, 13); ctx.fillText("BRICK", paneW + gap + paneW / 2, 13);
+}
+(function wireDungeon(){
+  const cv = document.getElementById("dungeon"); if (!cv) return;
+  const hit = e => {
+    const zs = document.getElementById("dunZoom"); const Z = parseInt(zs ? zs.value : "3", 10) || 3;
+    const r = cv.getBoundingClientRect(); const paneW = DUN_W * T * Z, gap = 24, lh = 18;
+    let px = (e.clientX - r.left) * (cv.width / r.width);
+    const py = (e.clientY - r.top) * (cv.height / r.height);
+    if (px >= paneW + gap) px -= paneW + gap; else if (px >= paneW) return null;
+    const x = Math.floor(px / (T * Z)), y = Math.floor((py - lh) / (T * Z));
+    return (x < 0 || y < 0 || x >= DUN_W || y >= DUN_H) ? null : { x, y };
+  };
+  cv.addEventListener("pointerdown", e => {
+    const h = hit(e); if (!h) return;
+    if (dbrush) { dunGrid[h.y][h.x] = dbrush; renderDungeon(); return; }
+    map = dunGrid; MAP_W = DUN_W; MAP_H = DUN_H;
+    const info = document.getElementById("dunInfo");
+    if (isWallCell(dunGrid[h.y][h.x])) {
+      const c = computeWallCell(h.x, h.y);
+      info.textContent = `(${h.x},${h.y}) mask=${maskStr(c.em)} → ${wbRoleForCell(h.x, h.y, c)}` + (c.isCap ? " [cap]" : "") + (c.isCorner ? " [corner]" : "");
+    } else {
+      const o = overlayRoleAt(h.x, h.y);
+      info.textContent = `(${h.x},${h.y}) floor #${floorIndexAt(h.x, h.y)}` + (o ? ` · overlay ${o}` : "");
+    }
+  });
+  for (const rb of document.querySelectorAll('input[name=dpb]')) rb.addEventListener("change", () => { dbrush = rb.value; cv.style.cursor = dbrush ? "crosshair" : "pointer"; });
+  document.getElementById("dunReroll").addEventListener("click", () => { buildDungeon(); renderDungeon(); });
+  document.getElementById("dunSize").addEventListener("change", () => { buildDungeon(); renderDungeon(); });
+  document.getElementById("dunZoom").addEventListener("change", renderDungeon);
+})();
+
+/* ============================ HEDGE TAB ============================ */
+const HED_W = 16, HED_H = 10;
+let hedgeMap = [], hbrush = "";
+function buildHedgeBoard() {
+  const g = Array.from({ length: HED_H }, () => Array(HED_W).fill("."));
+  for (let x = 0; x < HED_W; x++) { g[0][x] = "H"; g[HED_H-1][x] = "H"; }
+  for (let y = 0; y < HED_H; y++) { g[y][0] = "H"; g[y][HED_W-1] = "H"; }
+  g[HED_H-1][HED_W >> 1] = ".";
+  for (let y = 2; y <= 5; y++) g[y][3] = "H";
+  for (let x = 5; x <= 9; x++) g[2][x] = "H";
+  for (let y = 4; y <= 6; y++) g[y][6] = "H";
+  for (let x = 6; x <= 9; x++) g[6][x] = "H";
+  for (let y = 2; y <= 7; y++) g[y][11] = "H";
+  g[4][10]="H"; g[4][12]="H"; g[7][6]="H"; g[8][5]="H"; g[8][6]="H"; g[8][7]="H"; g[9][6]="H"; g[3][13]="H";
+  hedgeMap = g;
+}
+const hIs = (x,y) => x>=0 && y>=0 && x<HED_W && y<HED_H && hedgeMap[y][x]==="H";
+function renderHedge() {
+  const cv = document.getElementById("hedge"); if (!cv) return;
+  if (!hedgeMap.length) buildHedgeBoard();
+  const Z = 3;
+  cv.width = HED_W*T*Z; cv.height = HED_H*T*Z;
+  const c = cv.getContext("2d"); c.imageSmoothingEnabled = false;
+  c.fillStyle = "#5a8f4a"; c.fillRect(0,0,cv.width,cv.height);
+  for (let y = 0; y < HED_H; y++) for (let x = 0; x < HED_W; x++) {
+    if (hedgeMap[y][x] !== "H") continue;
+    const px = x*T*Z, py = y*T*Z;
+    const m = (hIs(x,y-1)?1:0)|(hIs(x+1,y)?2:0)|(hIs(x,y+1)?4:0)|(hIs(x-1,y)?8:0);
+    if (m === 15) {
+      drawCell(c, mapping.hedge.h15, px, py, Z);
+      const nm = (!hIs(x-1,y-1)?1:0)|(!hIs(x+1,y-1)?2:0)|(!hIs(x-1,y+1)?4:0)|(!hIs(x+1,y+1)?8:0);
+      const img = sheets[BUSH_SHEET], half = 8*Z;
+      if (nm & 1) c.drawImage(img, HEDGE_NOTCH_PATCH.nw[0], HEDGE_NOTCH_PATCH.nw[1], 8,8, px, py, half, half);
+      if (nm & 2) c.drawImage(img, HEDGE_NOTCH_PATCH.ne[0], HEDGE_NOTCH_PATCH.ne[1], 8,8, px+half, py, half, half);
+      if (nm & 4) c.drawImage(img, HEDGE_NOTCH_PATCH.sw[0], HEDGE_NOTCH_PATCH.sw[1], 8,8, px, py+half, half, half);
+      if (nm & 8) c.drawImage(img, HEDGE_NOTCH_PATCH.se[0], HEDGE_NOTCH_PATCH.se[1], 8,8, px+half, py+half, half, half);
+    } else drawCell(c, mapping.hedge["h"+m], px, py, Z);
+  }
+}
+(function wireHedge(){
+  const cv = document.getElementById("hedge"); if (!cv) return;
+  cv.addEventListener("pointerdown", e => {
+    if (!hbrush) return;
+    const r = cv.getBoundingClientRect(), Z = 3;
+    const x = Math.floor((e.clientX - r.left) * (cv.width / r.width) / (T*Z));
+    const y = Math.floor((e.clientY - r.top) * (cv.height / r.height) / (T*Z));
+    if (x < 0 || y < 0 || x >= HED_W || y >= HED_H) return;
+    hedgeMap[y][x] = hbrush; renderHedge();
+  });
+  for (const rb of document.querySelectorAll('input[name=hbr]')) rb.addEventListener("change", () => { hbrush = rb.value; cv.style.cursor = hbrush ? "crosshair" : "default"; });
+})();
+
+/* ============================ TABS ============================ */
+function showTab(which) {
+  for (const [btn, panel] of [["tabScn","panelScn"],["tabDun","panelDun"],["tabHedge","panelHedge"]]) {
+    const on = btn === "tab" + which;
+    const b = document.getElementById(btn), p = document.getElementById(panel);
+    if (b) b.classList.toggle("on", on);
+    if (p) p.hidden = !on;
+  }
+  if (which === "Dun") renderDungeon();
+  if (which === "Hedge") renderHedge();
+}
+for (const w of ["Scn","Dun","Hedge"]) {
+  const b = document.getElementById("tab" + w); if (b) b.addEventListener("click", () => showTab(w));
+}
+
+/* ============================ BOOT ============================ */
+loadState();
+let pending = sheets.length + 1;
+const ready = () => { if (--pending === 0) { renderGallery(); renderEditor(); renderExport(); renderBoard(); buildDungeon(); buildHedgeBoard(); showTab("Scn"); } };
+for (const im of sheets) { if (im.complete) ready(); else { im.onload = ready; im.onerror = ready; } }
+if (floorImg.complete) ready(); else { floorImg.onload = ready; floorImg.onerror = ready; }
+</script>

@@ -1,0 +1,35 @@
+const W_OF = ["w0","w1","w2","w3","w4","w5","w6","w7","w8","w9","w10","w11","w12","w13","w14","w15"];
+const CAP_OF = { 4:"r0", 5:"r1", 6:"r2w", 7:"r3", 12:"r8", 13:"r9", 14:"w14", 15:"w15" };
+// Does this wall's north rim lift into an overlay? Only when the structure
+// carries on below it — it's a cap (a face sits under it), or the side rim
+// continues into the cell below. That's what keeps m3/m9/m11 as w3/w9/w11
+// while B-SE+floorN / F-v-thin-top drop to w2 / w10.
+function wbDropsN(x, y, cell) { return cell.isCap || isOpen(x + 1, y + 1) || isOpen(x - 1, y + 1); }
+function wbRoleForCell(x, y, cell) {
+  if (!WALKBEHIND) return cell.role;
+  if (cell.em & 4) return cell.role;                       // face: unchanged
+  const em2 = (wbDropsN(x, y, cell) && (cell.em & 1)) ? (cell.em & ~1) : cell.em;
+  // corner-caps keep their family; the "2" variant only exists while mask != 0
+  if (cell.role === "ccne" || cell.role === "ccne2") return em2 ? "ccne2" : "ccne";
+  if (cell.role === "ccnw" || cell.role === "ccnw2") return em2 ? "ccnw2" : "ccnw";
+  if (cell.isCap) return em2 === cell.em ? cell.role : (CAP_OF[(em2 | 4) & 15] || cell.role);
+  if (cell.role === "fcl" || cell.role === "fcr") return cell.role;   // side junction wins
+  // a side floor whose run ENDS going down rounds into a corner
+  const eC = isOpen(x + 1, y - 1) && !isOpen(x + 1, y + 1);
+  const wC = isOpen(x - 1, y - 1) && !isOpen(x - 1, y + 1);
+  if (eC && wC) return "kn2";
+  if (eC) return "kne";
+  if (wC) return "knw";
+  return em2 === cell.em ? cell.role : W_OF[em2];
+}
+// The rim a wall lifts up onto the floor cell (x,y) to its north: the plain
+// mask tile w[full mask], cast only when that wall actually drops its N bit.
+function wbOverlayRole(x, y) {
+  if (!WALKBEHIND) return null;
+  const sy = y + 1;
+  if (!isWallCell(cellAt(x, sy))) return null;
+  const sc = computeWallCell(x, sy);
+  if (!(sc.em & 1) || (sc.em & 4)) return null;
+  if (!wbDropsN(x, sy, sc)) return null;
+  return W_OF[sc.em];
+}

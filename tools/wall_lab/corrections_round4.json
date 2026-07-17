@@ -1,0 +1,170 @@
+{
+ "_comment": "Round-4 review, pasted VERBATIM from the lab's 'Copy corrections'. Not hand-transcribed: round 3 was, and the transcription silently invented approval roles that matched our own output, which is part of how the overfit went unnoticed. current_cell records what the rule drew at review time and is checked against the live rule by gen_cases.js - if the paste or the rule drifts, that check fails loudly.",
+ "corrections": [
+  {"id":"ABasemasks_m5_N_S","group":"A · Base masks","name":"m5 N+S","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,1],[2,3]]},"tiles":[
+   {"xy":[3,1],"layer":"wall","mask":"W","role":"knw","current_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"correct_cell":{"boulder":[0,6,16],"brick":[0,6,6]},"note":""},
+   {"xy":[1,1],"layer":"wall","mask":"E","role":"kne","current_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"correct_cell":{"boulder":[0,5,16],"brick":[0,5,6]},"note":""}]},
+
+  {"id":"ABasemasks_m7_N_E_S","group":"A · Base masks","name":"m7 N+E+S","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,1],[3,2],[2,3]]},"tiles":[
+   {"xy":[1,1],"layer":"wall","mask":"E","role":"kne","current_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"correct_cell":{"boulder":[0,5,16],"brick":[0,5,6]},"note":""}]},
+
+  {"id":"ABasemasks_m13_N_S_W","group":"A · Base masks","name":"m13 N+S+W","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,1],[2,3],[1,2]]},"tiles":[
+   {"xy":[3,1],"layer":"wall","mask":"W","role":"knw","current_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"correct_cell":{"boulder":[0,6,16],"brick":[0,6,6]},"note":""}]},
+
+  {"id":"BDiagonalcorners_NW_floor_E","group":"B · Diagonal corners","name":"NW + floor E","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,1],[3,2]]},"tiles":[
+   {"xy":[2,1],"layer":"wall","mask":"E+W","role":"knw","current_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"correct_cell":{"boulder":[0,7,14],"brick":[0,7,4]},"note":""}]},
+
+  {"id":"BDiagonalcorners_NE_floor_W","group":"B · Diagonal corners","name":"NE + floor W","grid":{"w":5,"h":5,"center":[2,2],"floors":[[3,1],[1,2]]},"tiles":[
+   {"xy":[2,1],"layer":"wall","mask":"E+W","role":"kne","current_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"correct_cell":{"boulder":[0,4,14],"brick":[0,4,4]},"note":""}]},
+
+  {"id":"BDiagonalcorners_SW_floor_N","group":"B · Diagonal corners","name":"SW + floor N","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,3],[2,1]]},"tiles":[
+   {"xy":[2,2],"layer":"wall","mask":"N+W","role":"w9","current_cell":{"boulder":[0,0,12],"brick":[0,0,2]},"correct_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"note":""}]},
+
+  {"id":"BDiagonalcorners_SE_floor_N","group":"B · Diagonal corners","name":"SE + floor N","grid":{"w":5,"h":5,"center":[2,2],"floors":[[3,3],[2,1]]},"tiles":[
+   {"xy":[2,2],"layer":"wall","mask":"N+E","role":"w3","current_cell":{"boulder":[0,2,12],"brick":[0,2,2]},"correct_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"note":""}]},
+
+  {"id":"CCaprow_N_S_thin","group":"C · Cap row","name":"N+S thin","grid":{"w":5,"h":6,"center":[2,2],"floors":[[2,1],[2,4]]},"tiles":[
+   {"xy":[2,1],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,1,12],"brick":[0,1,2]},"note":""},
+   {"xy":[1,2],"layer":"wall","mask":"none","role":"fcl","current_cell":{"boulder":[0,5,16],"brick":[0,5,6]},"correct_cell":{"boulder":[0,5,13],"brick":[0,5,3]},"note":""},
+   {"xy":[3,2],"layer":"wall","mask":"none","role":"fcr","current_cell":{"boulder":[0,6,16],"brick":[0,6,6]},"correct_cell":{"boulder":[0,6,13],"brick":[0,6,3]},"note":""},
+   {"xy":[2,2],"layer":"wall","mask":"N","role":"r1","current_cell":{"boulder":[0,1,15],"brick":[0,1,5]},"correct_cell":{"boulder":[0,1,14],"brick":[0,1,4]},"note":""}]},
+
+  {"id":"CCaprow_S_E_wide_notch","group":"C · Cap row","name":"S+E wide notch","grid":{"w":5,"h":6,"center":[2,2],"floors":[[3,2],[2,4]]},"tiles":[
+   {"xy":[3,3],"layer":"wall","mask":"N+W","role":"w9","current_cell":{"boulder":[0,0,12],"brick":[0,0,2]},"correct_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"note":""}]},
+
+  {"id":"CCaprow_S_E_jamb","group":"C · Cap row","name":"S+E jamb","grid":{"w":5,"h":6,"center":[2,2],"floors":[[3,2],[2,4],[3,4]]},"tiles":[
+   {"xy":[4,2],"layer":"wall","mask":"W","role":"knw","current_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"correct_cell":{"boulder":[0,6,16],"brick":[0,6,6]},"note":""}]},
+
+  {"id":"CCaprow_S_W_plain","group":"C · Cap row","name":"S+W plain","grid":{"w":5,"h":6,"center":[2,2],"floors":[[1,2],[2,4]]},"tiles":[
+   {"xy":[1,3],"layer":"wall","mask":"N+E","role":"w3","current_cell":{"boulder":[0,2,12],"brick":[0,2,2]},"correct_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"note":""}]},
+
+  {"id":"CCaprow_S_W_jamb","group":"C · Cap row","name":"S+W jamb","grid":{"w":5,"h":6,"center":[2,2],"floors":[[1,2],[2,4],[1,4]]},"tiles":[
+   {"xy":[0,2],"layer":"wall","mask":"E","role":"kne","current_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"correct_cell":{"boulder":[0,5,16],"brick":[0,5,6]},"note":""}]},
+
+  {"id":"CCaprow_N_E_S_end","group":"C · Cap row","name":"N+E+S end","grid":{"w":5,"h":6,"center":[2,2],"floors":[[2,1],[3,2],[2,4]]},"tiles":[
+   {"xy":[1,1],"layer":"wall","mask":"E","role":"kne","current_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"correct_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"note":""},
+   {"xy":[3,3],"layer":"wall","mask":"N+W","role":"w9","current_cell":{"boulder":[0,0,12],"brick":[0,0,2]},"correct_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"note":""},
+   {"xy":[2,1],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,2,12],"brick":[0,2,2]},"note":""},
+   {"xy":[1,2],"layer":"wall","mask":"none","role":"fcl","current_cell":{"boulder":[0,5,16],"brick":[0,5,6]},"correct_cell":{"boulder":[0,5,13],"brick":[0,5,3]},"note":""},
+   {"xy":[2,2],"layer":"wall","mask":"N+E","role":"r3","current_cell":{"boulder":[0,3,15],"brick":[0,3,5]},"correct_cell":{"boulder":[0,2,14],"brick":[0,2,4]},"note":""}]},
+
+  {"id":"CCaprow_N_S_W_end","group":"C · Cap row","name":"N+S+W end","grid":{"w":5,"h":6,"center":[2,2],"floors":[[2,1],[1,2],[2,4]]},"tiles":[
+   {"xy":[3,1],"layer":"wall","mask":"W","role":"knw","current_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"correct_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"note":""},
+   {"xy":[1,3],"layer":"wall","mask":"N+E","role":"w3","current_cell":{"boulder":[0,2,12],"brick":[0,2,2]},"correct_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"note":""},
+   {"xy":[2,2],"layer":"wall","mask":"N+W","role":"r9","current_cell":{"boulder":[0,0,15],"brick":[0,0,5]},"correct_cell":{"boulder":[0,0,14],"brick":[0,0,4]},"note":""},
+   {"xy":[3,2],"layer":"wall","mask":"none","role":"fcr","current_cell":{"boulder":[0,6,16],"brick":[0,6,6]},"correct_cell":{"boulder":[0,6,13],"brick":[0,6,3]},"note":""},
+   {"xy":[2,1],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,0,12],"brick":[0,0,2]},"note":""}]},
+
+  {"id":"DCornercaps_ccne2","group":"D · Corner caps","name":"ccne2","grid":{"w":5,"h":6,"center":[2,2],"floors":[[3,4],[2,1]]},"tiles":[
+   {"xy":[2,2],"layer":"wall","mask":"N","role":"ccne2","current_cell":{"boulder":[0,4,13],"brick":[0,4,3]},"correct_cell":{"boulder":[0,5,13],"brick":[0,5,3]},"note":""},
+   {"xy":[2,1],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,1,12],"brick":[0,1,2]},"note":""}]},
+
+  {"id":"DCornercaps_ccnw2","group":"D · Corner caps","name":"ccnw2","grid":{"w":5,"h":6,"center":[2,2],"floors":[[1,4],[2,1]]},"tiles":[
+   {"xy":[2,1],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,1,12],"brick":[0,1,2]},"note":""},
+   {"xy":[2,2],"layer":"wall","mask":"N","role":"ccnw2","current_cell":{"boulder":[0,7,13],"brick":[0,7,3]},"correct_cell":{"boulder":[0,6,13],"brick":[0,6,3]},"note":""}]},
+
+  {"id":"EHorizontalruns_side_junction_fcl","group":"E · Horizontal runs","name":"side junction fcl","grid":{"w":6,"h":6,"center":[2,2],"floors":[[3,2],[3,4]]},"tiles":[
+   {"xy":[2,2],"layer":"wall","mask":"E","role":"kne","current_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"correct_cell":{"boulder":[0,5,16],"brick":[0,5,6]},"note":""},
+   {"xy":[4,2],"layer":"wall","mask":"W","role":"knw","current_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"correct_cell":{"boulder":[0,6,16],"brick":[0,6,6]},"note":""}]},
+
+  {"id":"EHorizontalruns_side_junction_fcr","group":"E · Horizontal runs","name":"side junction fcr","grid":{"w":6,"h":6,"center":[3,2],"floors":[[2,2],[2,4]]},"tiles":[
+   {"xy":[3,2],"layer":"wall","mask":"W","role":"knw","current_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"correct_cell":{"boulder":[0,6,16],"brick":[0,6,6]},"note":""},
+   {"xy":[1,2],"layer":"wall","mask":"E","role":"kne","current_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"correct_cell":{"boulder":[0,5,16],"brick":[0,5,6]},"note":""}]},
+
+  {"id":"FVerticalwalls_v_thin_middle_em10_","group":"F · Vertical walls","name":"v-thin middle (em10)","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,1],[3,1],[1,2],[3,2],[1,3],[3,3]]},"tiles":[
+   {"xy":[0,3],"layer":"wall","mask":"E","role":"w2","current_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"correct_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"note":""},
+   {"xy":[4,3],"layer":"wall","mask":"W","role":"w8","current_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"correct_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"note":""},
+   {"xy":[2,3],"layer":"wall","mask":"E+W","role":"w10","current_cell":{"boulder":[0,3,13],"brick":[0,3,3]},"correct_cell":{"boulder":[0,8,14],"brick":[0,8,4]},"note":""}]},
+
+  {"id":"FVerticalwalls_v_thin_top_end_em11_","group":"F · Vertical walls","name":"v-thin top end (em11)","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,1],[2,1],[3,1],[1,2],[3,2],[1,3],[3,3]]},"tiles":[
+   {"xy":[2,2],"layer":"wall","mask":"N+E+W","role":"w11","current_cell":{"boulder":[0,3,12],"brick":[0,3,2]},"correct_cell":{"boulder":[0,3,13],"brick":[0,3,3]},"note":""},
+   {"xy":[2,3],"layer":"wall","mask":"E+W","role":"w10","current_cell":{"boulder":[0,3,13],"brick":[0,3,3]},"correct_cell":{"boulder":[0,8,14],"brick":[0,8,4]},"note":""},
+   {"xy":[4,3],"layer":"wall","mask":"W","role":"w8","current_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"correct_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"note":""},
+   {"xy":[0,3],"layer":"wall","mask":"E","role":"w2","current_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"correct_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"note":""}]},
+
+  {"id":"FVerticalwalls_v_thin_bottom_end_em14_","group":"F · Vertical walls","name":"v-thin bottom end (em14)","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,2],[3,2],[1,3],[2,3],[3,3],[1,1],[3,1]]},"tiles":[
+   {"xy":[4,3],"layer":"wall","mask":"W","role":"w8","current_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"correct_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"note":""},
+   {"xy":[0,3],"layer":"wall","mask":"E","role":"w2","current_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"correct_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"note":""}]},
+
+  {"id":"FVerticalwalls_L_turn_walls_E_S_","group":"F · Vertical walls","name":"L-turn ┘ (walls E+S)","grid":{"w":5,"h":5,"center":[2,2],"floors":[[0,0],[1,0],[2,0],[3,0],[4,0],[0,1],[1,1],[2,1],[0,2],[1,2],[0,3],[1,3],[0,4],[1,4],[3,4],[4,4],[3,3],[4,3],[4,2]]},"tiles":[
+   {"xy":[2,2],"layer":"wall","mask":"N+E+W","role":"w11","current_cell":{"boulder":[0,3,12],"brick":[0,3,2]},"correct_cell":{"boulder":[0,3,13],"brick":[0,3,3]},"note":""},
+   {"xy":[2,1],"layer":"overlay","role":"w11","current_cell":{"boulder":[0,3,12],"brick":[0,3,2]},"correct_cell":{"boulder":[0,4,12],"brick":[0,4,2]},"note":""},
+   {"xy":[3,1],"layer":"wall","mask":"N+E+W","role":"w15","current_cell":{"boulder":[0,3,16],"brick":[0,3,6]},"correct_cell":{"boulder":[0,7,15],"brick":[0,7,5]},"note":""},
+   {"xy":[3,0],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,4,12],"brick":[0,4,2]},"note":""},
+   {"xy":[2,4],"layer":"wall","mask":"E+W","role":"w10","current_cell":{"boulder":[0,3,13],"brick":[0,3,3]},"correct_cell":{"boulder":[0,8,14],"brick":[0,8,4]},"note":""}]},
+
+  {"id":"FVerticalwalls_L_turn_walls_E_W_","group":"F · Vertical walls","name":"L-turn └ (walls E+W?)","grid":{"w":5,"h":5,"center":[2,2],"floors":[[0,0],[1,0],[2,0],[3,0],[4,0],[2,1],[3,1],[4,1],[3,2],[4,2],[3,3],[4,3],[3,4],[4,4],[0,1],[0,2],[0,3],[0,4],[1,4]]},"tiles":[
+   {"xy":[1,1],"layer":"wall","mask":"N+E+W","role":"w11","current_cell":{"boulder":[0,3,12],"brick":[0,3,2]},"correct_cell":{"boulder":[0,4,14],"brick":[0,4,4]},"note":""},
+   {"xy":[2,1],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,2,12],"brick":[0,2,2]},"note":""},
+   {"xy":[2,4],"layer":"wall","mask":"E+W","role":"knw","current_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"correct_cell":{"boulder":[0,8,14],"brick":[0,8,4]},"note":""}]},
+
+  {"id":"FVerticalwalls_L_turn_walls_S_W_","group":"F · Vertical walls","name":"L-turn ┐ (walls S+W)","grid":{"w":5,"h":5,"center":[2,2],"floors":[[0,4],[1,4],[2,4],[3,4],[4,4],[0,3],[1,3],[2,3],[0,2],[1,2],[0,1],[1,1],[0,0],[1,0],[3,0],[4,0],[3,1],[4,1],[4,2]]},"tiles":[
+   {"xy":[2,1],"layer":"wall","mask":"E+W","role":"w14","current_cell":{"boulder":[0,3,14],"brick":[0,3,4]},"correct_cell":{"boulder":[0,4,15],"brick":[0,4,5]},"note":""},
+   {"xy":[3,1],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,7,12],"brick":[0,7,2]},"note":""},
+   {"xy":[3,2],"layer":"wall","mask":"N+E+W","role":"w15","current_cell":{"boulder":[0,3,16],"brick":[0,3,6]},"correct_cell":{"boulder":[0,4,15],"brick":[0,4,5]},"note":""}]},
+
+  {"id":"FVerticalwalls_L_turn_walls_S_E_","group":"F · Vertical walls","name":"L-turn ┌ (walls S+E)","grid":{"w":5,"h":5,"center":[2,2],"floors":[[0,4],[1,4],[2,4],[3,4],[4,4],[2,3],[3,3],[4,3],[3,2],[4,2],[3,1],[4,1],[3,0],[4,0],[0,0],[1,0],[0,1],[1,1],[0,2],[0,3],[1,3]]},"tiles":[
+   {"xy":[2,1],"layer":"wall","mask":"E+W","role":"w14","current_cell":{"boulder":[0,3,14],"brick":[0,3,4]},"correct_cell":{"boulder":[0,7,15],"brick":[0,7,5]},"note":""}]},
+
+  {"id":"FVerticalwalls_T_junction_","group":"F · Vertical walls","name":"T-junction ┤","grid":{"w":5,"h":5,"center":[2,2],"floors":[[3,0],[4,0],[3,1],[4,1],[3,2],[4,2],[3,3],[4,3],[3,4],[4,4],[0,2],[1,2]]},"tiles":[
+   {"xy":[2,2],"layer":"wall","mask":"E+W","role":"knw","current_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"correct_cell":{"boulder":[0,7,14],"brick":[0,7,4]},"note":""},
+   {"xy":[2,3],"layer":"wall","mask":"E","role":"knw2","current_cell":{"boulder":[0,7,14],"brick":[0,7,4]},"correct_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"note":""},
+   {"xy":[2,4],"layer":"wall","mask":"E","role":"w2","current_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"correct_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"note":""}]},
+
+  {"id":"FVerticalwalls_cross_","group":"F · Vertical walls","name":"cross ┼","grid":{"w":5,"h":5,"center":[2,2],"floors":[[0,0],[1,0],[3,0],[4,0],[0,1],[1,1],[3,1],[4,1],[0,3],[1,3],[3,3],[4,3],[0,4],[1,4],[3,4],[4,4]]},"tiles":[
+   {"xy":[2,1],"layer":"wall","mask":"E+W","role":"fcl","current_cell":{"boulder":[0,5,16],"brick":[0,5,6]},"correct_cell":{"boulder":[0,8,16],"brick":[0,8,6]},"note":""},
+   {"xy":[2,4],"layer":"wall","mask":"E+W","role":"w10","current_cell":{"boulder":[0,3,13],"brick":[0,3,3]},"correct_cell":{"boulder":[0,8,14],"brick":[0,8,4]},"note":""}]},
+
+  {"id":"FVerticalwalls_v_wall_meets_h_run","group":"F · Vertical walls","name":"v-wall meets h-run","grid":{"w":6,"h":6,"center":[2,3],"floors":[[1,0],[3,0],[1,1],[3,1],[1,2],[3,2],[0,4],[1,4],[3,4],[4,4],[5,4],[0,3],[5,3]]},"tiles":[
+   {"xy":[2,2],"layer":"wall","mask":"E+W","role":"fcl","current_cell":{"boulder":[0,5,16],"brick":[0,5,6]},"correct_cell":{"boulder":[0,8,16],"brick":[0,8,6]},"note":""},
+   {"xy":[4,2],"layer":"wall","mask":"E+W","role":"w14","current_cell":{"boulder":[0,3,14],"brick":[0,3,4]},"correct_cell":{"boulder":[0,7,15],"brick":[0,7,5]},"note":""}]},
+
+  {"id":"GIsolatedmasses_lone_pillar_em15_","group":"G · Isolated masses","name":"lone pillar (em15)","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,1],[1,2],[3,2],[2,3],[1,1],[3,1],[1,3],[3,3]]},"tiles":[
+   {"xy":[4,3],"layer":"wall","mask":"W","role":"w8","current_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"correct_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"note":""},
+   {"xy":[0,3],"layer":"wall","mask":"E","role":"w2","current_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"correct_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"note":""}]},
+
+  {"id":"GIsolatedmasses_2_1_horizontal","group":"G · Isolated masses","name":"2×1 horizontal","grid":{"w":6,"h":5,"center":[2,2],"floors":[[1,1],[2,1],[3,1],[4,1],[1,2],[4,2],[1,3],[2,3],[3,3],[4,3]]},"tiles":[
+   {"xy":[5,3],"layer":"wall","mask":"W","role":"w8","current_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"correct_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"note":""},
+   {"xy":[0,3],"layer":"wall","mask":"E","role":"w2","current_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"correct_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"note":""}]},
+
+  {"id":"GIsolatedmasses_1_3_vertical","group":"G · Isolated masses","name":"1×3 vertical","grid":{"w":5,"h":6,"center":[2,2],"floors":[[1,1],[3,1],[1,2],[3,2],[1,3],[3,3],[1,4],[3,4],[2,0],[2,5]]},"tiles":[
+   {"xy":[4,4],"layer":"wall","mask":"W","role":"w8","current_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"correct_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"note":""},
+   {"xy":[2,1],"layer":"wall","mask":"N+E+W","role":"w11","current_cell":{"boulder":[0,3,12],"brick":[0,3,2]},"correct_cell":{"boulder":[0,3,13],"brick":[0,3,3]},"note":""},
+   {"xy":[0,4],"layer":"wall","mask":"E","role":"w2","current_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"correct_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"note":""}]},
+
+  {"id":"GIsolatedmasses_2_2_block","group":"G · Isolated masses","name":"2×2 block","grid":{"w":6,"h":6,"center":[2,2],"floors":[[1,1],[2,1],[3,1],[1,2],[4,2],[1,3],[4,3],[1,4],[2,4],[3,4],[4,4],[4,1]]},"tiles":[
+   {"xy":[2,1],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,0,12],"brick":[0,0,2]},"note":""},
+   {"xy":[2,2],"layer":"wall","mask":"N+W","role":"r9","current_cell":{"boulder":[0,0,15],"brick":[0,0,5]},"correct_cell":{"boulder":[0,0,14],"brick":[0,0,4]},"note":""},
+   {"xy":[3,2],"layer":"wall","mask":"N+E","role":"r3","current_cell":{"boulder":[0,3,15],"brick":[0,3,5]},"correct_cell":{"boulder":[0,2,14],"brick":[0,2,4]},"note":""},
+   {"xy":[3,1],"layer":"overlay","role":null,"current_cell":null,"correct_cell":{"boulder":[0,2,12],"brick":[0,2,2]},"note":""},
+   {"xy":[5,4],"layer":"wall","mask":"W","role":"w8","current_cell":{"boulder":[0,0,13],"brick":[0,0,3]},"correct_cell":{"boulder":[0,6,14],"brick":[0,6,4]},"note":""},
+   {"xy":[0,4],"layer":"wall","mask":"E","role":"w2","current_cell":{"boulder":[0,2,13],"brick":[0,2,3]},"correct_cell":{"boulder":[0,5,14],"brick":[0,5,4]},"note":""}]}
+ ],
+ "approved": [
+  {"id":"ABasemasks_m0_none","group":"A · Base masks","name":"m0 none","grid":{"w":5,"h":5,"center":[2,2],"floors":[]},"mask":"none","role":"w0","cell":{"boulder":[0,1,13],"brick":[0,1,3]}},
+  {"id":"ABasemasks_m1_N","group":"A · Base masks","name":"m1 N","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,1]]},"mask":"N","role":"w1","cell":{"boulder":[0,1,12],"brick":[0,1,2]}},
+  {"id":"ABasemasks_m2_E","group":"A · Base masks","name":"m2 E","grid":{"w":5,"h":5,"center":[2,2],"floors":[[3,2]]},"mask":"E","role":"w2","cell":{"boulder":[0,2,13],"brick":[0,2,3]}},
+  {"id":"ABasemasks_m3_N_E","group":"A · Base masks","name":"m3 N+E","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,1],[3,2]]},"mask":"N+E","role":"w3","cell":{"boulder":[0,2,12],"brick":[0,2,2]}},
+  {"id":"ABasemasks_m4_S","group":"A · Base masks","name":"m4 S","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,3]]},"mask":"S","role":"w4","cell":{"boulder":[0,1,16],"brick":[0,1,6]}},
+  {"id":"ABasemasks_m6_E_S","group":"A · Base masks","name":"m6 E+S","grid":{"w":5,"h":5,"center":[2,2],"floors":[[3,2],[2,3]]},"mask":"E+S","role":"w6","cell":{"boulder":[0,2,16],"brick":[0,2,6]}},
+  {"id":"ABasemasks_m8_W","group":"A · Base masks","name":"m8 W","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,2]]},"mask":"W","role":"w8","cell":{"boulder":[0,0,13],"brick":[0,0,3]}},
+  {"id":"ABasemasks_m9_N_W","group":"A · Base masks","name":"m9 N+W","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,1],[1,2]]},"mask":"N+W","role":"w9","cell":{"boulder":[0,0,12],"brick":[0,0,2]}},
+  {"id":"ABasemasks_m10_E_W","group":"A · Base masks","name":"m10 E+W","grid":{"w":5,"h":5,"center":[2,2],"floors":[[3,2],[1,2]]},"mask":"E+W","role":"w10","cell":{"boulder":[0,3,13],"brick":[0,3,3]}},
+  {"id":"ABasemasks_m11_N_E_W","group":"A · Base masks","name":"m11 N+E+W","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,1],[3,2],[1,2]]},"mask":"N+E+W","role":"w11","cell":{"boulder":[0,3,12],"brick":[0,3,2]}},
+  {"id":"ABasemasks_m12_S_W","group":"A · Base masks","name":"m12 S+W","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,3],[1,2]]},"mask":"S+W","role":"w12","cell":{"boulder":[0,0,16],"brick":[0,0,6]}},
+  {"id":"ABasemasks_m14_E_S_W","group":"A · Base masks","name":"m14 E+S+W","grid":{"w":5,"h":5,"center":[2,2],"floors":[[3,2],[2,3],[1,2]]},"mask":"E+S+W","role":"w15","cell":{"boulder":[0,3,16],"brick":[0,3,6]}},
+  {"id":"ABasemasks_m15_N_E_S_W","group":"A · Base masks","name":"m15 N+E+S+W","grid":{"w":5,"h":5,"center":[2,2],"floors":[[2,1],[3,2],[2,3],[1,2]]},"mask":"N+E+S+W","role":"w15","cell":{"boulder":[0,3,16],"brick":[0,3,6]}},
+  {"id":"BDiagonalcorners_NW_only","group":"B · Diagonal corners","name":"NW only","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,1]]},"mask":"none","role":"knw","cell":{"boulder":[0,6,14],"brick":[0,6,4]}},
+  {"id":"BDiagonalcorners_NE_only","group":"B · Diagonal corners","name":"NE only","grid":{"w":5,"h":5,"center":[2,2],"floors":[[3,1]]},"mask":"none","role":"kne","cell":{"boulder":[0,5,14],"brick":[0,5,4]}},
+  {"id":"BDiagonalcorners_SW_only","group":"B · Diagonal corners","name":"SW only","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,3]]},"mask":"W","role":"w8","cell":{"boulder":[0,0,13],"brick":[0,0,3]}},
+  {"id":"BDiagonalcorners_SE_only","group":"B · Diagonal corners","name":"SE only","grid":{"w":5,"h":5,"center":[2,2],"floors":[[3,3]]},"mask":"E","role":"w2","cell":{"boulder":[0,2,13],"brick":[0,2,3]}},
+  {"id":"BDiagonalcorners_both_top","group":"B · Diagonal corners","name":"both top","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,1],[3,1]]},"mask":"none","role":"kn2","cell":{"boulder":[0,8,14],"brick":[0,8,4]}},
+  {"id":"BDiagonalcorners_both_bottom","group":"B · Diagonal corners","name":"both bottom","grid":{"w":5,"h":5,"center":[2,2],"floors":[[1,3],[3,3]]},"mask":"E+W","role":"w10","cell":{"boulder":[0,3,13],"brick":[0,3,3]}},
+  {"id":"CCaprow_S_only","group":"C · Cap row","name":"S only","grid":{"w":5,"h":6,"center":[2,2],"floors":[[2,4]]},"mask":"none","role":"r0","cell":{"boulder":[0,1,14],"brick":[0,1,4]}},
+  {"id":"DCornercaps_ccne","group":"D · Corner caps","name":"ccne","grid":{"w":5,"h":6,"center":[2,2],"floors":[[3,4]]},"mask":"none","role":"ccne","cell":{"boulder":[0,5,13],"brick":[0,5,3]}},
+  {"id":"DCornercaps_ccnw","group":"D · Corner caps","name":"ccnw","grid":{"w":5,"h":6,"center":[2,2],"floors":[[1,4]]},"mask":"none","role":"ccnw","cell":{"boulder":[0,6,13],"brick":[0,6,3]}},
+  {"id":"EHorizontalruns_run_middle_rcapM_","group":"E · Horizontal runs","name":"run middle (rcapM)","grid":{"w":5,"h":5,"center":[2,2],"floors":[[0,1],[1,1],[2,1],[3,1],[4,1],[0,2],[4,2],[0,3],[1,3],[2,3],[3,3],[4,3]]},"mask":"N+S","role":"w4","cell":{"boulder":[0,1,16],"brick":[0,1,6]}},
+  {"id":"EHorizontalruns_run_left_end_rcapL_","group":"E · Horizontal runs","name":"run left end (rcapL)","grid":{"w":5,"h":5,"center":[1,2],"floors":[[0,1],[1,1],[2,1],[3,1],[4,1],[0,2],[4,2],[0,3],[1,3],[2,3],[3,3],[4,3]]},"mask":"N+S+W","role":"w13","cell":{"boulder":[0,0,16],"brick":[0,0,6]}},
+  {"id":"EHorizontalruns_run_right_end_rcapR_","group":"E · Horizontal runs","name":"run right end (rcapR)","grid":{"w":5,"h":5,"center":[3,2],"floors":[[0,1],[1,1],[2,1],[3,1],[4,1],[0,2],[4,2],[0,3],[1,3],[2,3],[3,3],[4,3]]},"mask":"N+E+S","role":"w7","cell":{"boulder":[0,2,16],"brick":[0,2,6]}}
+ ]
+}

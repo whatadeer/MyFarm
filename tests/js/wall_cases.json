@@ -1,0 +1,5915 @@
+{
+ "_comment": "Golden data for the dungeon wall autotiler, generated from the user's round-4\nreview. Regenerate: node tools/wall_lab/gen_cases.js  (source: corrections_round4.json)\n\nmask bits: N=1 E=2 S=4 W=8, set = FLOOR on that side.\nfloors[] lists the OPEN cells of a w*h grid; every other cell is wall.\ncell is [sheet, col, row] on the Walls sheet (sheet 0 = boulder kit);\nbrick is the same tile 10 rows up, so only boulder is pinned here.\n\n  fix[]  - cells the user MARKED. `saw` is what the rule drew at review time,\n           `cell` is the tile they say belongs there.\n             pass  = satisfied today. Regression gate.\n             xfail = known-unsolved. Tracked. If one starts passing the runner\n                     says so; rerun gen_cases.js to promote it.\n\n  keep{} - every OTHER cell in a reviewed scenario, mapped to what the user\n           saw and left alone. null = nothing drawn there, and that was right.\n           Any rule change that moves one of these changed something nobody\n           asked to change. This is the guardrail the round-3 rule slipped.\n\nkind: 'corrected' = user marked something here. 'approved' = user blessed the\nwhole render, so every cell is a keep.",
+ "reviewed": [
+  {
+   "id": "ABasemasks_m5_N_S",
+   "name": "m5 N+S",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      1,
+      1
+     ],
+     "layer": "wall",
+     "saw": "kne",
+     "cell": [
+      0,
+      5,
+      16
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      1
+     ],
+     "layer": "wall",
+     "saw": "knw",
+     "cell": [
+      0,
+      6,
+      16
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "rcapM",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w2",
+    "1,2@overlay": null,
+    "2,2@wall": "w4",
+    "2,2@overlay": null,
+    "3,2@wall": "w8",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "kne",
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": "knw",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m7_N_E_S",
+   "name": "m7 N+E+S",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      1,
+      1
+     ],
+     "layer": "wall",
+     "saw": "kne",
+     "cell": [
+      0,
+      5,
+      16
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "r8",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "rcapR",
+    "3,1@wall": "w12",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w2",
+    "1,2@overlay": null,
+    "2,2@wall": "w7",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w9",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "kne",
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": "knw",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m13_N_S_W",
+   "name": "m13 N+S+W",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      3,
+      1
+     ],
+     "layer": "wall",
+     "saw": "knw",
+     "cell": [
+      0,
+      6,
+      16
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r2w",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w6",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "rcapL",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w3",
+    "2,2@wall": "w13",
+    "2,2@overlay": null,
+    "3,2@wall": "w8",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "kne",
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": "knw",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_NW_floor_E",
+   "name": "NW + floor E",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     2
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "wall",
+     "saw": "knw",
+     "cell": [
+      0,
+      7,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "ccne2",
+    "2,0@overlay": null,
+    "3,0@wall": "r0",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "kne",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": "w1",
+    "2,1@overlay": null,
+    "3,1@wall": "w4",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "kne",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w1",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_NE_floor_W",
+   "name": "NE + floor W",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     3,
+     1
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "wall",
+     "saw": "kne",
+     "cell": [
+      0,
+      4,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccnw2",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w8",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w4",
+    "1,1@overlay": null,
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": "w1",
+    "4,1@wall": "knw",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w1",
+    "2,2@wall": "knw",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_SW_floor_N",
+   "name": "SW + floor N",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     1
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "w9",
+     "cell": [
+      0,
+      0,
+      13
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "ccne",
+    "0,1@overlay": null,
+    "1,1@wall": "r2w",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "w9",
+    "3,1@wall": "knw",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": "w4",
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "kne",
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@wall": "knw",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_SE_floor_N",
+   "name": "SE + floor N",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     3,
+     3
+    ],
+    [
+     2,
+     1
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "w3",
+     "cell": [
+      0,
+      2,
+      13
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "kne",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "w3",
+    "3,1@wall": "r8",
+    "3,1@overlay": null,
+    "4,1@wall": "ccnw",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@wall": "w4",
+    "3,2@overlay": null,
+    "4,2@wall": "w8",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "kne",
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@wall": "knw",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "CCaprow_N_S_thin",
+   "name": "N+S thin",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      1,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      1,
+      2
+     ],
+     "layer": "wall",
+     "saw": "fcl",
+     "cell": [
+      0,
+      5,
+      13
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "r1",
+     "cell": [
+      0,
+      1,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      2
+     ],
+     "layer": "wall",
+     "saw": "fcr",
+     "cell": [
+      0,
+      6,
+      13
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "kne",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "3,1@wall": "knw",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w2",
+    "1,3@overlay": null,
+    "2,3@wall": "w4",
+    "2,3@overlay": null,
+    "3,3@wall": "w8",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "kne",
+    "1,4@overlay": null,
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": "knw",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "CCaprow_S_E_wide_notch",
+   "name": "S+E wide notch",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     3,
+     2
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      3,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w9",
+     "cell": [
+      0,
+      0,
+      13
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccne",
+    "2,0@overlay": null,
+    "3,0@wall": "r0",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "w2",
+    "2,1@overlay": null,
+    "3,1@wall": "w4",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "ccne",
+    "1,2@overlay": null,
+    "2,2@wall": "r2w",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w9",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w2",
+    "1,3@overlay": null,
+    "2,3@wall": "w4",
+    "2,3@overlay": null,
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "kne",
+    "1,4@overlay": null,
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": "knw",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "CCaprow_S_E_jamb",
+   "name": "S+E jamb",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     3,
+     2
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      4,
+      2
+     ],
+     "layer": "wall",
+     "saw": "knw",
+     "cell": [
+      0,
+      6,
+      16
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccne",
+    "2,0@overlay": null,
+    "3,0@wall": "r0",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "w2",
+    "2,1@overlay": null,
+    "3,1@wall": "w4",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "ccne",
+    "1,2@overlay": null,
+    "2,2@wall": "r2",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "rcapM",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w2",
+    "1,3@overlay": null,
+    "2,3@wall": "w4",
+    "2,3@overlay": null,
+    "3,3@wall": "w4",
+    "3,3@overlay": null,
+    "4,3@wall": "w8",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "kne",
+    "1,4@overlay": null,
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": "knw",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "CCaprow_S_W_plain",
+   "name": "S+W plain",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      1,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w3",
+     "cell": [
+      0,
+      2,
+      13
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccnw",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w4",
+    "1,1@overlay": null,
+    "2,1@wall": "w8",
+    "2,1@overlay": null,
+    "3,1@wall": "w0",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w3",
+    "2,2@wall": "r8",
+    "2,2@overlay": null,
+    "3,2@wall": "ccnw",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@overlay": null,
+    "2,3@wall": "w4",
+    "2,3@overlay": null,
+    "3,3@wall": "w8",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "kne",
+    "1,4@overlay": null,
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": "knw",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "CCaprow_S_W_jamb",
+   "name": "S+W jamb",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     1,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      0,
+      2
+     ],
+     "layer": "wall",
+     "saw": "kne",
+     "cell": [
+      0,
+      5,
+      16
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccnw",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w4",
+    "1,1@overlay": null,
+    "2,1@wall": "w8",
+    "2,1@overlay": null,
+    "3,1@wall": "w0",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "rcapM",
+    "2,2@wall": "r8j",
+    "2,2@overlay": null,
+    "3,2@wall": "ccnw",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w2",
+    "0,3@overlay": null,
+    "1,3@wall": "w4",
+    "1,3@overlay": null,
+    "2,3@wall": "w4",
+    "2,3@overlay": null,
+    "3,3@wall": "w8",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "kne",
+    "0,4@overlay": null,
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": "knw",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "CCaprow_N_E_S_end",
+   "name": "N+E+S end",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      2,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      1,
+      2
+     ],
+     "layer": "wall",
+     "saw": "fcl",
+     "cell": [
+      0,
+      5,
+      13
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "r3",
+     "cell": [
+      0,
+      2,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w9",
+     "cell": [
+      0,
+      0,
+      13
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "r8",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "kne",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "3,1@wall": "w12",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w9",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w2",
+    "1,3@overlay": null,
+    "2,3@wall": "w4",
+    "2,3@overlay": null,
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "kne",
+    "1,4@overlay": null,
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": "knw",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "CCaprow_N_S_W_end",
+   "name": "N+S+W end",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      0,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "r9",
+     "cell": [
+      0,
+      0,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      2
+     ],
+     "layer": "wall",
+     "saw": "fcr",
+     "cell": [
+      0,
+      6,
+      13
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      1,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w3",
+     "cell": [
+      0,
+      2,
+      13
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r2w",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w6",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "3,1@wall": "knw",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w3",
+    "2,2@overlay": null,
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@overlay": null,
+    "2,3@wall": "w4",
+    "2,3@overlay": null,
+    "3,3@wall": "w8",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "kne",
+    "1,4@overlay": null,
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": "knw",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "DCornercaps_ccne2",
+   "name": "ccne2",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     3,
+     4
+    ],
+    [
+     2,
+     1
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      1,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "ccne2",
+     "cell": [
+      0,
+      5,
+      13
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "kne",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "3,1@wall": "knw",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@wall": "r0",
+    "3,2@overlay": null,
+    "4,2@wall": "ccnw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w2",
+    "2,3@overlay": null,
+    "3,3@wall": "w4",
+    "3,3@overlay": null,
+    "4,3@wall": "w8",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "kne",
+    "2,4@overlay": null,
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": "knw",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "DCornercaps_ccnw2",
+   "name": "ccnw2",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     1,
+     4
+    ],
+    [
+     2,
+     1
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      1,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "ccnw2",
+     "cell": [
+      0,
+      6,
+      13
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "kne",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "3,1@wall": "knw",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "ccne",
+    "0,2@overlay": null,
+    "1,2@wall": "r0",
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w2",
+    "0,3@overlay": null,
+    "1,3@wall": "w4",
+    "1,3@overlay": null,
+    "2,3@wall": "w8",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "kne",
+    "0,4@overlay": null,
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@wall": "knw",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "EHorizontalruns_side_junction_fcl",
+   "name": "side junction fcl",
+   "kind": "corrected",
+   "w": 6,
+   "h": 6,
+   "floors": [
+    [
+     3,
+     2
+    ],
+    [
+     3,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "kne",
+     "cell": [
+      0,
+      5,
+      16
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      4,
+      2
+     ],
+     "layer": "wall",
+     "saw": "knw",
+     "cell": [
+      0,
+      6,
+      16
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccne",
+    "2,0@overlay": null,
+    "3,0@wall": "r0",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "5,0@wall": "w0",
+    "5,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "w2",
+    "2,1@overlay": null,
+    "3,1@wall": "w4",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "5,1@wall": "w0",
+    "5,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "rcapM",
+    "4,2@overlay": null,
+    "5,2@wall": "w0",
+    "5,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w2",
+    "2,3@overlay": null,
+    "3,3@wall": "w4",
+    "3,3@overlay": null,
+    "4,3@wall": "w8",
+    "4,3@overlay": null,
+    "5,3@wall": "w0",
+    "5,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "kne",
+    "2,4@overlay": null,
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": "knw",
+    "4,4@overlay": null,
+    "5,4@wall": "w0",
+    "5,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null,
+    "5,5@wall": "w0",
+    "5,5@overlay": null
+   }
+  },
+  {
+   "id": "EHorizontalruns_side_junction_fcr",
+   "name": "side junction fcr",
+   "kind": "corrected",
+   "w": 6,
+   "h": 6,
+   "floors": [
+    [
+     2,
+     2
+    ],
+    [
+     2,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      1,
+      2
+     ],
+     "layer": "wall",
+     "saw": "kne",
+     "cell": [
+      0,
+      5,
+      16
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      2
+     ],
+     "layer": "wall",
+     "saw": "knw",
+     "cell": [
+      0,
+      6,
+      16
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "ccne",
+    "1,0@overlay": null,
+    "2,0@wall": "r0",
+    "2,0@overlay": null,
+    "3,0@wall": "ccnw",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "5,0@wall": "w0",
+    "5,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w2",
+    "1,1@overlay": null,
+    "2,1@wall": "w4",
+    "2,1@overlay": null,
+    "3,1@wall": "w8",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "5,1@wall": "w0",
+    "5,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@overlay": null,
+    "2,2@wall": null,
+    "2,2@overlay": "rcapM",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "5,2@wall": "w0",
+    "5,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w2",
+    "1,3@overlay": null,
+    "2,3@wall": "w4",
+    "2,3@overlay": null,
+    "3,3@wall": "w8",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "5,3@wall": "w0",
+    "5,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "kne",
+    "1,4@overlay": null,
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": "knw",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "5,4@wall": "w0",
+    "5,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null,
+    "5,5@wall": "w0",
+    "5,5@overlay": null
+   }
+  },
+  {
+   "id": "FVerticalwalls_v_thin_middle_em10_",
+   "name": "v-thin middle (em10)",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     3,
+     3
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      0,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w2",
+     "cell": [
+      0,
+      5,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w10",
+     "cell": [
+      0,
+      8,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      4,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w8",
+     "cell": [
+      0,
+      6,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w10",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w8",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@wall": "w10",
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": null,
+    "2,2@wall": "w10",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": null,
+    "4,2@wall": "w8",
+    "4,2@overlay": null,
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "FVerticalwalls_v_thin_top_end_em11_",
+   "name": "v-thin top end (em11)",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     1
+    ],
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     3,
+     3
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "w11",
+     "cell": [
+      0,
+      3,
+      13
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      0,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w2",
+     "cell": [
+      0,
+      5,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w10",
+     "cell": [
+      0,
+      8,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      4,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w8",
+     "cell": [
+      0,
+      6,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w8",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "w11",
+    "3,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": null,
+    "4,2@wall": "w8",
+    "4,2@overlay": null,
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "FVerticalwalls_v_thin_bottom_end_em14_",
+   "name": "v-thin bottom end (em14)",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     2
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     1
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      0,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w2",
+     "cell": [
+      0,
+      5,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      4,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w8",
+     "cell": [
+      0,
+      6,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w10",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w8",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@wall": "w14",
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": null,
+    "2,2@wall": "w15",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": null,
+    "4,2@wall": "w8",
+    "4,2@overlay": null,
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "FVerticalwalls_L_turn_walls_E_S_",
+   "name": "L-turn ┘ (walls E+S)",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     2,
+     1
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      3,
+      0
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      4,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "overlay",
+     "saw": "w11",
+     "cell": [
+      0,
+      4,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      1
+     ],
+     "layer": "wall",
+     "saw": "w15",
+     "cell": [
+      0,
+      7,
+      15
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "w11",
+     "cell": [
+      0,
+      3,
+      13
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      4
+     ],
+     "layer": "wall",
+     "saw": "w10",
+     "cell": [
+      0,
+      8,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": null,
+    "0,0@overlay": null,
+    "1,0@wall": null,
+    "1,0@overlay": null,
+    "2,0@wall": null,
+    "2,0@overlay": null,
+    "3,0@wall": null,
+    "4,0@wall": null,
+    "4,0@overlay": "rcapM",
+    "0,1@wall": null,
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": "w4",
+    "4,1@overlay": null,
+    "0,2@wall": null,
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@wall": "w6",
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": null,
+    "0,3@wall": null,
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": null,
+    "2,3@wall": "w10",
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": null,
+    "4,3@wall": null,
+    "4,3@overlay": null,
+    "0,4@wall": null,
+    "0,4@overlay": "w1",
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@overlay": null,
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": null,
+    "4,4@overlay": "w1"
+   }
+  },
+  {
+   "id": "FVerticalwalls_L_turn_walls_E_W_",
+   "name": "L-turn └ (walls E+W?)",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     0
+    ],
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      1,
+      1
+     ],
+     "layer": "wall",
+     "saw": "w11",
+     "cell": [
+      0,
+      4,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      2,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      4
+     ],
+     "layer": "wall",
+     "saw": "knw",
+     "cell": [
+      0,
+      8,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": null,
+    "0,0@overlay": null,
+    "1,0@wall": null,
+    "1,0@overlay": "w11",
+    "2,0@wall": null,
+    "2,0@overlay": null,
+    "3,0@wall": null,
+    "3,0@overlay": null,
+    "4,0@wall": null,
+    "4,0@overlay": null,
+    "0,1@wall": null,
+    "0,1@overlay": null,
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "3,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": null,
+    "4,1@overlay": null,
+    "0,2@wall": null,
+    "0,2@overlay": null,
+    "1,2@wall": "r8",
+    "1,2@overlay": null,
+    "2,2@wall": "ccnw2",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": null,
+    "0,3@wall": null,
+    "0,3@overlay": null,
+    "1,3@wall": "w12",
+    "1,3@overlay": null,
+    "2,3@wall": "w10",
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": null,
+    "4,3@wall": null,
+    "4,3@overlay": null,
+    "0,4@wall": null,
+    "0,4@overlay": "w1",
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@overlay": null,
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": null,
+    "4,4@overlay": "w1"
+   }
+  },
+  {
+   "id": "FVerticalwalls_L_turn_walls_S_W_",
+   "name": "L-turn ┐ (walls S+W)",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     0
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     4,
+     2
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "wall",
+     "saw": "w14",
+     "cell": [
+      0,
+      4,
+      15
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      1
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      7,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      2
+     ],
+     "layer": "wall",
+     "saw": "w15",
+     "cell": [
+      0,
+      4,
+      15
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": null,
+    "0,0@overlay": null,
+    "1,0@wall": null,
+    "1,0@overlay": null,
+    "2,0@wall": "w10",
+    "2,0@overlay": null,
+    "3,0@wall": null,
+    "3,0@overlay": null,
+    "4,0@wall": null,
+    "4,0@overlay": null,
+    "0,1@wall": null,
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "4,1@wall": null,
+    "4,1@overlay": null,
+    "0,2@wall": null,
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": null,
+    "2,2@wall": "w12",
+    "2,2@overlay": null,
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": "rcapM",
+    "0,3@wall": null,
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": null,
+    "3,3@wall": "w12",
+    "3,3@overlay": null,
+    "4,3@wall": "w4",
+    "4,3@overlay": null,
+    "0,4@wall": null,
+    "0,4@overlay": "w1",
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": null,
+    "4,4@overlay": "w1"
+   }
+  },
+  {
+   "id": "FVerticalwalls_L_turn_walls_S_E_",
+   "name": "L-turn ┌ (walls S+E)",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     0
+    ],
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     3
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "wall",
+     "saw": "w14",
+     "cell": [
+      0,
+      7,
+      15
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": null,
+    "0,0@overlay": null,
+    "1,0@wall": null,
+    "1,0@overlay": null,
+    "2,0@wall": "w10",
+    "2,0@overlay": null,
+    "3,0@wall": null,
+    "3,0@overlay": null,
+    "4,0@wall": null,
+    "4,0@overlay": null,
+    "0,1@wall": null,
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": "rcapL",
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": null,
+    "4,1@overlay": null,
+    "0,2@wall": null,
+    "0,2@overlay": null,
+    "1,2@wall": "w13",
+    "1,2@overlay": null,
+    "2,2@wall": "w6",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": null,
+    "0,3@wall": null,
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": null,
+    "4,3@wall": null,
+    "4,3@overlay": null,
+    "0,4@wall": null,
+    "0,4@overlay": "w1",
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": null,
+    "4,4@overlay": "w1"
+   }
+  },
+  {
+   "id": "FVerticalwalls_T_junction_",
+   "name": "T-junction ┤",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     0
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "knw",
+     "cell": [
+      0,
+      7,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      3
+     ],
+     "layer": "wall",
+     "saw": "knw2",
+     "cell": [
+      0,
+      2,
+      13
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      4
+     ],
+     "layer": "wall",
+     "saw": "w2",
+     "cell": [
+      0,
+      5,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "r0",
+    "0,0@overlay": null,
+    "1,0@wall": "r0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccnw2",
+    "2,0@overlay": null,
+    "3,0@wall": null,
+    "3,0@overlay": null,
+    "4,0@wall": null,
+    "4,0@overlay": null,
+    "0,1@wall": "w4",
+    "0,1@overlay": null,
+    "1,1@wall": "w4",
+    "1,1@overlay": null,
+    "2,1@wall": "w10",
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": null,
+    "4,1@overlay": null,
+    "0,2@wall": null,
+    "0,2@overlay": "w1",
+    "1,2@wall": null,
+    "1,2@overlay": "w1",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": null,
+    "4,3@wall": null,
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@overlay": null,
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": null,
+    "4,4@overlay": "w1"
+   }
+  },
+  {
+   "id": "FVerticalwalls_cross_",
+   "name": "cross ┼",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     0,
+     0
+    ],
+    [
+     1,
+     0
+    ],
+    [
+     3,
+     0
+    ],
+    [
+     4,
+     0
+    ],
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     4,
+     4
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "wall",
+     "saw": "fcl",
+     "cell": [
+      0,
+      8,
+      16
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      4
+     ],
+     "layer": "wall",
+     "saw": "w10",
+     "cell": [
+      0,
+      8,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": null,
+    "0,0@overlay": null,
+    "1,0@wall": null,
+    "1,0@overlay": null,
+    "2,0@wall": "w10",
+    "2,0@overlay": null,
+    "3,0@wall": null,
+    "3,0@overlay": null,
+    "4,0@wall": null,
+    "4,0@overlay": null,
+    "0,1@wall": null,
+    "0,1@overlay": "rcapM",
+    "1,1@wall": null,
+    "1,1@overlay": "rcapM",
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": "rcapM",
+    "4,1@wall": null,
+    "4,1@overlay": "rcapM",
+    "0,2@wall": "w4",
+    "0,2@overlay": null,
+    "1,2@wall": "w4",
+    "1,2@overlay": null,
+    "2,2@wall": "w10",
+    "2,2@overlay": null,
+    "3,2@wall": "w4",
+    "3,2@overlay": null,
+    "4,2@wall": "w4",
+    "4,2@overlay": null,
+    "0,3@wall": null,
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": null,
+    "2,3@wall": "w10",
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": null,
+    "4,3@wall": null,
+    "4,3@overlay": null,
+    "0,4@wall": null,
+    "0,4@overlay": "w1",
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@overlay": null,
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": null,
+    "4,4@overlay": "w1"
+   }
+  },
+  {
+   "id": "FVerticalwalls_v_wall_meets_h_run",
+   "name": "v-wall meets h-run",
+   "kind": "corrected",
+   "w": 6,
+   "h": 6,
+   "floors": [
+    [
+     1,
+     0
+    ],
+    [
+     3,
+     0
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     0,
+     4
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     5,
+     4
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     5,
+     3
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "fcl",
+     "cell": [
+      0,
+      8,
+      16
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      4,
+      2
+     ],
+     "layer": "wall",
+     "saw": "w14",
+     "cell": [
+      0,
+      7,
+      15
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": null,
+    "1,0@overlay": null,
+    "2,0@wall": "w10",
+    "2,0@overlay": null,
+    "3,0@wall": null,
+    "3,0@overlay": null,
+    "4,0@wall": "w8",
+    "4,0@overlay": null,
+    "5,0@wall": "w0",
+    "5,0@overlay": null,
+    "0,1@wall": "r2w",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@wall": "w10",
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": "ccne2",
+    "4,1@overlay": null,
+    "5,1@wall": "r0",
+    "5,1@overlay": null,
+    "0,2@wall": "w6",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "rcapL",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "rcapM",
+    "4,2@overlay": null,
+    "5,2@wall": "w4",
+    "5,2@overlay": null,
+    "0,3@wall": null,
+    "0,3@overlay": null,
+    "1,3@wall": "w13",
+    "1,3@overlay": null,
+    "2,3@wall": "w10",
+    "2,3@overlay": null,
+    "3,3@wall": "w4",
+    "3,3@overlay": null,
+    "4,3@wall": "w6",
+    "4,3@overlay": null,
+    "5,3@wall": null,
+    "5,3@overlay": null,
+    "0,4@wall": null,
+    "0,4@overlay": "w1",
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@wall": "kn2",
+    "2,4@overlay": null,
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": null,
+    "4,4@overlay": "w1",
+    "5,4@wall": null,
+    "5,4@overlay": "w1",
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null,
+    "5,5@wall": "w0",
+    "5,5@overlay": null
+   }
+  },
+  {
+   "id": "GIsolatedmasses_lone_pillar_em15_",
+   "name": "lone pillar (em15)",
+   "kind": "corrected",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     3,
+     3
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      0,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w2",
+     "cell": [
+      0,
+      5,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      4,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w8",
+     "cell": [
+      0,
+      6,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w8",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "r3",
+    "3,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": null,
+    "2,2@wall": "w15",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": null,
+    "4,2@wall": "w8",
+    "4,2@overlay": null,
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "GIsolatedmasses_2_1_horizontal",
+   "name": "2×1 horizontal",
+   "kind": "corrected",
+   "w": 6,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     1
+    ],
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      0,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w2",
+     "cell": [
+      0,
+      5,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      5,
+      3
+     ],
+     "layer": "wall",
+     "saw": "w8",
+     "cell": [
+      0,
+      6,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w4",
+    "4,0@overlay": null,
+    "5,0@wall": "w8",
+    "5,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "rcapL",
+    "3,1@wall": null,
+    "3,1@overlay": "rcapR",
+    "4,1@wall": null,
+    "4,1@overlay": null,
+    "5,1@wall": "w8",
+    "5,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": null,
+    "2,2@wall": "w13",
+    "2,2@overlay": null,
+    "3,2@wall": "w7",
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": null,
+    "5,2@wall": "w8",
+    "5,2@overlay": null,
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@wall": null,
+    "4,3@overlay": "w1",
+    "5,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "5,4@wall": "w0",
+    "5,4@overlay": null
+   }
+  },
+  {
+   "id": "GIsolatedmasses_1_3_vertical",
+   "name": "1×3 vertical",
+   "kind": "corrected",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     2,
+     0
+    ],
+    [
+     2,
+     5
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "wall",
+     "saw": "w11",
+     "cell": [
+      0,
+      3,
+      13
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      0,
+      4
+     ],
+     "layer": "wall",
+     "saw": "w2",
+     "cell": [
+      0,
+      5,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      4,
+      4
+     ],
+     "layer": "wall",
+     "saw": "w8",
+     "cell": [
+      0,
+      6,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w6",
+    "1,0@overlay": null,
+    "2,0@wall": null,
+    "2,0@overlay": "w11",
+    "3,0@wall": "w12",
+    "3,0@overlay": null,
+    "4,0@wall": "w8",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": null,
+    "2,2@wall": "w10",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": null,
+    "4,2@wall": "w8",
+    "4,2@overlay": null,
+    "0,3@wall": "w2",
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": null,
+    "2,3@wall": "w14",
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": null,
+    "4,3@wall": "w8",
+    "4,3@overlay": null,
+    "0,4@overlay": null,
+    "1,4@wall": null,
+    "1,4@overlay": "w3",
+    "2,4@wall": "w15",
+    "2,4@overlay": null,
+    "3,4@wall": null,
+    "3,4@overlay": "w9",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "kne",
+    "1,5@overlay": null,
+    "2,5@wall": null,
+    "2,5@overlay": "w1",
+    "3,5@wall": "knw",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "GIsolatedmasses_2_2_block",
+   "name": "2×2 block",
+   "kind": "corrected",
+   "w": 6,
+   "h": 6,
+   "floors": [
+    [
+     1,
+     1
+    ],
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     4,
+     3
+    ],
+    [
+     1,
+     4
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     4,
+     1
+    ]
+   ],
+   "fix": [
+    {
+     "xy": [
+      2,
+      1
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      0,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      1
+     ],
+     "layer": "overlay",
+     "saw": null,
+     "cell": [
+      0,
+      2,
+      12
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      2,
+      2
+     ],
+     "layer": "wall",
+     "saw": "r9",
+     "cell": [
+      0,
+      0,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      3,
+      2
+     ],
+     "layer": "wall",
+     "saw": "r3",
+     "cell": [
+      0,
+      2,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      0,
+      4
+     ],
+     "layer": "wall",
+     "saw": "w2",
+     "cell": [
+      0,
+      5,
+      14
+     ],
+     "status": "pass"
+    },
+    {
+     "xy": [
+      5,
+      4
+     ],
+     "layer": "wall",
+     "saw": "w8",
+     "cell": [
+      0,
+      6,
+      14
+     ],
+     "status": "pass"
+    }
+   ],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w4",
+    "4,0@overlay": null,
+    "5,0@wall": "w8",
+    "5,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "3,1@wall": null,
+    "4,1@wall": null,
+    "4,1@overlay": null,
+    "5,1@wall": "w8",
+    "5,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": null,
+    "2,2@overlay": null,
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": null,
+    "5,2@wall": "w8",
+    "5,2@overlay": null,
+    "0,3@wall": "w2",
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": null,
+    "2,3@wall": "w12",
+    "2,3@overlay": null,
+    "3,3@wall": "w6",
+    "3,3@overlay": null,
+    "4,3@wall": null,
+    "4,3@overlay": null,
+    "5,3@wall": "w8",
+    "5,3@overlay": null,
+    "0,4@overlay": null,
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": null,
+    "4,4@overlay": "w1",
+    "5,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null,
+    "5,5@wall": "w0",
+    "5,5@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m0_none",
+   "name": "m0 none",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "w0",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "w0",
+    "2,1@overlay": null,
+    "3,1@wall": "w0",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "w0",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m1_N",
+   "name": "m1 N",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     1
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "kne",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "w1",
+    "3,1@wall": "knw",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "w0",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m2_E",
+   "name": "m2 E",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     3,
+     2
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccne",
+    "2,0@overlay": null,
+    "3,0@wall": "r0",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "w2",
+    "2,1@overlay": null,
+    "3,1@wall": "w4",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "kne",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w1",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m3_N_E",
+   "name": "m3 N+E",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     2
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w2",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "r8",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "kne",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "w3",
+    "3,1@wall": "w12",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "kne",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w1",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m4_S",
+   "name": "m4 S",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     3
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "w0",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "ccne",
+    "1,1@overlay": null,
+    "2,1@wall": "r0",
+    "2,1@overlay": null,
+    "3,1@wall": "ccnw",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w2",
+    "1,2@overlay": null,
+    "2,2@wall": "w4",
+    "2,2@overlay": null,
+    "3,2@wall": "w8",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "kne",
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": "knw",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m6_E_S",
+   "name": "m6 E+S",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     3,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccne",
+    "2,0@overlay": null,
+    "3,0@wall": "r0",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "ccne",
+    "1,1@overlay": null,
+    "2,1@wall": "r2w",
+    "2,1@overlay": null,
+    "3,1@wall": "w4",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w2",
+    "1,2@overlay": null,
+    "2,2@wall": "w6",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w9",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "kne",
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": "knw",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m8_W",
+   "name": "m8 W",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccnw",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w4",
+    "1,1@overlay": null,
+    "2,1@wall": "w8",
+    "2,1@overlay": null,
+    "3,1@wall": "w0",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w1",
+    "2,2@wall": "knw",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m9_N_W",
+   "name": "m9 N+W",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r2w",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w8",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w6",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "w9",
+    "3,1@wall": "knw",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w1",
+    "2,2@wall": "knw",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m10_E_W",
+   "name": "m10 E+W",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     3,
+     2
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r0",
+    "1,0@overlay": null,
+    "2,0@wall": "capBoth",
+    "2,0@overlay": null,
+    "3,0@wall": "r0",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w4",
+    "1,1@overlay": null,
+    "2,1@wall": "w10",
+    "2,1@overlay": null,
+    "3,1@wall": "w4",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w1",
+    "2,2@wall": "kn2",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w1",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m11_N_E_W",
+   "name": "m11 N+E+W",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r2w",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "r8",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w6",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "w11",
+    "3,1@wall": "w12",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w1",
+    "2,2@wall": "kn2",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w1",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m12_S_W",
+   "name": "m12 S+W",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     3
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r0",
+    "1,0@overlay": null,
+    "2,0@wall": "ccnw",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w4",
+    "1,1@overlay": null,
+    "2,1@wall": "r8",
+    "2,1@overlay": null,
+    "3,1@wall": "ccnw",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w3",
+    "2,2@wall": "w12",
+    "2,2@overlay": null,
+    "3,2@wall": "w8",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "kne",
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": "knw",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m14_E_S_W",
+   "name": "m14 E+S+W",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     3,
+     2
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r0",
+    "1,0@overlay": null,
+    "2,0@wall": "capBoth",
+    "2,0@overlay": null,
+    "3,0@wall": "r0",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w4",
+    "1,1@overlay": null,
+    "2,1@wall": "w14",
+    "2,1@overlay": null,
+    "3,1@wall": "w4",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w3",
+    "2,2@wall": "w15",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w9",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "kne",
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": "knw",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "ABasemasks_m15_N_E_S_W",
+   "name": "m15 N+E+S+W",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "ccne",
+    "0,0@overlay": null,
+    "1,0@wall": "r2w",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "r8",
+    "3,0@overlay": null,
+    "4,0@wall": "ccnw",
+    "4,0@overlay": null,
+    "0,1@wall": "w2",
+    "0,1@overlay": null,
+    "1,1@wall": "w6",
+    "1,1@overlay": null,
+    "2,1@wall": null,
+    "2,1@overlay": "r3",
+    "3,1@wall": "w12",
+    "3,1@overlay": null,
+    "4,1@wall": "w8",
+    "4,1@overlay": null,
+    "0,2@wall": "kne",
+    "0,2@overlay": null,
+    "1,2@wall": null,
+    "1,2@overlay": "w3",
+    "2,2@wall": "w15",
+    "2,2@overlay": null,
+    "3,2@wall": null,
+    "3,2@overlay": "w9",
+    "4,2@wall": "knw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "kne",
+    "1,3@overlay": null,
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": "knw",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_NW_only",
+   "name": "NW only",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     1
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w8",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "kne",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": "w1",
+    "2,1@wall": "knw",
+    "2,1@overlay": null,
+    "3,1@wall": "w0",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "w0",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_NE_only",
+   "name": "NE only",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     3,
+     1
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "w2",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w8",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "kne",
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": "w1",
+    "4,1@wall": "knw",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "w0",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_SW_only",
+   "name": "SW only",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     3
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "w0",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "ccne",
+    "0,1@overlay": null,
+    "1,1@wall": "r0",
+    "1,1@overlay": null,
+    "2,1@wall": "ccnw",
+    "2,1@overlay": null,
+    "3,1@wall": "w0",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": "w4",
+    "1,2@overlay": null,
+    "2,2@wall": "w8",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "kne",
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@wall": "knw",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_SE_only",
+   "name": "SE only",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     3,
+     3
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "w0",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "ccne",
+    "2,1@overlay": null,
+    "3,1@wall": "r0",
+    "3,1@overlay": null,
+    "4,1@wall": "ccnw",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "w2",
+    "2,2@overlay": null,
+    "3,2@wall": "w4",
+    "3,2@overlay": null,
+    "4,2@wall": "w8",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "kne",
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@wall": "knw",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_both_top",
+   "name": "both top",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     1
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w2",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w10",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w8",
+    "4,0@overlay": null,
+    "0,1@wall": "kne",
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": "w1",
+    "2,1@wall": "kn2",
+    "2,1@overlay": null,
+    "3,1@wall": null,
+    "3,1@overlay": "w1",
+    "4,1@wall": "knw",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "w0",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w0",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "BDiagonalcorners_both_bottom",
+   "name": "both bottom",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     1,
+     3
+    ],
+    [
+     3,
+     3
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "w0",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "ccne",
+    "0,1@overlay": null,
+    "1,1@wall": "r0",
+    "1,1@overlay": null,
+    "2,1@wall": "capBoth",
+    "2,1@overlay": null,
+    "3,1@wall": "r0",
+    "3,1@overlay": null,
+    "4,1@wall": "ccnw",
+    "4,1@overlay": null,
+    "0,2@wall": "w2",
+    "0,2@overlay": null,
+    "1,2@wall": "w4",
+    "1,2@overlay": null,
+    "2,2@wall": "w10",
+    "2,2@overlay": null,
+    "3,2@wall": "w4",
+    "3,2@overlay": null,
+    "4,2@wall": "w8",
+    "4,2@overlay": null,
+    "0,3@wall": "kne",
+    "0,3@overlay": null,
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@wall": "kn2",
+    "2,3@overlay": null,
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@wall": "knw",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "CCaprow_S_only",
+   "name": "S only",
+   "kind": "approved",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     2,
+     4
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "w0",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "w0",
+    "2,1@overlay": null,
+    "3,1@wall": "w0",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "ccne",
+    "1,2@overlay": null,
+    "2,2@wall": "r0",
+    "2,2@overlay": null,
+    "3,2@wall": "ccnw",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w2",
+    "1,3@overlay": null,
+    "2,3@wall": "w4",
+    "2,3@overlay": null,
+    "3,3@wall": "w8",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "kne",
+    "1,4@overlay": null,
+    "2,4@wall": null,
+    "2,4@overlay": "w1",
+    "3,4@wall": "knw",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "DCornercaps_ccne",
+   "name": "ccne",
+   "kind": "approved",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     3,
+     4
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "w0",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "w0",
+    "2,1@overlay": null,
+    "3,1@wall": "w0",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "w0",
+    "0,2@overlay": null,
+    "1,2@wall": "w0",
+    "1,2@overlay": null,
+    "2,2@wall": "ccne",
+    "2,2@overlay": null,
+    "3,2@wall": "r0",
+    "3,2@overlay": null,
+    "4,2@wall": "ccnw",
+    "4,2@overlay": null,
+    "0,3@wall": "w0",
+    "0,3@overlay": null,
+    "1,3@wall": "w0",
+    "1,3@overlay": null,
+    "2,3@wall": "w2",
+    "2,3@overlay": null,
+    "3,3@wall": "w4",
+    "3,3@overlay": null,
+    "4,3@wall": "w8",
+    "4,3@overlay": null,
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "kne",
+    "2,4@overlay": null,
+    "3,4@wall": null,
+    "3,4@overlay": "w1",
+    "4,4@wall": "knw",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "DCornercaps_ccnw",
+   "name": "ccnw",
+   "kind": "approved",
+   "w": 5,
+   "h": 6,
+   "floors": [
+    [
+     1,
+     4
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w0",
+    "0,0@overlay": null,
+    "1,0@wall": "w0",
+    "1,0@overlay": null,
+    "2,0@wall": "w0",
+    "2,0@overlay": null,
+    "3,0@wall": "w0",
+    "3,0@overlay": null,
+    "4,0@wall": "w0",
+    "4,0@overlay": null,
+    "0,1@wall": "w0",
+    "0,1@overlay": null,
+    "1,1@wall": "w0",
+    "1,1@overlay": null,
+    "2,1@wall": "w0",
+    "2,1@overlay": null,
+    "3,1@wall": "w0",
+    "3,1@overlay": null,
+    "4,1@wall": "w0",
+    "4,1@overlay": null,
+    "0,2@wall": "ccne",
+    "0,2@overlay": null,
+    "1,2@wall": "r0",
+    "1,2@overlay": null,
+    "2,2@wall": "ccnw",
+    "2,2@overlay": null,
+    "3,2@wall": "w0",
+    "3,2@overlay": null,
+    "4,2@wall": "w0",
+    "4,2@overlay": null,
+    "0,3@wall": "w2",
+    "0,3@overlay": null,
+    "1,3@wall": "w4",
+    "1,3@overlay": null,
+    "2,3@wall": "w8",
+    "2,3@overlay": null,
+    "3,3@wall": "w0",
+    "3,3@overlay": null,
+    "4,3@wall": "w0",
+    "4,3@overlay": null,
+    "0,4@wall": "kne",
+    "0,4@overlay": null,
+    "1,4@wall": null,
+    "1,4@overlay": "w1",
+    "2,4@wall": "knw",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null,
+    "0,5@wall": "w0",
+    "0,5@overlay": null,
+    "1,5@wall": "w0",
+    "1,5@overlay": null,
+    "2,5@wall": "w0",
+    "2,5@overlay": null,
+    "3,5@wall": "w0",
+    "3,5@overlay": null,
+    "4,5@wall": "w0",
+    "4,5@overlay": null
+   }
+  },
+  {
+   "id": "EHorizontalruns_run_middle_rcapM_",
+   "name": "run middle (rcapM)",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w4",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w4",
+    "4,0@overlay": null,
+    "0,1@wall": null,
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": "rcapL",
+    "2,1@wall": null,
+    "2,1@overlay": "rcapM",
+    "3,1@wall": null,
+    "3,1@overlay": "rcapR",
+    "4,1@wall": null,
+    "4,1@overlay": null,
+    "0,2@wall": null,
+    "0,2@overlay": null,
+    "1,2@wall": "w13",
+    "1,2@overlay": null,
+    "2,2@wall": "w4",
+    "2,2@overlay": null,
+    "3,2@wall": "w7",
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": null,
+    "0,3@wall": null,
+    "0,3@overlay": "w1",
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@wall": null,
+    "4,3@overlay": "w1",
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "EHorizontalruns_run_left_end_rcapL_",
+   "name": "run left end (rcapL)",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w4",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w4",
+    "4,0@overlay": null,
+    "0,1@wall": null,
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": "rcapL",
+    "2,1@wall": null,
+    "2,1@overlay": "rcapM",
+    "3,1@wall": null,
+    "3,1@overlay": "rcapR",
+    "4,1@wall": null,
+    "4,1@overlay": null,
+    "0,2@wall": null,
+    "0,2@overlay": null,
+    "1,2@wall": "w13",
+    "1,2@overlay": null,
+    "2,2@wall": "w4",
+    "2,2@overlay": null,
+    "3,2@wall": "w7",
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": null,
+    "0,3@wall": null,
+    "0,3@overlay": "w1",
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@wall": null,
+    "4,3@overlay": "w1",
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  },
+  {
+   "id": "EHorizontalruns_run_right_end_rcapR_",
+   "name": "run right end (rcapR)",
+   "kind": "approved",
+   "w": 5,
+   "h": 5,
+   "floors": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     2,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     4,
+     1
+    ],
+    [
+     0,
+     2
+    ],
+    [
+     4,
+     2
+    ],
+    [
+     0,
+     3
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     2,
+     3
+    ],
+    [
+     3,
+     3
+    ],
+    [
+     4,
+     3
+    ]
+   ],
+   "fix": [],
+   "keep": {
+    "0,0@wall": "w4",
+    "0,0@overlay": null,
+    "1,0@wall": "w4",
+    "1,0@overlay": null,
+    "2,0@wall": "w4",
+    "2,0@overlay": null,
+    "3,0@wall": "w4",
+    "3,0@overlay": null,
+    "4,0@wall": "w4",
+    "4,0@overlay": null,
+    "0,1@wall": null,
+    "0,1@overlay": null,
+    "1,1@wall": null,
+    "1,1@overlay": "rcapL",
+    "2,1@wall": null,
+    "2,1@overlay": "rcapM",
+    "3,1@wall": null,
+    "3,1@overlay": "rcapR",
+    "4,1@wall": null,
+    "4,1@overlay": null,
+    "0,2@wall": null,
+    "0,2@overlay": null,
+    "1,2@wall": "w13",
+    "1,2@overlay": null,
+    "2,2@wall": "w4",
+    "2,2@overlay": null,
+    "3,2@wall": "w7",
+    "3,2@overlay": null,
+    "4,2@wall": null,
+    "4,2@overlay": null,
+    "0,3@wall": null,
+    "0,3@overlay": "w1",
+    "1,3@wall": null,
+    "1,3@overlay": "w1",
+    "2,3@wall": null,
+    "2,3@overlay": "w1",
+    "3,3@wall": null,
+    "3,3@overlay": "w1",
+    "4,3@wall": null,
+    "4,3@overlay": "w1",
+    "0,4@wall": "w0",
+    "0,4@overlay": null,
+    "1,4@wall": "w0",
+    "1,4@overlay": null,
+    "2,4@wall": "w0",
+    "2,4@overlay": null,
+    "3,4@wall": "w0",
+    "3,4@overlay": null,
+    "4,4@wall": "w0",
+    "4,4@overlay": null
+   }
+  }
+ ]
+}

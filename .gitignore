@@ -1,0 +1,16 @@
+build/
+build-cov/
+romfs/
+*.elf
+*.3dsx
+*.smdh
+*.cia
+*.map
+banner.bnr
+.claude/
+Projects.lnk
+# The Sprout Lands source packs - their licenses forbid redistributing the
+# packs themselves (the game-specific slices in gfx/ are fine to commit).
+itch/
+tests/build/
+tests/build-cov/

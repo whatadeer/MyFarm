@@ -1,0 +1,1641 @@
+<title>MyFarm Wall Scenario Verifier</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --void: #1a1420; --panel: #241b2e; --panel-2: #2c2138; --line: #3d2f4d;
+    --ink: #f0e5d2; --muted: #a08fae; --gold: #f2b23e; --gold-dim: #8a6a2e;
+    --sage: #b7c4b0; --bad: #e2637a; --good: #7ec98f;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --sans: system-ui, "Segoe UI", sans-serif;
+  }
+  html { background: var(--void); }
+  body { font-family: var(--sans); color: var(--ink); margin: 0; padding: 16px; font-size: 14px; line-height: 1.45; overflow-x: hidden; }
+  * { box-sizing: border-box; }
+  h1 { font-family: var(--mono); font-size: 18px; letter-spacing: .06em; margin: 0; color: var(--gold); }
+  .sub { color: var(--muted); margin: 4px 0 14px; max-width: 78ch; }
+  .sub b { color: var(--ink); }
+  .lab { display: grid; grid-template-columns: minmax(0,1fr) minmax(420px, 46vw); gap: 14px; align-items: start; }
+  @media (max-width: 1000px) { .lab { grid-template-columns: 1fr; } }
+  .editorwrap { display: flex; flex-direction: column; max-height: 96vh; overflow: auto; padding: 10px; }
+  .editortitle { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .editorhead { font-family: var(--mono); font-size: 11.5px; color: var(--sage); margin-bottom: 8px; }
+  .editorhead b { color: var(--ink); }
+  .reviewbox { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .reviewbox summary { cursor: pointer; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .scn.active { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold) inset; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+  .card h2 { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 10px; }
+  .bar label { display: inline-flex; gap: 5px; align-items: center; color: var(--muted); cursor: pointer; user-select: none; }
+  .bar input[type=checkbox], .bar input[type=radio] { accent-color: var(--gold); }
+  button, select { font-family: var(--mono); font-size: 12px; background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 5px 10px; cursor: pointer; }
+  button:hover { border-color: var(--gold-dim); }
+  button.primary { background: var(--gold); color: #241b0a; border-color: var(--gold); font-weight: 600; }
+  canvas { display: block; image-rendering: pixelated; }
+  .sticky { position: sticky; top: 12px; }
+  .toptabs { display: flex; gap: 6px; margin: 10px 0 12px; }
+  .toptabs button { font-size: 13px; padding: 7px 18px; }
+  .toptabs button.on { background: var(--gold); color: #241b0a; border-color: var(--gold); font-weight: 600; }
+  .groupHead { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); border-bottom: 1px solid var(--line); padding: 14px 0 4px; margin: 6px 0 10px; }
+  .groupDesc { color: var(--muted); font-size: 12.5px; margin: -6px 0 10px; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .scn .cv { align-self: start; }
+  .scn { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 9px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .scn.flagged { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad) inset; }
+  .scn.approved { border-color: var(--good); box-shadow: 0 0 0 1px var(--good) inset; }
+  /* done = "finished with", and rides ON TOP of a verdict rather than replacing
+     it: the fade says checked-off, the border keeps saying wrong vs approved.
+     Only an unjudged card takes the gold border. */
+  .scn.done { opacity: 0.82; }
+  .scn.done:not(.flagged):not(.approved) { border-color: var(--gold-dim); }
+  .scn.done:hover { opacity: 1; }
+  .chk { flex: 0 0 auto; font-size: 11px; padding: 4px 8px; }
+  .chk.on { background: var(--gold-dim); color: var(--ink); border-color: var(--gold); }
+  .scn .title { font-size: 12.5px; font-weight: 600; }
+  .scn .desc { font-size: 11.5px; color: var(--muted); }
+  .scn .roles { font-family: var(--mono); font-size: 10.5px; color: var(--sage); white-space: pre-wrap; }
+  .scn .cv { background: var(--void); border: 1px solid var(--line); border-radius: 4px; align-self: center; max-width: 100%; height: auto; cursor: pointer; }
+  .tilechips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .tilechips .chip { padding: 2px 7px; font-size: 10.5px; }
+  .tilechips .chip.on { background: var(--bad); color: #2a0f16; border-color: var(--bad); }
+  .clr { align-self: flex-start; font-size: 10.5px; padding: 3px 8px; color: var(--muted); }
+  .scn .foot { display: flex; gap: 6px; align-items: center; }
+  .scn .mark { flex: 1; font-size: 11px; padding: 4px 6px; }
+  .scn.flagged .mark { background: var(--bad); color: #2a0f16; border-color: var(--bad); font-weight: 600; }
+  .scn.approved .ok { background: var(--good); color: #0f2a16; border-color: var(--good); font-weight: 600; }
+  .fix { display: none; flex-direction: column; gap: 6px; border-top: 1px dashed var(--line); padding-top: 7px; margin-top: 2px; }
+  .fix.open { display: flex; }
+  .layerblock { border: 1px solid var(--line); border-radius: 5px; padding: 7px; display: flex; flex-direction: column; gap: 6px; }
+  .layerblock.active { border-color: var(--gold-dim); background: rgba(242,178,62,0.05); }
+  .lhead { font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: pointer; }
+  .lhead b { color: var(--ink); }
+  .slots { display: flex; gap: 6px; flex-wrap: wrap; }
+  .phint { font-size: 11.5px; color: var(--muted); margin: 2px 0 0; }
+  .phint b { color: var(--gold); text-transform: capitalize; }
+  .pscroll { max-height: 50vh; }
+  .quickentry { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-family: var(--mono); font-size: 11px; color: var(--muted); margin: 2px 0 5px; }
+  .quickentry input { width: 54px; font-family: var(--mono); font-size: 11px; background: var(--void); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 3px 5px; }
+  .quickentry select { padding: 3px 6px; font-size: 11px; }
+  .quickentry input:focus { outline: 1px solid var(--gold); }
+  .ltools { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .ltools button { padding: 2px 7px; font-size: 11px; min-width: 24px; }
+  .ltools .conv { color: var(--gold); border-color: var(--gold-dim); }
+  .slot { flex: 1 1 200px; display: grid; grid-template-columns: 46px 1fr; gap: 7px; align-items: center; border: 1px solid var(--line); border-radius: 4px; padding: 5px; cursor: pointer; }
+  .slot.active { border-color: var(--gold); background: var(--panel-2); }
+  .slot .lab2 { font-family: var(--mono); font-size: 10.5px; }
+  .slot .lab2 .k { color: var(--gold); }
+  .slot .lab2 .cur { color: var(--muted); }
+  .slot .lab2 .cor { color: var(--good); }
+  .slot canvas { width: 40px; height: 40px; background: var(--void); border: 1px solid var(--line); border-radius: 3px; }
+  /* Sits between the two kit slots; never grows, so the slots keep the space. */
+  .syncbtn { flex: 0 0 auto; align-self: center; font-size: 11px; padding: 5px 7px; white-space: nowrap; font-family: var(--mono); }
+  .syncbtn:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+  .syncbtn:not(:disabled):hover { background: var(--gold); color: #241b0a; }
+  .syncbtn:disabled { opacity: 0.35; cursor: default; }
+  .fix textarea { width: 100%; box-sizing: border-box; height: 42px; font-family: var(--mono); font-size: 11px; background: var(--void); color: var(--sage); border: 1px solid var(--line); border-radius: 4px; padding: 6px; resize: vertical; }
+  .sheettabs { display: flex; gap: 4px; margin: 8px 0 6px; flex-wrap: wrap; }
+  .sheettabs button { padding: 3px 8px; font-size: 11px; }
+  .sheettabs button.on { background: var(--gold-dim); border-color: var(--gold); color: var(--ink); }
+  .scroller { overflow: auto; border: 1px solid var(--line); border-radius: 4px; background: var(--void); max-width: 100%; }
+  #paletteWrap { max-height: 320px; }
+  .target { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 2px 0 6px; min-height: 1.3em; }
+  .target b { color: var(--gold); }
+  textarea#exp { width: 100%; box-sizing: border-box; height: 150px; font-family: var(--mono); font-size: 10.5px; background: var(--void); color: var(--sage); border: 1px solid var(--line); border-radius: 4px; padding: 8px; resize: vertical; }
+  .flash { color: var(--gold); font-family: var(--mono); font-size: 12px; margin-left: 8px; }
+  .count { font-family: var(--mono); color: var(--bad); }
+  .hint { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+  .paintbar span { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: .1em; }
+</style>
+
+<h1>MYFARM DUNGEON WALL LAB</h1>
+<div class="toptabs">
+  <button id="tabScn" class="on">Scenarios</button>
+  <button id="tabDun">Dungeon</button>
+  <button id="tabHedge">Hedge</button>
+</div>
+
+<div id="panelDun" hidden>
+  <p class="sub">The full dungeon at real scale, rendered with the <b>same engine + rule</b> as the Scenarios tab — rooms, corridors, a door, a rail spur, in both kits. This is where the rule gets stress-tested against geometry the 5×5 cards can't show. The LAYERS / walk-behind / <span style="color:#6cb8ff;font-family:var(--mono)">#</span> toggles below apply here too.</p>
+  <div class="bar">
+    <button id="dunReroll">↻ Reroll</button>
+    <select id="dunSize" aria-label="Dungeon size">
+      <option value="small" selected>Small · 1 room</option>
+      <option value="medium">Medium · 3 rooms</option>
+      <option value="large">Large · 5 rooms</option>
+      <option value="huge">Huge · 8 rooms</option>
+    </select>
+    <select id="dunZoom" aria-label="Zoom"><option value="2">2×</option><option value="3" selected>3×</option><option value="4">4×</option></select>
+    <span style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em">PAINT:</span>
+    <label><input type="radio" name="dpb" value="" checked> off</label>
+    <label><input type="radio" name="dpb" value="."> floor</label>
+    <label><input type="radio" name="dpb" value="#"> wall</label>
+  </div>
+  <div class="scroller" style="max-height:82vh"><canvas id="dungeon"></canvas></div>
+  <p class="hint" id="dunInfo" style="font-family:var(--mono);color:var(--sage)"></p>
+</div>
+
+<div id="panelHedge" hidden>
+  <p class="sub">The overworld hedge maze — a standard 16-mask blob autotile with real inner-corner notches at crossings. Separate system from the dungeon walls; included here so this one page replaces the old lab.</p>
+  <div class="bar">
+    <span style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em">PAINT:</span>
+    <label><input type="radio" name="hbr" value="" checked> off</label>
+    <label><input type="radio" name="hbr" value="."> grass</label>
+    <label><input type="radio" name="hbr" value="H"> hedge</label>
+  </div>
+  <div class="scroller" style="display:inline-block"><canvas id="hedge"></canvas></div>
+</div>
+
+<div id="panelScn">
+<p class="sub">Every distinct wall/floor situation the autotiler produces, laid out deterministically and rendered with the <b>exact rules the game uses</b>, in <b>both kits</b>. When a whole scenario looks right, hit <b>✓ Looks right</b> to lock it in. To fix something, <b>click any cell</b> — it turns gold and its <b>three layers (floor / wall / overlay)</b> open below, each showing what the algorithm currently draws there (or “not drawn”). Set the correct tile for each layer — floor from the floor strip, wall &amp; overlay from the tile sheets (per kit) — to describe the true picture; layers that aren't drawn there yet can still be set. Add a note per layer. Corrected cells are outlined by layer (floor teal, wall red, overlay purple). Just paint the right pictures and I'll work out the rules. Miss a case? Paint it on the board at the bottom and <b>add it as a new scenario</b>. When done, <b>Copy corrections</b> and paste the JSON back to Claude.</p>
+
+<div class="bar">
+  <label><input type="checkbox" id="flavor"> show random face flavor (windows/moss/sprout)</label>
+  <select id="zoomSel" aria-label="Zoom"><option value="2">2×</option><option value="3" selected>3×</option><option value="4">4×</option></select>
+  <span style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em">SHOW:</span>
+  <label><input type="checkbox" id="vwUnrev" checked> needs review</label>
+  <label><input type="checkbox" id="vwWrong" checked> flagged</label>
+  <label><input type="checkbox" id="vwOk" checked> approved</label>
+  <label title="Checked-off cards keep their verdict — this decides whether they're shown at all"><input type="checkbox" id="vwDone" checked> include done</label>
+  <span style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em">LAYERS:</span>
+  <label><input type="checkbox" id="lyrFloor" checked> floor</label>
+  <label><input type="checkbox" id="lyrWalls" checked> wall faces</label>
+  <label><input type="checkbox" id="lyrCaps" checked> caps</label>
+  <label><input type="checkbox" id="lyrOverlay" checked> overlays</label>
+  <label style="margin-left:6px"><input type="checkbox" id="wallMark" checked> <span style="color:#6cb8ff;font-family:var(--mono)">#</span> wall cells</label>
+</div>
+
+<div class="lab">
+  <div id="gallery"></div>
+  <div class="editorcol">
+    <div class="card sticky editorwrap">
+      <div class="card-h2 editortitle">Editor</div>
+      <div id="editor"></div>
+      <details class="reviewbox">
+        <summary>Review · export · save/load <span class="count" id="count">0</span></summary>
+        <textarea id="exp" spellcheck="false" aria-label="Corrections JSON"></textarea>
+        <div class="bar" style="margin:8px 0 0">
+          <button class="primary" id="copyBtn">Copy corrections</button>
+          <button id="clearBtn">Clear all</button>
+          <span class="flash" id="flash"></span>
+        </div>
+        <div class="bar" style="margin:6px 0 0">
+          <button id="saveBtn">💾 Save file</button>
+          <button id="loadBtn">📂 Load file</button>
+          <input type="file" id="loadFile" accept="application/json,.json" style="display:none">
+        </div>
+        <p class="hint" style="margin-top:4px">Save/Load keeps all your work (corrections, approvals, done) as a file — back it up or move devices.</p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h2>Paint your own scenario</h2>
+  <div class="bar paintbar">
+    <span>PAINT:</span>
+    <label><input type="radio" name="pb" value="#" checked> wall</label>
+    <label><input type="radio" name="pb" value="."> floor</label>
+    <span style="margin-left:10px">CENTER:</span>
+    <label><input type="radio" name="pb" value="C"> set center</label>
+    <button id="clearBoard">Clear board</button>
+    <button class="primary" id="addScn">Add as new scenario</button>
+  </div>
+  <div class="scroller" style="display:inline-block"><canvas id="board"></canvas></div>
+  <p class="hint">Paint any wall/floor shape, mark one cell as the CENTER (the cell you're judging), then add it. It drops into a <b>Custom</b> group above, ready to mark and correct like the rest.</p>
+</div>
+</div><!-- /panelScn -->
+
+<script>
+"use strict";
+/* ============================ ENGINE (ported verbatim from lab_v3) ============================ */
+const SHEET_SRC = [
+  { name: "Walls", b64: "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" },
+  { name: "Decor/Gates", b64: "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" },
+  { name: "Rails", b64: "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" },
+  { name: "Props", b64: "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" },
+  { name: "Ground", b64: "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" },
+  { name: "Rocks", b64: "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" },
+  { name: "Items", b64: "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" },
+  { name: "Bush", b64: "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" },
+];
+const FLOOR_B64 = "iVBORw0KGgoAAAANSUhEUgAAAkAAAAAQCAYAAAD+i8DoAAADKklEQVR4nO2dP4vUQBiH544Vrsh5J3K3xbmFWlhYaLFstxb2iu11+sXEzlb0G2gnioqI2CjcesgdiLdsQLFRJt7ksjHJTiYzySR5HggkQ97Mv2Tmt+87ya59fPjgj7DE8NKu1nlHX49tZWmUv6uy9LH+bWlzV2XpUv2rXsskz6rPD/Wn/23di32//03QzT+chyLYCoRvrDddAAAAAOguwan4kULIewEkVV3WBgDdpM7nOyuvMvm7KCv1p//7fP+7ZLCzE++79gJ9ejeLNt30tXQITKdxbbrwdMm7dlV3YJtCYFnXb9odWrXNk/ZF+df50Jdphy7WHwD6x1Fq/Mkbm3wdi6TAuXn/XrT/9tETce3GqDBdMkheQLdi8jwX61h8aVgdsdV0WZrIy3X9fez/Ovvcl/oDQP8YFow/tsYmnbVAyTBZWY/RzzevM8fudLqqz7ovg2/T+dd5E+iWw5c2UfhWnr72AwCALcJ5GIsO12t0Vgma9+dviy+ju0vHq5CC5tnjA7GY/47T5P7s8yLa0ukvX/yKxZHxIuhV4ZiiwnYVW/U3nXDraNu+igFb9e7y/Q8A7SZo8E2tpPhSIujy7OlKOyly0oyubIrxravRJvfzbJZCYG0n6doCP0EAAAD4Q+DR6+nff5yIixe2S9l8Ozz3X5r08ghxEB/f2c+24TV4z0DA+Qt9AwDgjnH4PBJBcku/Pl8Unjs82chMy0tXdMoDBAAAAO0j2AoikSNFkDrWIUvkTKYb8Q/WrKiDsumcACIM5i+EvwAAII+06FFvjRWJofH1hXj1YTMKa6k5Jh0Cm0yPl0Jf0kaI3bMQGJNT8xBi8R/6CACgHnS8QHKR8962FDx6ITB5rloYbewByhNMRR6YukQWXiC3bVunHQAAQB5SbygPz9kbYcsLo1X6ZPpP+CiNMjARDqsmM5PJzrZoUWWw/Ynxoo9AVrX33Tth2q9QT/8DAPSR4encV3YOHJQRDq4Hbhd/BdCGT3j7gq3+deElqirM6XsAAEiSGwLz7VeqjfL4VicfqNomddm7ygdh1G5MPL1dsjel6XLbsleUvU5X7Bm/RCX+AlR604wBU7k7AAAAAElFTkSuQmCC";
+
+const GAME_DEFAULTS = {
+  boulder: {
+    w0:[0,1,13], w1:[0,1,12], w2:[0,2,13], w3:[0,2,12], w4:[0,1,16], w5:[0,1,15], w6:[0,2,16], w7:[0,2,16],
+    w8:[0,0,13], w9:[0,0,12], w10:[0,3,13], w11:[0,3,12], w12:[0,0,16], w13:[0,0,16], w14:[0,3,14], w15:[0,3,16],
+    r0:[0,1,14], r1:[0,1,15], r2:[0,5,15], r3:[0,3,15], r8:[0,0,14], r9:[0,0,15],
+    rcapL:[0,0,15], rcapM:[0,1,15], rcapR:[0,2,15],
+    r2w:[0,2,14], r8j:[0,6,15],
+    dface1:[0,1,19], dface2:[0,2,19], dface3:[0,3,19], dface4:[0,4,19],
+    fcl:[0,5,16], fcr:[0,6,16],
+    ccne:[0,5,13], ccnw:[0,6,13], ccnw2:[0,7,13], ccne2:[0,4,13],
+    knw:[0,6,14], kne:[0,5,14], ksw:[0,6,13], kse:[0,5,13],
+    kn2:[0,8,14], ks2:[0,8,13], knw2:[0,7,14], kne2:[0,4,14],
+    // Symmetric double cap: a cap sitting above a wall that opens to floor on
+    // BOTH sides (add = E+W). Reuses the "both corners" tile (8,13).
+    capBoth:[0,8,13],
+    // Tiles the user's round-4 corrections ask for that had no name, so the rule
+    // had no way to emit them (10 of the 73 fixes). Columns follow the sheet:
+    // 4 = E-variant, 7 = NW-variant (the same columns kne2/knw2 live in), 8 = both.
+    rimE2:[0,4,12], rimW2:[0,7,12],     // rim row, corner-variant columns
+    capE2:[0,4,15], capW2:[0,7,15],     // cap row, same
+    faceBoth:[0,8,16]                   // face row, both-sides return (cf. fcl/fcr)
+  },
+  brick: {
+    w0:[0,1,3], w1:[0,1,2], w2:[0,2,3], w3:[0,2,2], w4:[0,1,6], w5:[0,1,5], w6:[0,2,6], w7:[0,2,6],
+    w8:[0,0,3], w9:[0,0,2], w10:[0,3,3], w11:[0,3,2], w12:[0,0,6], w13:[0,0,6], w14:[0,3,4], w15:[0,3,6],
+    r0:[0,1,4], r1:[0,1,5], r2:[0,5,5], r3:[0,3,5], r8:[0,0,4], r9:[0,0,5],
+    rcapL:[0,0,5], rcapM:[0,1,5], rcapR:[0,2,5],
+    r2w:[0,2,4], r8j:[0,6,5],
+    ccne:[0,5,3], ccnw:[0,6,3], ccnw2:[0,7,3], ccne2:[0,4,3],
+    knw:[0,6,4], kne:[0,5,4], ksw:[0,6,3], kse:[0,5,3],
+    kn2:[0,8,4], ks2:[0,8,3], knw2:[0,7,4], kne2:[0,4,4],
+    fwin:[0,5,9], fmoss:[0,9,9], fcrack:[0,3,6], arch:[0,7,9],
+    fcl:[0,5,6], fcr:[0,6,6], capBoth:[0,8,3],
+    // Same tiles as the boulder kit's, 10 rows up (see counterpartCell).
+    rimE2:[0,4,2], rimW2:[0,7,2],
+    capE2:[0,4,5], capW2:[0,7,5],
+    faceBoth:[0,8,6]
+  },
+  extras: {
+    rh:[2,1,2], rhl:[2,0,2], rhr:[2,2,2], rv:[2,3,1], rvt:[2,3,0], rvb:[2,3,2],
+    rcne:[2,0,1], rcnw:[2,1,1], rcse:[2,0,0], rcsw:[2,1,0]
+  },
+  hedge: {
+    h0:[7,3,3], h1:[7,3,2], h2:[7,0,3], h4:[7,3,0], h8:[7,2,3], h5:[7,3,1], h10:[7,1,3],
+    h3:[7,0,2], h9:[7,2,2], h6:[7,0,0], h12:[7,2,0], h7:[7,0,1], h13:[7,2,1], h14:[7,1,0],
+    h11:[7,1,2], h15:[7,1,1]
+  }
+};
+// The two dungeon kits are the same layout twice over: brick sits exactly 10 rows
+// above boulder, same sheet, same column. Verified across all 42 roles the kits
+// share, with zero exceptions - boulder lives in rows 12-19, brick in rows 2-9.
+// So picking a tile for one kit determines the other, and the Sync button in the
+// editor just walks this offset.
+const KIT_SHEET = 0;            // only the Walls sheet is doubled up like this
+const KIT_ROW_OFFSET = 10;
+const KIT_ROWS = { boulder: [12, 19], brick: [2, 9] };
+const otherKit = k => (k === "boulder" ? "brick" : "boulder");
+
+// The same tile in the other kit, or null when there isn't one: a cell off the
+// Walls sheet, or one outside its kit's row band (the sheet has decor rows above
+// and below that aren't part of either kit).
+function counterpartCell(cell, fromKit) {
+  if (!cell || cell[0] !== KIT_SHEET) return null;
+  const to = otherKit(fromKit);
+  const row = fromKit === "boulder" ? cell[2] - KIT_ROW_OFFSET : cell[2] + KIT_ROW_OFFSET;
+  const [lo, hi] = KIT_ROWS[to];
+  if (row < lo || row > hi) return null;
+  return [cell[0], cell[1], row];
+}
+
+const BUSH_SHEET = 7;
+// Fixed 8px patches on the Bush sheet composited for hedge inner-corner notches.
+const HEDGE_NOTCH_PATCH = { nw: [96, 32], ne: [88, 32], sw: [96, 24], se: [88, 24] };
+
+const T = 16;
+let mapping = JSON.parse(JSON.stringify(GAME_DEFAULTS));
+// Per-scenario grid globals (set before computing/rendering each scenario).
+let map = [], MAP_W = 0, MAP_H = 0;
+let SHOW_FLAVOR = false;
+// Toggleable render layers: floor, wall faces/bodies, cap-row tiles, overlays
+// (lone-pillar crowns + walk-behind ridges).
+let LYR = { floor: true, walls: true, caps: true, overlay: true };
+let SHOW_WALLMARK = true; // blue "#" overlay marking which cells are walls
+let WALKBEHIND = true;    // proposed walk-behind reframe as the default output
+
+function cellAt(x, y) { return (x >= 0 && y >= 0 && x < MAP_W && y < MAP_H) ? map[y][x] : "#"; }
+function isWallCell(c) { return c === "#"; }
+function isOpen(x, y) { return x >= 0 && y >= 0 && x < MAP_W && y < MAP_H && !isWallCell(map[y][x]); }
+
+function baseMask(x, y) {
+  return (isOpen(x, y - 1) ? 1 : 0) | (isOpen(x + 1, y) ? 2 : 0) |
+         (isOpen(x, y + 1) ? 4 : 0) | (isOpen(x - 1, y) ? 8 : 0);
+}
+function effMask(x, y) {
+  let m = baseMask(x, y);
+  if (!(m & 4) && isWallCell(cellAt(x, y + 1))) {
+    if (!(m & 2) && isOpen(x + 1, y + 1)) m |= 2;
+    if (!(m & 8) && isOpen(x - 1, y + 1)) m |= 8;
+  }
+  return m;
+}
+const CAP_ROLE = { 4: "r0", 5: "r1", 6: "r2", 7: "r3", 12: "r8", 13: "r9", 14: "w14", 15: "w15" };
+
+function visHash(x, y) {
+  let h = Math.imul(x | 0, 0x85EBCA6B) >>> 0;
+  h = (h ^ Math.imul(y | 0, 0xC2B2AE35)) >>> 0;
+  h ^= h >>> 13; h = Math.imul(h, 0x27D4EB2F) >>> 0; h ^= h >>> 16;
+  return h >>> 0;
+}
+
+// Verbatim from lab: geometry never depends on material.
+function computeWallCell(x, y) {
+  const em = effMask(x, y);
+  let role = em === 14 ? "w15" : "w" + em, isCap = false, isCorner = false;
+  if (em === 5) role = "w4";
+  // Side-wall junction only applies to a true vertical side wall (floor to one
+  // side, NO floor to its own south) — otherwise a convex S+E / S+W corner
+  // sitting diagonally above a run end wrongly grabbed fcl/fcr (should be w6/w12).
+  const is1TallRun = (xx, yy) => isWallCell(cellAt(xx, yy)) && (effMask(xx, yy) & 5) === 5;
+  const eJ = !(em & 4) && (em & 2) && is1TallRun(x + 1, y + 1);
+  const wJ = !(em & 4) && (em & 8) && is1TallRun(x - 1, y + 1);
+  if (eJ && wJ) role = "faceBoth";      // 1-tall runs butt BOTH sides (cross ┼)
+  else if (eJ) role = "fcl";
+  else if (wJ) role = "fcr";
+  if (isWallCell(cellAt(x, y + 1))) {
+    const bm = effMask(x, y + 1);
+    const add = bm & ~em & (2 | 8);
+    if (bm & 4) {
+      isCap = true;
+      const key = (em | add | 4) & 15;
+      const is1TallWall = (xx, yy) => isWallCell(cellAt(xx, yy)) && (effMask(xx, yy) & 5) === 5;
+      if (key === 6) role = is1TallWall(x + 1, y + 1) ? "r2" : "r2w";
+      else if (key === 12 && is1TallWall(x - 1, y + 1)) role = "r8j";
+      else role = CAP_ROLE[key] || ("w" + key);
+    } else if (add) {
+      isCap = true;
+      const variant = em !== 0;
+      // The cell below flanks a 2-tall wall (its side neighbour is a face) →
+      // the top-down corner curve. Both sides open → symmetric cap. variant
+      // (this row also opens elsewhere) → the ccne2/ccnw2 corner.
+      // (An earlier "thin wall → fcl/fcr" special case lived here; the user's
+      // round-3 corrections put these cells back to plain ccne/ccnw.)
+      if ((add & 2) && (add & 8)) role = "capBoth";
+      // Round-4 corrections reversed the round-1 "thin wall -> fcl/fcr" idea:
+      // a plain corner-cap is ALWAYS the top-down curve (ccne=kse / ccnw=ksw),
+      // however thin the wall it flanks (N+S thin, N+E+S end, N+S+W end).
+      else if (add & 2) role = variant ? "ccne2" : "ccne";
+      else role = variant ? "ccnw2" : "ccnw";
+    }
+  }
+  if (!isCap) {
+    const nwD = isOpen(x - 1, y - 1) && !(em & 1) && !(em & 8) && !(em & 4);
+    const neD = isOpen(x + 1, y - 1) && !(em & 1) && !(em & 2) && !(em & 4);
+    const swD = isOpen(x - 1, y + 1) && !(em & 4) && !(em & 8);
+    const seD = isOpen(x + 1, y + 1) && !(em & 4) && !(em & 2);
+    const cornerVariant = em !== 0;
+    if (nwD && neD) { role = "kn2"; isCorner = true; }
+    else if (swD && seD) { role = "ks2"; isCorner = true; }
+    else if (nwD) { role = cornerVariant ? "knw2" : "knw"; isCorner = true; }
+    else if (neD) { role = cornerVariant ? "kne2" : "kne"; isCorner = true; }
+    else if (swD) { role = cornerVariant ? "ccnw2" : "ksw"; isCorner = true; }
+    else if (seD) { role = cornerVariant ? "ccne2" : "kse"; isCorner = true; }
+  }
+  return { em, role, isCap, isCorner };
+}
+
+// N/E/S/W flag names for a mask.
+function maskStr(m) {
+  const p = [];
+  if (m & 1) p.push("N"); if (m & 2) p.push("E"); if (m & 4) p.push("S"); if (m & 8) p.push("W");
+  return p.length ? p.join("+") : "none";
+}
+
+/* ============================ IMAGES ============================ */
+const sheets = SHEET_SRC.map(s => { const im = new Image(); im.src = "data:image/png;base64," + s.b64; return im; });
+const floorImg = new Image();
+floorImg.src = "data:image/png;base64," + FLOOR_B64;
+
+function drawCell(ctx, m, dx, dy, z) { ctx.drawImage(sheets[m[0]], m[1] * T, m[2] * T, T, T, dx, dy, T * z, T * z); }
+function drawFloorIdx(ctx, i, dx, dy, z) { ctx.drawImage(floorImg, i * T, 0, T, T, dx, dy, T * z, T * z); }
+
+// The role actually drawn for a wall cell, including brick face flavor (only
+// when SHOW_FLAVOR). Kept separate so the readout matches the pixels.
+function drawnRole(material, x, y, cell) {
+  let role = wbRoleForCell(x, y, cell);
+  if (SHOW_FLAVOR && !cell.isCap && !cell.isCorner && (role === "w4" || role === "w5")) {
+    if (material === "brick") {
+      const fh = visHash(x * 3 + 1, y * 7 + 1) % 20;
+      if (fh === 0) role = "fwin"; else if (fh === 1) role = "fmoss"; else if (fh === 2) role = "fcrack";
+    } else {
+      const fh = visHash(x * 5 + 2, y * 11 + 1) % 24;
+      if (fh < 4) role = "dface" + (fh + 1);
+    }
+  }
+  return role;
+}
+
+// Render one kit of the current scenario grid into ctx. Ported from drawPane's
+// wall+floor branches (door/rail dropped). Overlays (crown / walk-behind ridge)
+// drawn above face/pillar cells exactly as the game does.
+// ovr = applied corrections: {floor:{"x,y":idx}, wall:{"x,y":{boulder,brick}},
+// overlay:{"x,y":{boulder,brick}}} — so the preview shows the corrected picture.
+function drawScenario(ctx, material, offX, offY, Z, roleGrid, ovr, deco) {
+  ovr = ovr || { floor: {}, wall: {}, overlay: {} };
+  const M = mapping[material];
+  const wallCell = fk => ovr.wall[fk] && ovr.wall[fk][material];
+  const ovCell = fk => ovr.overlay[fk] && ovr.overlay[fk][material];
+  const decoCell = (lay, fk) => deco && deco[lay][fk] && deco[lay][fk][material];
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const px = offX + x * T * Z, py = offY + y * T * Z;
+      const fk = x + "," + y;
+      if (isWallCell(map[y][x])) {
+        // Floor under the wall (shows through the wall's transparent edges),
+        // drawn first. Default = complement rule (15 - openMask); painted wins.
+        if (LYR.floor) drawFloorIdx(ctx, ovr.floor[fk] != null ? ovr.floor[fk] : (15 - baseMask(x, y)), px, py, Z);
+        const cell = roleGrid[y][x];
+        const baseVisible = cell.isCap ? LYR.caps : LYR.walls;
+        if (baseVisible) {
+          drawCell(ctx, wallCell(fk) || M[drawnRole(material, x, y, cell)], px, py, Z);
+          // Proposed decoration (door quadrants etc.) composites over the
+          // wall art - unless the user has corrected this cell themselves.
+          const dc = !wallCell(fk) && decoCell("wall", fk);
+          if (dc) drawCell(ctx, dc, px, py, Z);
+        }
+        continue;
+      }
+      if (LYR.floor) drawFloorIdx(ctx, ovr.floor[fk] != null ? ovr.floor[fk] : floorIndexAt(x, y), px, py, Z);
+      if (LYR.walls) {
+        const wc = wallCell(fk) || decoCell("wall", fk);
+        if (wc) drawCell(ctx, wc, px, py, Z); // wall/deco painted onto a floor cell
+      }
+    }
+  }
+  // pass 2: overlays on top — user override, else proposed deco, else the
+  // crown/ridge or walk-behind rim the rule casts.
+  if (LYR.overlay) for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
+    const fk = x + "," + y;
+    let oc = ovCell(fk) || decoCell("overlay", fk);
+    if (!oc) { const r = overlayRoleAt(x, y); if (r) oc = M[r]; }
+    if (oc) drawCell(ctx, oc, offX + x * T * Z, offY + y * T * Z, Z);
+  }
+}
+
+/* ============================ SCENARIO DEFINITIONS ============================ */
+// A scenario is an all-wall grid of size w×h with a list of floor cells and a
+// center cell (the one being judged). floors: [[x,y],...].
+function scn(group, name, desc, w, h, cx, cy, floors, deco) {
+  // deco: first-stab decoration cells (doors, arches) the ALGORITHM proposes,
+  // drawn into the base render so there's something to correct FROM. Entries:
+  // {x, y, layer: "wall"|"overlay", cell: {boulder:[s,cx,cy], brick:[s,cx,cy]}}.
+  // A user correction on the same cell+layer replaces it.
+  return { id: group.replace(/\W+/g,"") + "_" + name.replace(/\W+/g,"_"), group, name, desc, w, h, cx, cy, floors, deco: deco || null };
+}
+// deco list -> per-layer lookup keyed like corrections ("x,y@wall" / "x,y@overlay").
+function decoMap(s) {
+  if (!s || !s.deco) return null;
+  const m = { wall: {}, overlay: {} };
+  for (const d of s.deco) m[d.layer][d.x + "," + d.y] = d.cell;
+  return m;
+}
+
+const SCENARIOS = [];
+
+// ---- GROUP A: base 4-neighbour masks 0..15 (isolated, no cap/corner context) ----
+// Center at (2,2) in a 5×5 all-wall grid; set orthogonal cells per mask bits.
+for (let m = 0; m < 16; m++) {
+  const f = [];
+  if (m & 1) f.push([2,1]); if (m & 2) f.push([3,2]); if (m & 4) f.push([2,3]); if (m & 8) f.push([1,2]);
+  const names = {0:"core (enclosed)",1:"floor N",2:"floor E",3:"floor N+E",4:"floor S — FACE",5:"floor N+S (h-run mid)",6:"floor S+E",7:"floor N+E+S (run end E)",8:"floor W",9:"floor N+W",10:"floor E+W (v-thin mid)",11:"floor N+E+W (v top end)",12:"floor S+W",13:"floor N+S+W (run end W)",14:"floor E+S+W (v bottom end)",15:"floor all (lone pillar)"};
+  SCENARIOS.push(scn("A · Base masks", "m"+m+" "+maskStr(m), names[m], 5, 5, 2, 2, f));
+}
+
+// ---- GROUP B: diagonal-only corners ----
+SCENARIOS.push(scn("B · Diagonal corners","NW only","floor only at the NW diagonal, orthogonals wall",5,5,2,2,[[1,1]]));
+SCENARIOS.push(scn("B · Diagonal corners","NE only","floor only at the NE diagonal",5,5,2,2,[[3,1]]));
+SCENARIOS.push(scn("B · Diagonal corners","SW only","floor only at the SW diagonal (watch the bleed rule)",5,5,2,2,[[1,3]]));
+SCENARIOS.push(scn("B · Diagonal corners","SE only","floor only at the SE diagonal (watch the bleed rule)",5,5,2,2,[[3,3]]));
+SCENARIOS.push(scn("B · Diagonal corners","both top","floor at NW + NE diagonals",5,5,2,2,[[1,1],[3,1]]));
+SCENARIOS.push(scn("B · Diagonal corners","both bottom","floor at SW + SE diagonals (bleed makes this a v-wall)",5,5,2,2,[[1,3],[3,3]]));
+SCENARIOS.push(scn("B · Diagonal corners","NW + floor E","NW diagonal, and the row also opens east",5,5,2,2,[[1,1],[3,2]]));
+SCENARIOS.push(scn("B · Diagonal corners","NE + floor W","NE diagonal, and the row also opens west",5,5,2,2,[[3,1],[1,2]]));
+SCENARIOS.push(scn("B · Diagonal corners","SW + floor N","SW diagonal, and the row also opens north",5,5,2,2,[[1,3],[2,1]]));
+SCENARIOS.push(scn("B · Diagonal corners","SE + floor N","SE diagonal, and the row also opens north",5,5,2,2,[[3,3],[2,1]]));
+
+// ---- GROUP C: cap row (center sits above a south-facing face) ----
+// Face below: (2,3) wall, (2,4) floor. Vary center N/E/W + run diagonal.
+SCENARIOS.push(scn("C · Cap row","S only","cap directly above a plain south face",5,6,2,2,[[2,4]]));
+SCENARIOS.push(scn("C · Cap row","N+S thin","cap above a face, this row also opens north",5,6,2,2,[[2,1],[2,4]]));
+SCENARIOS.push(scn("C · Cap row","S+E wide notch","cap above a face, opens east; SE is NOT a 1-tall run",5,6,2,2,[[3,2],[2,4]]));
+SCENARIOS.push(scn("C · Cap row","S+E jamb","cap above a face, opens east; SE IS a 1-tall run",5,6,2,2,[[3,2],[2,4],[3,4]]));
+SCENARIOS.push(scn("C · Cap row","S+W plain","cap above a face, opens west; SW not a run",5,6,2,2,[[1,2],[2,4]]));
+SCENARIOS.push(scn("C · Cap row","S+W jamb","cap above a face, opens west; SW IS a 1-tall run",5,6,2,2,[[1,2],[2,4],[1,4]]));
+SCENARIOS.push(scn("C · Cap row","N+E+S end","cap above a face at an east end",5,6,2,2,[[2,1],[3,2],[2,4]]));
+SCENARIOS.push(scn("C · Cap row","N+S+W end","cap above a face at a west end",5,6,2,2,[[2,1],[1,2],[2,4]]));
+
+// ---- GROUP D: corner caps (side wall meets a cap row; the cell below adds a side one row down) ----
+SCENARIOS.push(scn("D · Corner caps","ccne","wall stub whose lower cell opens to the east",5,6,2,2,[[3,4]]));
+SCENARIOS.push(scn("D · Corner caps","ccnw","wall stub whose lower cell opens to the west",5,6,2,2,[[1,4]]));
+SCENARIOS.push(scn("D · Corner caps","ccne2","lower cell opens east; this row also opens north",5,6,2,2,[[3,4],[2,1]]));
+SCENARIOS.push(scn("D · Corner caps","ccnw2","lower cell opens west; this row also opens north",5,6,2,2,[[1,4],[2,1]]));
+
+// ---- GROUP E: horizontal 1-tall runs + walk-behind + side junctions ----
+// A 3-long run at row2 (cols1-3), open floor above/below, open ends at col0/4.
+const runFloors = [[0,1],[1,1],[2,1],[3,1],[4,1],[0,2],[4,2],[0,3],[1,3],[2,3],[3,3],[4,3]];
+SCENARIOS.push(scn("E · Horizontal runs","run middle (rcapM)","1-tall run, walls both sides → w4 + rcapM overlay",5,5,2,2,runFloors));
+SCENARIOS.push(scn("E · Horizontal runs","run left end (rcapL)","open to the left → w4 + rcapL",5,5,1,2,runFloors));
+SCENARIOS.push(scn("E · Horizontal runs","run right end (rcapR)","open to the right → w4 + rcapR",5,5,3,2,runFloors));
+// fcl: center is a mid-vertical-wall cell (wall above/below), floor E, 1-tall run at SE.
+SCENARIOS.push(scn("E · Horizontal runs","side junction fcl","run butts the wall's east side → fcl (5,16)",6,6,2,2,[[3,2],[3,4]]));
+SCENARIOS.push(scn("E · Horizontal runs","side junction fcr","run butts the wall's west side → fcr (6,16)",6,6,3,2,[[2,2],[2,4]]));
+
+// ---- GROUP H: doors, arches, ladders (first stab - PROPOSED cells, correct freely) ----
+// The deco entries are the algorithm's opening bid, composited over the wall
+// render; correct any cell/layer and your pick replaces the proposal.
+{
+  const D = (x, y, layer, b, k) => ({ x, y, layer, cell: { boulder: b, brick: k || b } });
+  // Big mineshaft door: the pack's lantern-lit doorway (Walls sheet 32x32 at
+  // cols 0-1, rows 20-21), EMBEDDED in a 2-tall wall face - the game today
+  // draws this art freestanding on an open floor cell instead, which is the
+  // "doors aren't rendering" complaint. Top half sits on the cap row, bottom
+  // half on the face row.
+  SCENARIOS.push(scn("H · Doors & arches", "mineshaft door (big)",
+    "32px lantern doorway embedded in a straight 2-tall wall - top half on the cap row, bottom on the face",
+    6, 6, 2, 2,
+    [[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5]],
+    [D(2,1,"wall",[0,0,20]), D(3,1,"wall",[0,1,20]),
+     D(2,2,"wall",[0,0,21]), D(3,2,"wall",[0,1,21])]));
+  // Brick doorway as the game builds it (k==7): a 1-wide passage piercing a
+  // 2-row south wall. Passage cells are OPEN (walkable); the dark interior
+  // paints on the wall layer and the arch frame on the OVERLAY layer of the
+  // outer cell (its interior is transparent).
+  SCENARIOS.push(scn("H · Doors & arches", "brick doorway (lantern arch)",
+    "game k7 passage: dark interior both cells, lantern arch (8,9) overlaid on the outer face cell",
+    6, 6, 2, 2,
+    [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[2,1],[2,2],[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5]],
+    [D(2,1,"wall",[0,1,13],[0,1,3]),
+     D(2,2,"wall",[0,1,13],[0,1,3]), D(2,2,"overlay",[0,8,9])]));
+  SCENARIOS.push(scn("H · Doors & arches", "brick doorway (plain arch)",
+    "same passage, plain arch variant (7,9) on the outer cell",
+    6, 6, 2, 2,
+    [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[2,1],[2,2],[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5]],
+    [D(2,1,"wall",[0,1,13],[0,1,3]),
+     D(2,2,"wall",[0,1,13],[0,1,3]), D(2,2,"overlay",[0,7,9])]));
+  // Descend hole / ladder down: today the game draws its own sprite on an
+  // open floor cell. No proposal here - mark the cell that SHOULD carry the
+  // ladder/hole art (any sheet) and correct it in.
+  SCENARIOS.push(scn("H · Doors & arches", "descend hole / ladder",
+    "open floor pocket in front of a wall - paint the hole/ladder art you want on the center cell",
+    6, 6, 2, 3,
+    [[1,3],[2,3],[3,3],[4,3],[1,4],[2,4],[3,4],[4,4],[1,2],[2,2],[3,2],[4,2]]));
+}
+
+// ---- GROUP F: vertical thin walls & turns (the known gap) ----
+SCENARIOS.push(scn("F · Vertical walls","v-thin middle (em10)","floor E+W, wall N+S → w10 (no ridge/overlay yet)",5,5,2,2,[[1,1],[3,1],[1,2],[3,2],[1,3],[3,3]]));
+SCENARIOS.push(scn("F · Vertical walls","v-thin top end (em11)","wall column starts here → w11",5,5,2,2,[[1,1],[2,1],[3,1],[1,2],[3,2],[1,3],[3,3]]));
+SCENARIOS.push(scn("F · Vertical walls","v-thin bottom end (em14)","wall column ends here → forced w15 face (is that right?)",5,5,2,2,[[1,2],[3,2],[1,3],[2,3],[3,3],[1,1],[3,1]]));
+// Thin L-corners: 1-wide wall turning. Legs are single tiles.
+SCENARIOS.push(scn("F · Vertical walls","L-turn ┘ (walls E+S)","thin wall from S turning W → em9 (floor N+W)",5,5,2,2,[[0,0],[1,0],[2,0],[3,0],[4,0],[0,1],[1,1],[2,1],[0,2],[1,2],[0,3],[1,3],[0,4],[1,4],[3,4],[4,4],[3,3],[4,3],[4,2]]));
+SCENARIOS.push(scn("F · Vertical walls","L-turn └ (walls E+W?)","thin wall from S turning E → em3 (floor N+E)",5,5,2,2,[[0,0],[1,0],[2,0],[3,0],[4,0],[2,1],[3,1],[4,1],[3,2],[4,2],[3,3],[4,3],[3,4],[4,4],[0,1],[0,2],[0,3],[0,4],[1,4]]));
+SCENARIOS.push(scn("F · Vertical walls","L-turn ┐ (walls S+W)","thin wall from N turning W → em6 (floor S+E)",5,5,2,2,[[0,4],[1,4],[2,4],[3,4],[4,4],[0,3],[1,3],[2,3],[0,2],[1,2],[0,1],[1,1],[0,0],[1,0],[3,0],[4,0],[3,1],[4,1],[4,2]]));
+SCENARIOS.push(scn("F · Vertical walls","L-turn ┌ (walls S+E)","thin wall from N turning E → em12 (floor S+W)",5,5,2,2,[[0,4],[1,4],[2,4],[3,4],[4,4],[2,3],[3,3],[4,3],[3,2],[4,2],[3,1],[4,1],[3,0],[4,0],[0,0],[1,0],[0,1],[1,1],[0,2],[0,3],[1,3]]));
+// Thin T and cross.
+SCENARIOS.push(scn("F · Vertical walls","T-junction ┤","v-wall with a west branch → floor E only (em2)",5,5,2,2,[[3,0],[4,0],[3,1],[4,1],[3,2],[4,2],[3,3],[4,3],[3,4],[4,4],[0,2],[1,2]]));
+SCENARIOS.push(scn("F · Vertical walls","cross ┼","two thin walls crossing → em0 core (does a crossing need a special?)",5,5,2,2,[[0,0],[1,0],[3,0],[4,0],[0,1],[1,1],[3,1],[4,1],[0,3],[1,3],[3,3],[4,3],[0,4],[1,4],[3,4],[4,4]]));
+SCENARIOS.push(scn("F · Vertical walls","v-wall meets h-run","vertical thin wall bottom joins a horizontal run",6,6,2,3,[[1,0],[3,0],[1,1],[3,1],[1,2],[3,2],[0,4],[1,4],[3,4],[4,4],[5,4],[0,3],[5,3]]));
+
+// ---- GROUP G: isolated masses ----
+SCENARIOS.push(scn("G · Isolated masses","lone pillar (em15)","1×1 wall, floor all around → w15 + r3 crown above",5,5,2,2,[[2,1],[1,2],[3,2],[2,3],[1,1],[3,1],[1,3],[3,3]]));
+SCENARIOS.push(scn("G · Isolated masses","2×1 horizontal","two-wide block, floor around — left cell (run end W)",6,5,2,2,[[1,1],[2,1],[3,1],[4,1],[1,2],[4,2],[1,3],[2,3],[3,3],[4,3]]));
+SCENARIOS.push(scn("G · Isolated masses","1×3 vertical","three-tall thin column — middle cell (em10)",5,6,2,2,[[1,1],[3,1],[1,2],[3,2],[1,3],[3,3],[1,4],[3,4],[2,0],[2,5]]));
+SCENARIOS.push(scn("G · Isolated masses","2×2 block","four-cell block, floor around — top-left corner cell",6,6,2,2,[[1,1],[2,1],[3,1],[1,2],[4,2],[1,3],[4,3],[1,4],[2,4],[3,4],[4,4],[4,1]]));
+
+/* ============================ CORRECTIONS STATE ============================ */
+const LS = "myfarm-wall-scenarios";
+let corrections = {}; // scnId -> { note, boulder:[s,cx,cy]|null, brick:[...]|null }
+let approvals = {};   // scnId -> true — "this render is correct, preserve it"
+let customScns = [];  // user-painted scenarios (persist grids)
+let cardUI = {};      // scnId -> { kit:'boulder'|'brick', sheet:int } — inline-palette state
+// unreviewed/wrong/ok are VERDICTS (mutually exclusive - a card is exactly one).
+// done is a separate axis: "I'm finished with this card", true of a corrected one
+// you checked off and of any approved one. So it ANDs with the verdict rather
+// than competing with it.
+let viewShow = { unreviewed: true, wrong: true, ok: true, done: true };
+let doneSet = {}; // scnId -> true: checked off (collapsed) but corrections kept
+function filterActive() { return !(viewShow.unreviewed && viewShow.wrong && viewShow.ok && viewShow.done); }
+const PZ = 3;         // inline palette zoom
+
+// Restore state from a parsed object (localStorage or a loaded file), migrating
+// any legacy shapes. Shared by loadState() and the file-load handler.
+function restoreState(s) {
+  corrections = s.corrections || {};
+  approvals = s.approvals || {};
+  doneSet = s.done || {};
+  customScns = (s.customScns || []).map(c => {
+    const sc = scn("Custom · painted", c.name, c.desc || "user-painted", c.w, c.h, c.cx, c.cy, c.floors);
+    // Keep the id the card was born with: corrections/approvals/done are keyed
+    // by it. Without this, every reload minted a fresh derived id and orphaned
+    // whatever the user had marked on the custom card.
+    if (c.id) sc.id = c.id;
+    return sc;
+  });
+  for (const id of Object.keys(corrections)) {
+    const c = corrections[id];
+    if (!c) continue;
+    if (!c.tiles) {
+      const sc0 = SCENARIOS.concat(customScns).find(x => x.id === id);
+      const key = (sc0 ? sc0.cx + "," + sc0.cy : "2,2") + "@wall";
+      corrections[id] = { tiles: { [key]: { boulder: c.boulder || null, brick: c.brick || null, note: c.note || "" } } };
+      continue;
+    }
+    for (const k of Object.keys(c.tiles)) {
+      if (k.includes("@")) continue;
+      const nk = k.endsWith("#ov") ? k.slice(0, -3) + "@overlay" : k + "@wall";
+      c.tiles[nk] = c.tiles[k]; delete c.tiles[k];
+    }
+  }
+}
+function loadState() { try { restoreState(JSON.parse(localStorage.getItem(LS) || "{}")); } catch (e) {} }
+// The exact round-trippable state (what save-file writes / load-file reads).
+function stateBlob() {
+  return JSON.stringify({
+    corrections, approvals, done: doneSet,
+    customScns: customScns.map(c => ({ id: c.id, name: c.name, desc: c.desc, w: c.w, h: c.h, cx: c.cx, cy: c.cy, floors: c.floors }))
+  });
+}
+function saveState() {
+  try {
+    localStorage.setItem(LS, JSON.stringify({
+      corrections, approvals, done: doneSet,
+      customScns: customScns.map(c => ({ id: c.id, name: c.name, desc: c.desc, w: c.w, h: c.h, cx: c.cx, cy: c.cy, floors: c.floors }))
+    }));
+  } catch (e) {}
+}
+// Customs FIRST: the paint hint promises the new card "drops into a Custom
+// group above", and the add-handler scrolls to the first group head. With
+// customs appended last, adding a scenario scrolled you to the top while the
+// card materialized off-screen at the bottom - a perfect illusion of a no-op.
+function allScns() { return customScns.concat(SCENARIOS); }
+
+/* ============================ GRID SETUP FROM A SCENARIO ============================ */
+function loadScenarioGrid(s) {
+  MAP_W = s.w; MAP_H = s.h;
+  map = Array.from({ length: MAP_H }, () => Array(MAP_W).fill("#"));
+  for (const [x, y] of s.floors) if (y >= 0 && y < MAP_H && x >= 0 && x < MAP_W) map[y][x] = ".";
+}
+function computeRoleGrid() {
+  const rg = Array.from({ length: MAP_H }, () => Array(MAP_W).fill(null));
+  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) if (isWallCell(map[y][x])) rg[y][x] = computeWallCell(x, y);
+  return rg;
+}
+
+/* ============================ RENDER GALLERY ============================ */
+const gallery = document.getElementById("gallery");
+function zoom() { return parseInt(document.getElementById("zoomSel").value, 10); }
+
+function renderGallery() {
+  gallery.textContent = "";
+  const groups = [];
+  const byGroup = {};
+  for (const s of allScns()) { if (!byGroup[s.group]) { byGroup[s.group] = []; groups.push(s.group); } byGroup[s.group].push(s); }
+  for (const g of groups) {
+    const visible = byGroup[g].filter(s => {
+      // Verdict and done are independent, so they filter independently: pick the
+      // verdicts you want to see, then "done" decides whether finished cards are
+      // among them. (As one exclusive 4-way state, "done" swallowed "approved"
+      // the moment approving started checking cards off, and the approved
+      // checkbox stopped matching anything at all.)
+      const verdict = corrections[s.id] ? "wrong" : approvals[s.id] ? "ok" : "unreviewed";
+      return viewShow[verdict] && (doneSet[s.id] ? viewShow.done : true);
+    });
+    if (!visible.length) continue;
+    const head = document.createElement("div"); head.className = "groupHead"; head.textContent = g; gallery.appendChild(head);
+    const grid = document.createElement("div"); grid.className = "grid";
+    for (const s of visible) grid.appendChild(renderCard(s));
+    gallery.appendChild(grid);
+  }
+}
+
+/* -------- per-tile correction helpers -------- */
+const tk = (x, y) => x + "," + y;
+// Every cell has three correctable layers. Keys are "x,y@floor|wall|overlay".
+function keyOf(x, y, layer) { return x + "," + y + "@" + layer; }
+function parseKey(k) { const [pos, layer] = k.split("@"); const [x, y] = pos.split(",").map(Number); return { x, y, layer: layer || "wall" }; }
+// The overlay tile a floor cell (x,y) carries, from the wall one row below it.
+function overlayAt(x, y) {
+  const by = y + 1;
+  if (!isWallCell(cellAt(x, by))) return null;
+  const em = effMask(x, by);
+  if (em === 15) return { role: "r3" };
+  if (em === 5 || em === 7 || em === 13) {
+    const cr = ((em & 8) && !(em & 2)) ? "rcapL" : ((em & 2) && !(em & 8)) ? "rcapR" : "rcapM";
+    return { role: cr };
+  }
+  return null;
+}
+// The floor-strip index the algorithm draws on an open cell (mirrors drawScenario).
+function floorIndexAt(x, y) {
+  const m = baseMask(x, y);
+  if (m === 15) {
+    const nm = (!isOpen(x - 1, y - 1) ? 1 : 0) | (!isOpen(x + 1, y - 1) ? 2 : 0) | (!isOpen(x - 1, y + 1) ? 4 : 0) | (!isOpen(x + 1, y + 1) ? 8 : 0);
+    if (nm) return 15 + nm;
+    const h = visHash(x * 7 + 3, y * 13 + 1) % 100; return h < 70 ? 31 : 31 + 1 + h % 3;
+  }
+  return m;
+}
+
+/* -------- WALK-BEHIND REFRAME (proposed default) --------
+   Derived from the user's corrections and confirmed 45/45:
+   - a south-facing FACE (floor S) or a CAP (above a face) is kept as-is;
+   - every other wall cell is decided by E/W floor only (N & diagonals ignored):
+       E+W → kn2, E → kne, W → knw, neither → w0 core;
+   - a top-rim wall (floor N, not a face) lifts its rim tile up onto the floor
+     cell to its north as an overlay. */
+// Walk-behind rule, round 4. Derived from the user's corrections under a hard
+// constraint: satisfy all 73 marked cells while moving NONE of the 3005 cells
+// they reviewed and left alone (tests/js/test_wall_rule.js enforces this).
+// The organizing idea: a non-face wall's N floor contact PEELS UP into an
+// overlay on the floor cell above, so the wall renders as if that N floor
+// weren't there (em2 = em & ~1) - faces, junctions, and corner caps excepted.
+function wbRoleForCell(x, y, cell) {
+  if (!WALKBEHIND) return cell.role;
+  if (cell.em & 4) return cell.role;                 // south-facing face: untouched
+  if (cell.role === "fcl" || cell.role === "fcr" || cell.role === "faceBoth")
+    return cell.role;                                // side junction wins
+  const em2 = cell.em & ~1;
+  if (cell.isCap) {
+    // Corner caps keep their identity; the variant only exists while some E/W
+    // floor justifies it, so peeling N alone drops ccne2 -> ccne (=kse).
+    if (cell.role === "ccne" || cell.role === "ccne2") return em2 ? "ccne2" : "ccne";
+    if (cell.role === "ccnw" || cell.role === "ccnw2") return em2 ? "ccnw2" : "ccnw";
+    if (cell.role === "capBoth") return cell.role;
+    if (em2 === 10) {
+      // Floor on both sides: this cap sits at a turn. Lean toward whichever
+      // side the wall mass continues diagonally below.
+      const se = !isOpen(x + 1, y + 1), sw = !isOpen(x - 1, y + 1);
+      if (se && !sw) return "capE2";
+      if (sw && !se) return "capW2";
+      return cell.role;
+    }
+    if (!(cell.em & 1)) return cell.role;            // nothing peeled
+    return em2 === 2 ? "r2w" : em2 === 8 ? "r8" : "r0";
+  }
+  // A side floor whose run ENDS going down rounds into a corner; a leftover
+  // bit on the opposite side picks the connected variant (kne2/knw2).
+  const e = (cell.em & 2) && !isOpen(x + 1, y + 1);
+  const w = (cell.em & 8) && !isOpen(x - 1, y + 1);
+  if (e && w) return "kn2";
+  if (e) return (cell.em & 8) ? "kne2" : "kne";
+  if (w) return (cell.em & 2) ? "knw2" : "knw";
+  if (cell.em & (2 | 8)) return "w" + em2;           // straight side edge, N peeled
+  return "w0";                                       // enclosed / diagonal-only: core
+}
+// The rim a wall lifts onto the floor cell (x,y) to its north. Caps cast too -
+// the peeled N has to land somewhere - but faces never do.
+function wbOverlayRole(x, y) {
+  if (!WALKBEHIND) return null;
+  const sy = y + 1;
+  if (!isWallCell(cellAt(x, sy))) return null;
+  const sc = computeWallCell(x, sy);
+  if (!(sc.em & 1) || (sc.em & 4)) return null;
+  if ((sc.em & 10) === 10) {
+    // A rim with BOTH side bits where exactly one is bleed-borrowed is a turn:
+    // the rim connects sideways into a perpendicular run one row down, and the
+    // variant leans toward the borrowed (wall) side. A single borrowed bit is
+    // just a 2-tall side rim - plain w9/w3, confirmed by the user's keeps.
+    const bm = baseMask(x, sy);
+    const eB = !(bm & 2), wB = !(bm & 8);
+    if (eB && !wB) return "rimE2";
+    if (wB && !eB) return "rimW2";
+  }
+  return "w" + sc.em;
+}
+// Overlay role drawn at floor cell (x,y): crown/ridge (rcap), else the walk-behind rim.
+function overlayRoleAt(x, y) {
+  const a = overlayAt(x, y);
+  if (a) return a.role;
+  return wbOverlayRole(x, y);
+}
+function hasCorr(id) { const c = corrections[id]; return !!(c && c.tiles && Object.keys(c.tiles).length); }
+function ensureTile(id, key) {
+  const c = corrections[id] || (corrections[id] = { tiles: {} });
+  if (!c.tiles) c.tiles = {};
+  return c.tiles[key] || (c.tiles[key] = { boulder: null, brick: null, note: "" });
+}
+function pruneTile(id, key) {
+  const c = corrections[id]; if (!c || !c.tiles) return;
+  const t = c.tiles[key];
+  const empty = t && !t.boulder && !t.brick && t.floorIdx == null && !(t.note && t.note.trim());
+  if (empty) delete c.tiles[key];
+  if (c.tiles && !Object.keys(c.tiles).length) delete corrections[id];
+}
+// The selected CELL (any cell — wall or floor); ui.activeLayer picks which of its
+// three layers (floor / wall / overlay) the palette targets.
+function selOf(s) {
+  const ui = cardUI[s.id] || (cardUI[s.id] = { kit: "boulder", sheet: 0, sel: [s.cx, s.cy], activeLayer: "wall", editing: false });
+  if (!ui.sel) ui.sel = [s.cx, s.cy];
+  let [x, y] = ui.sel;
+  if (!(x >= 0 && y >= 0 && x < MAP_W && y < MAP_H)) { x = s.cx; y = s.cy; ui.sel = [x, y]; }
+  if (!ui.activeLayer) ui.activeLayer = "wall";
+  return { ui, x, y };
+}
+// The three layers of a single cell, each with its "set" state (what the
+// algorithm currently draws there) so the user can correct the finished picture.
+function layersAt(x, y, rg) {
+  const open = isOpen(x, y);
+  const wallRole = isWallCell(map[y][x]) ? wbRoleForCell(x, y, rg[y][x]) : null;
+  const ovR = overlayRoleAt(x, y);
+  const ovProposed = !!ovR && !overlayAt(x, y); // a walk-behind rim (not an rcap/crown)
+  return [
+    { layer: "floor", key: keyOf(x, y, "floor"), x, y, set: true, proposed: !open, floorIdx: open ? floorIndexAt(x, y) : (15 - baseMask(x, y)), label: "Floor" },
+    { layer: "wall", key: keyOf(x, y, "wall"), x, y, set: !!wallRole, role: wallRole, label: "Wall" },
+    { layer: "overlay", key: keyOf(x, y, "overlay"), x, y, set: !!ovR, proposed: ovProposed, role: ovR, label: "Overlay" },
+  ];
+}
+
+function renderCard(s) {
+  const Z = zoom();
+  loadScenarioGrid(s);
+  const rg = computeRoleGrid();
+  const { ui, x: cx, y: cy } = selOf(s);
+  const layers = layersAt(cx, cy, rg);
+  if (!layers.find(l => l.layer === ui.activeLayer)) ui.activeLayer = "wall";
+  const active = layers.find(l => l.layer === ui.activeLayer) || layers[1];
+  const cellWall = isWallCell(map[cy][cx]) ? rg[cy][cx] : null;
+  const done = !!doneSet[s.id];
+  const isActive = activeCard === s.id;
+
+  const el = document.createElement("div");
+  // Two independent things, so two independent classes: the VERDICT is the
+  // border colour (flagged/approved), being FINISHED WITH is the fade (done).
+  // Letting done win here made approved cards render identically to
+  // corrected-and-checked-off ones, which reads as a state that doesn't exist.
+  const verdict = hasCorr(s.id) ? " flagged" : approvals[s.id] ? " approved" : "";
+  el.className = "scn" + verdict + (done ? " done" : "") + (isActive ? " active" : "");
+  el.id = "card-" + s.id;
+
+  const title = document.createElement("div"); title.className = "title"; title.textContent = (done ? "✔ " : "") + s.name; el.appendChild(title);
+  const desc = document.createElement("div"); desc.className = "desc"; desc.textContent = s.desc; el.appendChild(desc);
+
+  // canvas: both kits side by side. Clickable — pick any wall tile to correct.
+  const paneW = MAP_W * T * Z, paneH = MAP_H * T * Z, gap = 14, lh = 14;
+  const cv = document.createElement("canvas"); cv.className = "cv";
+  cv.width = paneW * 2 + gap; cv.height = paneH + lh;
+  const ctx = cv.getContext("2d"); ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = "#3a2e3c"; ctx.fillRect(0, 0, cv.width, cv.height);
+  // corrections applied to the preview so it shows the corrected picture
+  const ovr = { floor: {}, wall: {}, overlay: {} };
+  if (corrections[s.id] && corrections[s.id].tiles) for (const k of Object.keys(corrections[s.id].tiles)) {
+    const { x, y, layer } = parseKey(k); const t = corrections[s.id].tiles[k]; const fk = x + "," + y;
+    if (layer === "floor" && t.floorIdx != null) ovr.floor[fk] = t.floorIdx;
+    else if (layer === "wall" && (t.boulder || t.brick)) ovr.wall[fk] = t;
+    else if (layer === "overlay" && (t.boulder || t.brick)) ovr.overlay[fk] = t;
+  }
+  const dk = decoMap(s);
+  drawScenario(ctx, "boulder", 0, lh, Z, rg, ovr, dk);
+  drawScenario(ctx, "brick", paneW + gap, lh, Z, rg, ovr, dk);
+  const box = (gx, gy, col, lw) => {
+    ctx.strokeStyle = col; ctx.lineWidth = lw;
+    ctx.strokeRect(gx * T * Z + 1, lh + gy * T * Z + 1, T * Z - 2, T * Z - 2);
+    ctx.strokeRect(paneW + gap + gx * T * Z + 1, lh + gy * T * Z + 1, T * Z - 2, T * Z - 2);
+  };
+  // blue "#" marking wall cells, for readability
+  if (SHOW_WALLMARK) {
+    ctx.font = `bold ${Math.round(T * Z * 0.62)}px ui-monospace, Consolas, monospace`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) {
+      if (!isWallCell(map[y][x])) continue;
+      for (const ox of [0, paneW + gap]) {
+        const mx = ox + x * T * Z + T * Z / 2, my = lh + y * T * Z + T * Z / 2;
+        ctx.lineWidth = Math.max(2, Z); ctx.strokeStyle = "rgba(10,14,25,0.85)"; ctx.strokeText("#", mx, my);
+        ctx.fillStyle = "rgba(108,184,255,0.9)"; ctx.fillText("#", mx, my);
+      }
+    }
+    ctx.textBaseline = "alphabetic";
+  }
+  // corrected cells → colour by layer: floor teal / wall red / overlay purple
+  const layerCol = { floor: "#5aa0c8", wall: "#e2637a", overlay: "#c88be0" };
+  if (hasCorr(s.id)) for (const k of Object.keys(corrections[s.id].tiles)) { const { x, y, layer } = parseKey(k); box(x, y, layerCol[layer] || "#e2637a", 2); }
+  if (isActive) box(cx, cy, "#f2b23e", 2); // selected cell (only on the active card)
+  ctx.font = "10px ui-monospace, Consolas, monospace"; ctx.fillStyle = "#a08fae"; ctx.textAlign = "center";
+  ctx.fillText("boulder", paneW / 2, 10); ctx.fillText("brick", paneW + gap + paneW / 2, 10);
+  cv.addEventListener("click", e => {
+    loadScenarioGrid(s); // globals may have moved since render
+    const r = cv.getBoundingClientRect();
+    let px = (e.clientX - r.left) * (cv.width / r.width);
+    const py = (e.clientY - r.top) * (cv.height / r.height);
+    let kitPane = "boulder";
+    if (px >= paneW + gap) { px -= paneW + gap; kitPane = "brick"; }
+    else if (px >= paneW) return; // clicked the gap
+    const gx = Math.floor(px / (T * Z)), gy = Math.floor((py - lh) / (T * Z));
+    if (gx < 0 || gy < 0 || gx >= MAP_W || gy >= MAP_H) return;
+    ui.sel = [gx, gy]; ui.kit = kitPane; ui.editing = true;
+    // default the active layer to whatever's most salient at this cell
+    ui.activeLayer = isWallCell(map[gy][gx]) ? "wall" : (overlayAt(gx, gy) ? "overlay" : "floor");
+    const t = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[keyOf(gx, gy, ui.activeLayer)];
+    if (t && t[kitPane]) ui.sheet = t[kitPane][0];
+    setActive(s);
+  });
+  el.appendChild(cv);
+
+  // readout: the clicked cell + which of its 3 layers the algorithm currently draws
+  const [fl, wl, ol] = layers;
+  const roles = document.createElement("div"); roles.className = "roles";
+  let head = `cell (${cx},${cy})`;
+  if (cellWall) head += `  mask=${maskStr(cellWall.em)}` + (cellWall.isCap ? " [cap]" : "") + (cellWall.isCorner ? " [corner]" : "");
+  roles.textContent = head + `\nlayers: floor=${fl.set ? "#" + fl.floorIdx : "—"}  wall=${wl.set ? wl.role : "—"}  overlay=${ol.set ? ol.role : "—"}`;
+  el.appendChild(roles);
+
+  // foot
+  const foot = document.createElement("div"); foot.className = "foot";
+  const ok = document.createElement("button"); ok.className = "mark ok";
+  ok.textContent = approvals[s.id] ? "✓ approved — click to clear" : "✓ Looks right";
+  ok.addEventListener("click", () => {
+    // Approving checks off too — approving IS reviewing it. Clearing undoes both.
+    if (approvals[s.id]) { delete approvals[s.id]; delete doneSet[s.id]; }
+    else { approvals[s.id] = true; doneSet[s.id] = true; delete corrections[s.id]; if (cardUI[s.id]) cardUI[s.id].editing = false; }
+    saveState();
+    if (filterActive()) renderGallery(); else updateCard(s);
+    if (activeCard === s.id) renderEditor();
+    renderExport();
+  });
+  foot.appendChild(ok);
+  const edit = document.createElement("button"); edit.className = "mark";
+  edit.textContent = isActive ? "✎ editing →" : "✎ Edit tiles";
+  edit.addEventListener("click", () => { ui.editing = true; delete doneSet[s.id]; saveState(); setActive(s); });
+  foot.appendChild(edit);
+  const dn = document.createElement("button"); dn.className = "chk" + (done ? " on" : "");
+  dn.textContent = done ? "✔ done" : "check off";
+  dn.title = "mark this scenario reviewed (keeps its corrections)";
+  dn.addEventListener("click", () => {
+    if (done) { delete doneSet[s.id]; } else { doneSet[s.id] = true; }
+    saveState();
+    if (filterActive()) renderGallery(); else updateCard(s);
+  });
+  foot.appendChild(dn);
+  if (s.group.startsWith("Custom")) {
+    const del = document.createElement("button"); del.textContent = "✕"; del.title = "remove custom scenario";
+    del.style.flex = "0"; del.addEventListener("click", () => {
+      customScns = customScns.filter(c => c.id !== s.id); delete corrections[s.id]; delete cardUI[s.id];
+      if (activeCard === s.id) { activeCard = null; renderEditor(); }
+      saveState(); renderGallery(); renderExport();
+    });
+    foot.appendChild(del);
+  }
+  el.appendChild(foot);
+  return el;
+}
+
+// Replace one card in place (fast path for palette interactions).
+function updateCard(s) {
+  const old = document.getElementById("card-" + s.id);
+  if (old) old.replaceWith(renderCard(s));
+}
+
+/* ============================ RIGHT-PANE EDITOR ============================ */
+// The card whose fix UI is shown in the sticky editor pane on the right.
+let activeCard = null;
+// Make s the active card (its layers/palette show in the editor pane).
+function setActive(s) {
+  const prev = activeCard;
+  activeCard = s.id;
+  if (prev && prev !== s.id) { const ps = allScns().find(x => x.id === prev); if (ps) updateCard(ps); }
+  updateCard(s); renderEditor();
+}
+// Re-render both the card's preview and (if it's active) the editor pane.
+function syncEdit(s) { updateCard(s); if (activeCard === s.id) renderEditor(); }
+
+function renderEditor() {
+  const host = document.getElementById("editor"); if (!host) return;
+  host.textContent = "";
+  if (!activeCard) {
+    const p = document.createElement("p"); p.className = "hint";
+    p.innerHTML = "Click a tile in any scenario on the left. Its <b>floor / wall / overlay</b> layers and the tile palette open here — no scrolling.";
+    host.appendChild(p); return;
+  }
+  const s = allScns().find(x => x.id === activeCard);
+  if (!s) { activeCard = null; return renderEditor(); }
+  loadScenarioGrid(s); const rg = computeRoleGrid();
+  const { x: cx, y: cy } = selOf(s);
+  const cellWall = isWallCell(map[cy][cx]) ? rg[cy][cx] : null;
+  const head = document.createElement("div"); head.className = "editorhead";
+  head.innerHTML = `<b>${s.name}</b> · cell (${cx},${cy})`
+    + (cellWall ? ` · mask=${maskStr(cellWall.em)}` + (cellWall.isCap ? " [cap]" : "") + (cellWall.isCorner ? " [corner]" : "") : "");
+  host.appendChild(head);
+  host.appendChild(buildFixUI(s));
+}
+
+// The per-cell layer editor (chips + floor/wall/overlay blocks + tools + palette).
+function buildFixUI(s) {
+  loadScenarioGrid(s); const rg = computeRoleGrid();
+  const { ui, x: cx, y: cy } = selOf(s);
+  const layers = layersAt(cx, cy, rg);
+  if (!layers.find(l => l.layer === ui.activeLayer)) ui.activeLayer = "wall";
+  const active = layers.find(l => l.layer === ui.activeLayer) || layers[1];
+  const fix = document.createElement("div"); fix.className = "fix open";
+  const chips = document.createElement("div"); chips.className = "tilechips";
+  chips.innerHTML = `<span class="phint">Set the correct tile per layer to describe the true picture (layers not currently drawn can still be set).</span>`;
+  if (hasCorr(s.id)) for (const k of Object.keys(corrections[s.id].tiles)) {
+    const b = document.createElement("button"); const { x, y, layer } = parseKey(k);
+    b.textContent = `(${x},${y}) ${layer[0]}`;
+    b.className = "chip" + (x === cx && y === cy && layer === ui.activeLayer ? " on" : "");
+    b.addEventListener("click", () => { ui.sel = [x, y]; ui.activeLayer = layer; syncEdit(s); });
+    chips.appendChild(b);
+  }
+  fix.appendChild(chips);
+  for (const Ldef of layers) {
+    const block = document.createElement("div"); block.className = "layerblock" + (Ldef.layer === ui.activeLayer ? " active" : "");
+    const h = document.createElement("div"); h.className = "lhead";
+    const curTxt = Ldef.layer === "floor" ? ("floor #" + Ldef.floorIdx + (Ldef.proposed ? " · proposed" : "")) : (Ldef.set ? (Ldef.role + (Ldef.proposed ? " · proposed" : "")) : "not drawn here");
+    h.innerHTML = `<b>${Ldef.label}</b> <span class="cur">${curTxt}</span>`;
+    h.addEventListener("click", () => { ui.activeLayer = Ldef.layer; syncEdit(s); });
+    block.appendChild(h);
+    const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+    const slots = document.createElement("div"); slots.className = "slots";
+    if (Ldef.layer === "floor") slots.appendChild(makeFloorSlot(s, Ldef));
+    else {
+      // boulder | sync | brick — pick either kit, then mirror it across.
+      slots.appendChild(makeSlot(s, "boulder", Ldef));
+      slots.appendChild(makeSyncBtn(s, Ldef));
+      slots.appendChild(makeSlot(s, "brick", Ldef));
+    }
+    block.appendChild(slots);
+    if (Ldef.layer === ui.activeLayer) block.appendChild(buildLayerTools(s, Ldef));
+    const note = document.createElement("textarea"); note.placeholder = `note for this ${Ldef.layer} tile…`;
+    note.value = tile ? tile.note : "";
+    note.addEventListener("input", () => { const t = ensureTile(s.id, Ldef.key); t.note = note.value; saveState(); renderExport(); });
+    block.appendChild(note);
+    if (tile) {
+      const clr = document.createElement("button"); clr.className = "clr"; clr.textContent = "clear this layer";
+      clr.addEventListener("click", () => { delete corrections[s.id].tiles[Ldef.key]; pruneTile(s.id, Ldef.key); saveState(); syncEdit(s); renderExport(); });
+      block.appendChild(clr);
+    }
+    fix.appendChild(block);
+  }
+  fix.appendChild(buildInlinePalette(s, active));
+  return fix;
+}
+
+// Sits between the boulder and brick slots. Pick a tile for either kit, hit this,
+// and the other kit gets its twin (brick = boulder - 10 rows). The arrow always
+// points at the slot being written, so it's obvious which way the copy runs.
+function makeSyncBtn(s, Ldef) {
+  const ui = cardUI[s.id];
+  const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+  const b = document.createElement("button");
+  b.className = "syncbtn";
+  const has = { boulder: tile && tile.boulder, brick: tile && tile.brick };
+  // Source is whichever kit you picked; if you've picked both, the one you're on.
+  const src = (has.boulder && has.brick) ? ui.kit : has.boulder ? "boulder" : has.brick ? "brick" : null;
+  const cell = src && has[src];
+  const dst = counterpartCell(cell, src);
+
+  if (!src) {
+    b.disabled = true; b.textContent = "⇄ sync";
+    b.title = "Pick a tile for either kit first, then sync copies it to the other.";
+  } else if (!dst) {
+    b.disabled = true; b.textContent = "⇄ sync";
+    b.title = `${SHEET_SRC[cell[0]].name} ${cell[1]},${cell[2]} has no ${otherKit(src)} twin — ` +
+              `it's outside the ${src} rows (${KIT_ROWS[src].join("-")}).`;
+  } else {
+    b.textContent = src === "boulder" ? "sync →" : "← sync";
+    b.title = `Copy ${src} ${cell[1]},${cell[2]} → ${otherKit(src)} ${dst[1]},${dst[2]}`;
+    b.addEventListener("click", e => {
+      e.stopPropagation();                    // the slots themselves are click targets
+      ensureTile(s.id, Ldef.key)[otherKit(src)] = dst.slice();
+      delete approvals[s.id];
+      saveState(); syncEdit(s); renderExport();
+    });
+  }
+  return b;
+}
+
+function makeSlot(s, kitName, Ldef) {
+  const ui = cardUI[s.id];
+  const isActive = ui.kit === kitName && ui.activeLayer === Ldef.layer;
+  const slot = document.createElement("div");
+  slot.className = "slot" + (isActive ? " active" : "");
+  const curCell = Ldef.role ? mapping[kitName][Ldef.role] : null;
+  const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+  const corr = tile && tile[kitName];
+  const th = document.createElement("canvas"); th.width = 40; th.height = 40;
+  const tc = th.getContext("2d"); tc.imageSmoothingEnabled = false;
+  const showCell = corr || curCell;
+  if (showCell && sheets[showCell[0]].complete) drawCell(tc, showCell, 0, 0, 40 / T);
+  slot.appendChild(th);
+  const lab = document.createElement("div"); lab.className = "lab2";
+  lab.innerHTML = `<span class="k">${kitName}</span> ${isActive ? "◀ picking" : ""}<br>cur <span class="cur">${curCell ? SHEET_SRC[curCell[0]].name + " " + curCell[1] + "," + curCell[2] : "— not drawn"}</span>`
+    + (corr ? `<br>→ <span class="cor">should be ${SHEET_SRC[corr[0]].name} ${corr[1]},${corr[2]}</span>` : "");
+  slot.appendChild(lab);
+  slot.addEventListener("click", () => { ui.kit = kitName; ui.activeLayer = Ldef.layer; if (corr) ui.sheet = corr[0]; syncEdit(s); });
+  return slot;
+}
+
+// Floor layer has a single tile (shared by both kits), picked from the floor strip.
+function makeFloorSlot(s, Ldef) {
+  const ui = cardUI[s.id];
+  const isActive = ui.activeLayer === "floor";
+  const slot = document.createElement("div");
+  slot.className = "slot" + (isActive ? " active" : "");
+  const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+  const corrIdx = tile && tile.floorIdx != null ? tile.floorIdx : null;
+  const showIdx = corrIdx != null ? corrIdx : Ldef.floorIdx;
+  const th = document.createElement("canvas"); th.width = 40; th.height = 40;
+  const tc = th.getContext("2d"); tc.imageSmoothingEnabled = false;
+  if (showIdx != null && floorImg.complete) drawFloorIdx(tc, showIdx, 0, 0, 40 / T);
+  slot.appendChild(th);
+  const lab = document.createElement("div"); lab.className = "lab2";
+  lab.innerHTML = `<span class="k">floor</span> ${isActive ? "◀ picking" : ""}<br>cur <span class="cur">#${Ldef.floorIdx}${Ldef.proposed ? " (proposed)" : ""}</span>`
+    + (corrIdx != null ? `<br>→ <span class="cor">should be #${corrIdx}</span>` : "");
+  slot.appendChild(lab);
+  slot.addEventListener("click", () => { ui.activeLayer = "floor"; syncEdit(s); });
+  return slot;
+}
+
+// Quick actions for the active layer: copy its tile to a neighbour's same layer,
+// and (wall only) convert to overlay — move the tile up as an overlay + core here.
+function buildLayerTools(s, Ldef) {
+  const wrap = document.createElement("div"); wrap.className = "ltools";
+  const corrOf = () => corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[Ldef.key];
+  const shownKit = kit => { const c = corrOf(); return (c && c[kit]) || (Ldef.role ? mapping[kit][Ldef.role] : null); };
+  const shownFloor = () => { const c = corrOf(); return c && c.floorIdx != null ? c.floorIdx : Ldef.floorIdx; };
+  wrap.appendChild(document.createTextNode("copy "));
+  for (const [lbl, dx, dy] of [["↑", 0, -1], ["↓", 0, 1], ["←", -1, 0], ["→", 1, 0]]) {
+    const b = document.createElement("button"); b.textContent = lbl; b.title = "copy this " + Ldef.layer + " tile to the neighbour";
+    b.addEventListener("click", () => {
+      const nx = Ldef.x + dx, ny = Ldef.y + dy;
+      if (nx < 0 || ny < 0 || nx >= s.w || ny >= s.h) return;
+      if (Ldef.layer === "floor") { const v = shownFloor(); if (v == null) return; ensureTile(s.id, keyOf(nx, ny, "floor")).floorIdx = v; }
+      else for (const kit of ["boulder", "brick"]) { const v = shownKit(kit); if (v) ensureTile(s.id, keyOf(nx, ny, Ldef.layer))[kit] = v.slice(); }
+      delete approvals[s.id]; saveState(); syncEdit(s); renderExport();
+    });
+    wrap.appendChild(b);
+  }
+  if (Ldef.layer === "wall") {
+    const cb = document.createElement("button"); cb.className = "conv"; cb.textContent = "→ overlay ↑ + core";
+    cb.title = "move this wall tile up as an overlay, and make this cell solid core";
+    cb.addEventListener("click", () => {
+      for (const kit of ["boulder", "brick"]) {
+        const v = shownKit(kit); if (!v) continue;
+        if (Ldef.y - 1 >= 0) ensureTile(s.id, keyOf(Ldef.x, Ldef.y - 1, "overlay"))[kit] = v.slice();
+        ensureTile(s.id, Ldef.key)[kit] = mapping[kit].w0.slice();
+      }
+      delete approvals[s.id]; saveState(); syncEdit(s); renderExport();
+    });
+    wrap.appendChild(cb);
+  }
+  return wrap;
+}
+
+// Tile palette inside the card. For wall/overlay layers it's the sheet picker
+// (per kit); for the floor layer it's the floor-strip picker (shared).
+function buildInlinePalette(s, active) {
+  const ui = cardUI[s.id];
+  const key = active.key, layer = active.layer;
+  const wrap = document.createElement("div");
+  const hint = document.createElement("div"); hint.className = "phint";
+  if (layer === "floor") {
+    hint.innerHTML = `Picking the <b>floor</b> tile — click one (0–15 edge masks, 16–30 notches, 31+ fills) or type the index:`;
+    wrap.appendChild(hint);
+    {
+      const qe = document.createElement("div"); qe.className = "quickentry";
+      const cur = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[key];
+      const iin = document.createElement("input"); iin.type = "number"; iin.min = 0; iin.placeholder = "idx";
+      iin.value = cur && cur.floorIdx != null ? cur.floorIdx : "";
+      iin.addEventListener("change", () => {
+        const idx = parseInt(iin.value, 10);
+        if (Number.isNaN(idx) || idx < 0 || (floorImg.naturalWidth && idx >= floorImg.naturalWidth / T)) return;
+        const t = ensureTile(s.id, key); t.floorIdx = idx; delete approvals[s.id];
+        saveState(); syncEdit(s); renderExport();
+      });
+      qe.append("floor idx ", iin);
+      wrap.appendChild(qe);
+    }
+    const sc = document.createElement("div"); sc.className = "scroller pscroll";
+    const cv = document.createElement("canvas");
+    const FCOLS = 12; // wrap the floor strip into a grid, same tile size as the wall sheet
+    if (floorImg.complete && floorImg.naturalWidth) {
+      const n = floorImg.naturalWidth / T, rows = Math.ceil(n / FCOLS);
+      cv.width = FCOLS * T * PZ; cv.height = rows * T * PZ;
+      const c = cv.getContext("2d"); c.imageSmoothingEnabled = false;
+      c.fillStyle = "#141019"; c.fillRect(0, 0, cv.width, cv.height);
+      for (let i = 0; i < n; i++) {
+        const gx = i % FCOLS, gy = (i / FCOLS) | 0;
+        c.drawImage(floorImg, i * T, 0, T, T, gx * T * PZ, gy * T * PZ, T * PZ, T * PZ);
+      }
+      c.strokeStyle = "rgba(255,255,255,0.08)"; c.lineWidth = 1;
+      for (let gx = 0; gx <= FCOLS; gx++) { c.beginPath(); c.moveTo(gx * T * PZ + 0.5, 0); c.lineTo(gx * T * PZ + 0.5, cv.height); c.stroke(); }
+      for (let gy = 0; gy <= rows; gy++) { c.beginPath(); c.moveTo(0, gy * T * PZ + 0.5); c.lineTo(cv.width, gy * T * PZ + 0.5); c.stroke(); }
+      const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[key];
+      const ci = tile && tile.floorIdx != null ? tile.floorIdx : null;
+      if (ci != null) { const gx = ci % FCOLS, gy = (ci / FCOLS) | 0; c.strokeStyle = "#7ec98f"; c.lineWidth = 3; c.strokeRect(gx * T * PZ + 1, gy * T * PZ + 1, T * PZ - 2, T * PZ - 2); }
+    }
+    cv.addEventListener("click", e => {
+      if (!floorImg.complete || !floorImg.naturalWidth) return;
+      const n = floorImg.naturalWidth / T;
+      const r = cv.getBoundingClientRect();
+      const sx = (e.clientX - r.left) * (cv.width / r.width) / PZ, sy = (e.clientY - r.top) * (cv.height / r.height) / PZ;
+      const gx = Math.floor(sx / T), gy = Math.floor(sy / T), idx = gy * FCOLS + gx;
+      if (gx < 0 || gx >= FCOLS || idx < 0 || idx >= n) return;
+      const t = ensureTile(s.id, key); t.floorIdx = idx;
+      delete approvals[s.id];
+      saveState(); syncEdit(s); renderExport();
+    });
+    sc.appendChild(cv); wrap.appendChild(sc);
+    return wrap;
+  }
+  hint.innerHTML = `Picking <b>${ui.kit}</b> · <b>${layer}</b> layer — click a tile, or type pack + x,y:`;
+  wrap.appendChild(hint);
+  {
+    const qe = document.createElement("div"); qe.className = "quickentry";
+    const cur = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[key] && corrections[s.id].tiles[key][ui.kit];
+    const sel = document.createElement("select");
+    SHEET_SRC.forEach((sh, i) => { const o = document.createElement("option"); o.value = i; o.textContent = sh.name; if (i === ui.sheet) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener("change", () => { ui.sheet = +sel.value; syncEdit(s); });
+    const xin = document.createElement("input"); xin.type = "number"; xin.min = 0; xin.placeholder = "x"; xin.value = cur ? cur[1] : "";
+    const yin = document.createElement("input"); yin.type = "number"; yin.min = 0; yin.placeholder = "y"; yin.value = cur ? cur[2] : "";
+    const apply = () => {
+      const cx = parseInt(xin.value, 10), cy = parseInt(yin.value, 10), sh = +sel.value;
+      if (Number.isNaN(cx) || Number.isNaN(cy)) return;
+      const img = sheets[sh];
+      if (img.naturalWidth && (cx < 0 || cy < 0 || cx >= img.naturalWidth / T || cy >= img.naturalHeight / T)) return;
+      const t = ensureTile(s.id, key); t[ui.kit] = [sh, cx, cy]; delete approvals[s.id];
+      saveState(); syncEdit(s); renderExport();
+    };
+    xin.addEventListener("change", apply); yin.addEventListener("change", apply);
+    qe.append("pack ", sel, " x ", xin, " y ", yin);
+    wrap.appendChild(qe);
+  }
+  const tabs = document.createElement("div"); tabs.className = "sheettabs";
+  SHEET_SRC.forEach((sh, i) => {
+    const b = document.createElement("button"); b.textContent = sh.name; b.className = i === ui.sheet ? "on" : "";
+    b.addEventListener("click", () => { ui.sheet = i; syncEdit(s); });
+    tabs.appendChild(b);
+  });
+  wrap.appendChild(tabs);
+  const sc = document.createElement("div"); sc.className = "scroller pscroll";
+  const cv = document.createElement("canvas");
+  const img = sheets[ui.sheet];
+  if (img.complete && img.naturalWidth) {
+    cv.width = img.naturalWidth * PZ; cv.height = img.naturalHeight * PZ;
+    const c = cv.getContext("2d"); c.imageSmoothingEnabled = false;
+    c.fillStyle = "#141019"; c.fillRect(0, 0, cv.width, cv.height);
+    c.drawImage(img, 0, 0, cv.width, cv.height);
+    c.strokeStyle = "rgba(255,255,255,0.08)"; c.lineWidth = 1;
+    for (let x = 0; x <= img.naturalWidth / T; x++) { c.beginPath(); c.moveTo(x * T * PZ + 0.5, 0); c.lineTo(x * T * PZ + 0.5, cv.height); c.stroke(); }
+    for (let y = 0; y <= img.naturalHeight / T; y++) { c.beginPath(); c.moveTo(0, y * T * PZ + 0.5); c.lineTo(cv.width, y * T * PZ + 0.5); c.stroke(); }
+    const tile = corrections[s.id] && corrections[s.id].tiles && corrections[s.id].tiles[key];
+    const corr = tile && tile[ui.kit];
+    if (corr && corr[0] === ui.sheet) { c.strokeStyle = "#7ec98f"; c.lineWidth = 3; c.strokeRect(corr[1] * T * PZ + 1, corr[2] * T * PZ + 1, T * PZ - 2, T * PZ - 2); }
+  }
+  cv.addEventListener("click", e => {
+    if (!img.complete || !img.naturalWidth) return;
+    const r = cv.getBoundingClientRect();
+    const sx = (e.clientX - r.left) * (cv.width / r.width) / PZ, sy = (e.clientY - r.top) * (cv.height / r.height) / PZ;
+    const cx = Math.floor(sx / T), cy = Math.floor(sy / T);
+    if (cx < 0 || cy < 0 || cx >= img.naturalWidth / T || cy >= img.naturalHeight / T) return;
+    const t = ensureTile(s.id, key); t[ui.kit] = [ui.sheet, cx, cy];
+    delete approvals[s.id];
+    saveState(); syncEdit(s); renderExport();
+  });
+  sc.appendChild(cv); wrap.appendChild(sc);
+  return wrap;
+}
+
+/* ============================ EXPORT ============================ */
+function renderExport() {
+  const wrong = [], ok = []; let tileTotal = 0;
+  for (const s of allScns()) {
+    const flagged = hasCorr(s.id), appr = approvals[s.id];
+    if (!flagged && !appr) continue;
+    loadScenarioGrid(s); const rg = computeRoleGrid(); const cc = rg[s.cy][s.cx];
+    const base = {
+      id: s.id, group: s.group, name: s.name,
+      grid: { w: s.w, h: s.h, center: [s.cx, s.cy], floors: s.floors }
+    };
+    if (flagged) {
+      const tiles = [];
+      for (const k of Object.keys(corrections[s.id].tiles)) {
+        const { x, y, layer } = parseKey(k);
+        const t = corrections[s.id].tiles[k];
+        if (layer === "floor") {
+          tiles.push({ xy: [x, y], layer: "floor", current_floor: isOpen(x, y) ? floorIndexAt(x, y) : (15 - baseMask(x, y)), correct_floor: t.floorIdx != null ? t.floorIdx : null, note: t.note || "" });
+        } else {
+          const role = layer === "overlay" ? overlayRoleAt(x, y)
+                     : (isWallCell(map[y][x]) && rg[y][x] ? wbRoleForCell(x, y, rg[y][x]) : null);
+          tiles.push(Object.assign(
+            { xy: [x, y], layer },
+            layer === "wall" && role ? { mask: maskStr(rg[y][x].em) } : {},
+            {
+              role,
+              current_cell: role ? { boulder: mapping.boulder[role], brick: mapping.brick[role] } : null,
+              correct_cell: { boulder: t.boulder || null, brick: t.brick || null }, note: t.note || ""
+            }
+          ));
+        }
+      }
+      tileTotal += tiles.length;
+      wrong.push(Object.assign(base, { tiles }));
+    } else {
+      // Report the role that's actually DRAWN, exactly as the corrections branch
+      // above does. This used to report cc.role - the raw computeWallCell role
+      // from BEFORE walk-behind is applied - so for every cell walk-behind
+      // rewrites (10 of 25 approvals in round 4: m2 said w2 while the page drew
+      // kne) the export named a tile that was never on screen. The user approves
+      // the PICTURE, so the export has to describe the picture.
+      const role = isWallCell(map[s.cy][s.cx]) ? wbRoleForCell(s.cx, s.cy, cc) : null;
+      ok.push(Object.assign(base, {
+        mask: maskStr(cc.em), role,
+        cell: role ? { boulder: mapping.boulder[role], brick: mapping.brick[role] } : null,
+      }));
+    }
+  }
+  document.getElementById("exp").value = JSON.stringify({ corrections: wrong, approved: ok }, null, 1);
+  document.getElementById("count").innerHTML =
+    `<span style="color:var(--bad)">${wrong.length} flagged · ${tileTotal} tiles</span> · <span style="color:var(--good)">${ok.length} approved</span>`;
+}
+function flash(msg) { const f = document.getElementById("flash"); f.textContent = msg; setTimeout(() => { if (f.textContent === msg) f.textContent = ""; }, 2200); }
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const txt = document.getElementById("exp").value;
+  try { await navigator.clipboard.writeText(txt); flash("copied ✓"); } catch (e) { document.getElementById("exp").select(); flash("select + ctrl-C"); }
+});
+let clearArmed = false;
+document.getElementById("clearBtn").addEventListener("click", () => {
+  const b = document.getElementById("clearBtn");
+  if (!clearArmed) {
+    clearArmed = true; b.textContent = "click again to clear"; b.classList.add("primary");
+    setTimeout(() => { clearArmed = false; b.textContent = "Clear all"; b.classList.remove("primary"); }, 3000);
+    return;
+  }
+  clearArmed = false; b.textContent = "Clear all"; b.classList.remove("primary");
+  corrections = {}; approvals = {}; doneSet = {}; cardUI = {}; activeCard = null;
+  saveState(); renderGallery(); renderEditor(); renderExport(); flash("cleared ✓");
+});
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const json = stateBlob();
+  try {
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "wall-corrections.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    flash("saved file ✓");
+  } catch (e) { document.getElementById("exp").value = json; flash("download blocked — copy the box"); }
+});
+document.getElementById("loadBtn").addEventListener("click", () => document.getElementById("loadFile").click());
+document.getElementById("loadFile").addEventListener("change", e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const st = JSON.parse(r.result);
+      if (!st.corrections && !st.approvals && !st.done && !st.customScns) throw new Error("not a state file");
+      restoreState(st); cardUI = {}; activeCard = null; saveState(); renderGallery(); renderEditor(); renderExport(); flash("loaded ✓");
+    } catch (err) { flash("couldn't read that file"); }
+  };
+  r.readAsText(f); e.target.value = "";
+});
+document.getElementById("flavor").addEventListener("change", e => { SHOW_FLAVOR = e.target.checked; renderGallery(); });
+document.getElementById("zoomSel").addEventListener("change", renderGallery);
+for (const [id, key] of [["lyrFloor","floor"],["lyrWalls","walls"],["lyrCaps","caps"],["lyrOverlay","overlay"]])
+  document.getElementById(id).addEventListener("change", e => { LYR[key] = e.target.checked; renderGallery(); renderBoard(); });
+document.getElementById("wallMark").addEventListener("change", e => { SHOW_WALLMARK = e.target.checked; renderGallery(); });
+// (The walk-behind toggle is gone: round 4 landed it as THE behaviour - it's
+// in the game now, not a proposal. WALKBEHIND stays a const true.)
+for (const [id, key] of [["vwUnrev","unreviewed"],["vwWrong","wrong"],["vwOk","ok"],["vwDone","done"]])
+  document.getElementById(id).addEventListener("change", e => { viewShow[key] = e.target.checked; renderGallery(); });
+
+/* ============================ PAINT-YOUR-OWN BOARD ============================ */
+const BW = 7, BH = 7, BZ = 4;
+let board = Array.from({ length: BH }, () => Array(BW).fill("#"));
+let boardCenter = [3, 3];
+let pbrush = "#";
+const bCan = document.getElementById("board"), bCtx = bCan.getContext("2d");
+function renderBoard() {
+  const saveW = MAP_W, saveH = MAP_H, saveMap = map;
+  MAP_W = BW; MAP_H = BH; map = board;
+  const rg = computeRoleGrid();
+  bCan.width = BW * T * BZ; bCan.height = BH * T * BZ;
+  bCtx.imageSmoothingEnabled = false; bCtx.fillStyle = "#3a2e3c"; bCtx.fillRect(0, 0, bCan.width, bCan.height);
+  drawScenario(bCtx, "boulder", 0, 0, BZ, rg);
+  bCtx.strokeStyle = "rgba(255,255,255,.08)";
+  for (let y = 0; y < BH; y++) for (let x = 0; x < BW; x++) bCtx.strokeRect(x * T * BZ + .5, y * T * BZ + .5, T * BZ - 1, T * BZ - 1);
+  bCtx.strokeStyle = "#f2b23e"; bCtx.lineWidth = 2;
+  bCtx.strokeRect(boardCenter[0] * T * BZ + 1, boardCenter[1] * T * BZ + 1, T * BZ - 2, T * BZ - 2);
+  MAP_W = saveW; MAP_H = saveH; map = saveMap;
+}
+bCan.addEventListener("pointerdown", e => {
+  const r = bCan.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) * (bCan.width / r.width) / (T * BZ));
+  const y = Math.floor((e.clientY - r.top) * (bCan.height / r.height) / (T * BZ));
+  if (x < 0 || y < 0 || x >= BW || y >= BH) return;
+  if (pbrush === "C") boardCenter = [x, y]; else board[y][x] = pbrush;
+  renderBoard();
+});
+for (const rb of document.querySelectorAll('input[name=pb]')) rb.addEventListener("change", () => pbrush = rb.value);
+document.getElementById("clearBoard").addEventListener("click", () => { board = Array.from({ length: BH }, () => Array(BW).fill("#")); renderBoard(); });
+document.getElementById("addScn").addEventListener("click", () => {
+  const floors = [];
+  for (let y = 0; y < BH; y++) for (let x = 0; x < BW; x++) if (board[y][x] === ".") floors.push([x, y]);
+  const n = customScns.length + 1;
+  const s = scn("Custom · painted", "custom #" + n, "user-painted scenario", BW, BH, boardCenter[0], boardCenter[1], floors);
+  // ensure unique id
+  s.id = "Custompainted_custom_" + Date.now();
+  customScns.push(s); cardUI[s.id] = { kit: "boulder", sheet: 0, sel: [boardCenter[0], boardCenter[1]], editing: true };
+  // A brand-new card is "unreviewed" - if that filter is off, the card would be
+  // born invisible and the add would look like it did nothing. Force it on.
+  if (!viewShow.unreviewed) { viewShow.unreviewed = true; document.getElementById("vwUnrev").checked = true; }
+  saveState(); renderGallery(); renderExport();
+  flash("added custom #" + n + " ✓");
+  document.querySelector(".groupHead")?.scrollIntoView();
+});
+
+/* ============================ DUNGEON TAB (ported from the lab) ============================ */
+// Same engine + rule as the Scenarios tab — just a real dungeon instead of 5x5 cards.
+const SLOT_W = 13, SLOT_H = 12;
+const SIZE_PRESETS = { small:{cols:1,rows:1,rooms:1}, medium:{cols:2,rows:2,rooms:3}, large:{cols:3,rows:2,rooms:5}, huge:{cols:3,rows:3,rooms:8} };
+let dunGrid = [], DUN_W = 15, DUN_H = 14, dbrush = "";
+function carveRoom(g, rx, ry, rw, rh) {
+  const ri = n => Math.floor(Math.random() * n);
+  for (let y = ry; y < ry + rh; y++) for (let x = rx; x < rx + rw; x++)
+    g[y][x] = (x === rx || x === rx + rw - 1 || y <= ry + 1 || y >= ry + rh - 2) ? "#" : ".";
+  const west = ri(2) === 0, bx = west ? rx + 2 + ri(2) : rx + rw - 4 - ri(2);
+  g[ry+2][bx] = "#"; g[ry+2][bx+1] = "#"; g[ry+3][bx] = "#"; g[ry+3][bx+1] = "#";
+  for (let k = 0; k < 30; k++) { const px = rx+2+ri(Math.max(1,rw-4)), py = ry+3+ri(Math.max(1,rh-6)); if (g[py][px] === ".") { g[py][px] = "#"; break; } }
+  return { cx: rx + (rw >> 1), cy: ry + (rh >> 1) };
+}
+function carveDoorAndSpur(g, rx, ry, rw, rh) {
+  const ri = n => Math.floor(Math.random() * n);
+  const dx = rx + 2 + ri(Math.max(1, rw - 4));
+  g[ry+rh-2][dx] = "D"; g[ry+rh-1][dx] = "D";
+  for (let y = ry + rh; y < Math.min(DUN_H - 1, ry + rh + 3); y++) g[y][dx] = ".";
+  const sy = ry + 2 + ri(Math.max(1, rh - 5)), tx = Math.min(DUN_W - 3, rx + rw + 1 + ri(3));
+  for (let x = rx + rw - 1; x <= tx; x++) g[sy][x] = ".";
+  const legEnd = Math.min(DUN_H - 2, sy + 2 + ri(2));
+  for (let y = sy; y <= legEnd; y++) g[y][tx] = ".";
+  const rry = ry + 3 + ri(Math.max(1, rh - 6));
+  for (let x = rx + 2; x <= rx + 4; x++) if (g[rry][x] === ".") g[rry][x] = "R";
+}
+function connectRooms(g, a, b) {
+  const ri = n => Math.floor(Math.random() * n);
+  let x = a.cx, y = a.cy;
+  const open = () => { if (g[y][x] === "#") g[y][x] = "."; };
+  const wx = () => { while (x !== b.cx) { open(); x += x < b.cx ? 1 : -1; } };
+  const wy = () => { while (y !== b.cy) { open(); y += y < b.cy ? 1 : -1; } };
+  if (ri(2) === 0) { wx(); wy(); } else { wy(); wx(); }
+  open();
+}
+function buildDungeon() {
+  const sel = document.getElementById("dunSize");
+  const preset = SIZE_PRESETS[sel ? sel.value : "small"] || SIZE_PRESETS.small;
+  DUN_W = preset.cols * SLOT_W + 2; DUN_H = preset.rows * SLOT_H + 2;
+  const ri = n => Math.floor(Math.random() * n);
+  const g = Array.from({ length: DUN_H }, () => Array(DUN_W).fill("#"));
+  const slots = []; for (let sc = 0; sc < preset.cols; sc++) for (let sr = 0; sr < preset.rows; sr++) slots.push({ sc, sr });
+  for (let i = slots.length - 1; i > 0; i--) { const j = ri(i + 1); [slots[i], slots[j]] = [slots[j], slots[i]]; }
+  const rooms = [];
+  for (const slot of slots.slice(0, preset.rooms)) {
+    const rw = 8 + ri(3), rh = 8 + ri(2);
+    const rx = 1 + slot.sc * SLOT_W + ri(Math.max(1, SLOT_W - rw - 1));
+    const ry = 1 + slot.sr * SLOT_H + ri(Math.max(1, SLOT_H - rh - 1));
+    rooms.push(Object.assign({ rx, ry, rw, rh }, carveRoom(g, rx, ry, rw, rh)));
+  }
+  if (rooms.length) carveDoorAndSpur(g, rooms[0].rx, rooms[0].ry, rooms[0].rw, rooms[0].rh);
+  for (let i = 1; i < rooms.length; i++) connectRooms(g, rooms[i - 1], rooms[i]);
+  dunGrid = g;
+}
+function renderDungeon() {
+  const cv = document.getElementById("dungeon"); if (!cv) return;
+  if (!dunGrid.length) buildDungeon();
+  const zs = document.getElementById("dunZoom");
+  const Z = parseInt(zs ? zs.value : "3", 10) || 3;
+  map = dunGrid; MAP_W = DUN_W; MAP_H = DUN_H;   // point the engine at the dungeon
+  const rg = computeRoleGrid();
+  const paneW = DUN_W * T * Z, paneH = DUN_H * T * Z, gap = 24, lh = 18;
+  cv.width = paneW * 2 + gap; cv.height = paneH + lh;
+  const ctx = cv.getContext("2d"); ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = "#3a2e3c"; ctx.fillRect(0, 0, cv.width, cv.height);
+  drawScenario(ctx, "boulder", 0, lh, Z, rg, null);
+  drawScenario(ctx, "brick", paneW + gap, lh, Z, rg, null);
+  for (let y = 0; y < DUN_H; y++) for (let x = 0; x < DUN_W; x++) {
+    const c = dunGrid[y][x]; if (c !== "R" && c !== "D") continue;
+    for (const [ox, mat] of [[0, "boulder"], [paneW + gap, "brick"]]) {
+      const M = mapping[mat], px = ox + x * T * Z, py = lh + y * T * Z;
+      if (c === "R") {
+        const isRail = (xx, yy) => xx >= 0 && yy >= 0 && xx < DUN_W && yy < DUN_H && dunGrid[yy][xx] === "R";
+        const r = (isRail(x,y-1)?1:0)|(isRail(x+1,y)?2:0)|(isRail(x,y+1)?4:0)|(isRail(x-1,y)?8:0);
+        let rr = "rh";
+        if (r===5) rr="rv"; else if (r===4) rr="rvt"; else if (r===1) rr="rvb";
+        else if (r===2) rr="rhl"; else if (r===8) rr="rhr";
+        else if (r===3) rr="rcne"; else if (r===9) rr="rcnw";
+        else if (r===6) rr="rcse"; else if (r===12) rr="rcsw";
+        drawCell(ctx, mapping.extras[rr], px, py, Z);
+      } else {
+        drawCell(ctx, M.w0, px, py, Z);
+        if (!(dunGrid[y+1] && dunGrid[y+1][x] === "D") && M.arch) drawCell(ctx, M.arch, px, py, Z);
+      }
+    }
+  }
+  if (SHOW_WALLMARK) {
+    ctx.font = `bold ${Math.round(T * Z * 0.62)}px ui-monospace, Consolas, monospace`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (let y = 0; y < DUN_H; y++) for (let x = 0; x < DUN_W; x++) {
+      if (!isWallCell(dunGrid[y][x])) continue;
+      for (const ox of [0, paneW + gap]) {
+        const mx = ox + x*T*Z + T*Z/2, my = lh + y*T*Z + T*Z/2;
+        ctx.lineWidth = Math.max(2, Z); ctx.strokeStyle = "rgba(10,14,25,0.8)"; ctx.strokeText("#", mx, my);
+        ctx.fillStyle = "rgba(108,184,255,0.5)"; ctx.fillText("#", mx, my);
+      }
+    }
+    ctx.textBaseline = "alphabetic";
+  }
+  ctx.font = "bold 12px ui-monospace, Consolas, monospace"; ctx.fillStyle = "#a08fae"; ctx.textAlign = "center";
+  ctx.fillText("BOULDER", paneW / 2, 13); ctx.fillText("BRICK", paneW + gap + paneW / 2, 13);
+}
+(function wireDungeon(){
+  const cv = document.getElementById("dungeon"); if (!cv) return;
+  const hit = e => {
+    const zs = document.getElementById("dunZoom"); const Z = parseInt(zs ? zs.value : "3", 10) || 3;
+    const r = cv.getBoundingClientRect(); const paneW = DUN_W * T * Z, gap = 24, lh = 18;
+    let px = (e.clientX - r.left) * (cv.width / r.width);
+    const py = (e.clientY - r.top) * (cv.height / r.height);
+    if (px >= paneW + gap) px -= paneW + gap; else if (px >= paneW) return null;
+    const x = Math.floor(px / (T * Z)), y = Math.floor((py - lh) / (T * Z));
+    return (x < 0 || y < 0 || x >= DUN_W || y >= DUN_H) ? null : { x, y };
+  };
+  cv.addEventListener("pointerdown", e => {
+    const h = hit(e); if (!h) return;
+    if (dbrush) { dunGrid[h.y][h.x] = dbrush; renderDungeon(); return; }
+    map = dunGrid; MAP_W = DUN_W; MAP_H = DUN_H;
+    const info = document.getElementById("dunInfo");
+    if (isWallCell(dunGrid[h.y][h.x])) {
+      const c = computeWallCell(h.x, h.y);
+      info.textContent = `(${h.x},${h.y}) mask=${maskStr(c.em)} → ${wbRoleForCell(h.x, h.y, c)}` + (c.isCap ? " [cap]" : "") + (c.isCorner ? " [corner]" : "");
+    } else {
+      const o = overlayRoleAt(h.x, h.y);
+      info.textContent = `(${h.x},${h.y}) floor #${floorIndexAt(h.x, h.y)}` + (o ? ` · overlay ${o}` : "");
+    }
+  });
+  for (const rb of document.querySelectorAll('input[name=dpb]')) rb.addEventListener("change", () => { dbrush = rb.value; cv.style.cursor = dbrush ? "crosshair" : "pointer"; });
+  document.getElementById("dunReroll").addEventListener("click", () => { buildDungeon(); renderDungeon(); });
+  document.getElementById("dunSize").addEventListener("change", () => { buildDungeon(); renderDungeon(); });
+  document.getElementById("dunZoom").addEventListener("change", renderDungeon);
+})();
+
+/* ============================ HEDGE TAB ============================ */
+const HED_W = 16, HED_H = 10;
+let hedgeMap = [], hbrush = "";
+function buildHedgeBoard() {
+  const g = Array.from({ length: HED_H }, () => Array(HED_W).fill("."));
+  for (let x = 0; x < HED_W; x++) { g[0][x] = "H"; g[HED_H-1][x] = "H"; }
+  for (let y = 0; y < HED_H; y++) { g[y][0] = "H"; g[y][HED_W-1] = "H"; }
+  g[HED_H-1][HED_W >> 1] = ".";
+  for (let y = 2; y <= 5; y++) g[y][3] = "H";
+  for (let x = 5; x <= 9; x++) g[2][x] = "H";
+  for (let y = 4; y <= 6; y++) g[y][6] = "H";
+  for (let x = 6; x <= 9; x++) g[6][x] = "H";
+  for (let y = 2; y <= 7; y++) g[y][11] = "H";
+  g[4][10]="H"; g[4][12]="H"; g[7][6]="H"; g[8][5]="H"; g[8][6]="H"; g[8][7]="H"; g[9][6]="H"; g[3][13]="H";
+  hedgeMap = g;
+}
+const hIs = (x,y) => x>=0 && y>=0 && x<HED_W && y<HED_H && hedgeMap[y][x]==="H";
+function renderHedge() {
+  const cv = document.getElementById("hedge"); if (!cv) return;
+  if (!hedgeMap.length) buildHedgeBoard();
+  const Z = 3;
+  cv.width = HED_W*T*Z; cv.height = HED_H*T*Z;
+  const c = cv.getContext("2d"); c.imageSmoothingEnabled = false;
+  c.fillStyle = "#5a8f4a"; c.fillRect(0,0,cv.width,cv.height);
+  for (let y = 0; y < HED_H; y++) for (let x = 0; x < HED_W; x++) {
+    if (hedgeMap[y][x] !== "H") continue;
+    const px = x*T*Z, py = y*T*Z;
+    const m = (hIs(x,y-1)?1:0)|(hIs(x+1,y)?2:0)|(hIs(x,y+1)?4:0)|(hIs(x-1,y)?8:0);
+    if (m === 15) {
+      drawCell(c, mapping.hedge.h15, px, py, Z);
+      const nm = (!hIs(x-1,y-1)?1:0)|(!hIs(x+1,y-1)?2:0)|(!hIs(x-1,y+1)?4:0)|(!hIs(x+1,y+1)?8:0);
+      const img = sheets[BUSH_SHEET], half = 8*Z;
+      if (nm & 1) c.drawImage(img, HEDGE_NOTCH_PATCH.nw[0], HEDGE_NOTCH_PATCH.nw[1], 8,8, px, py, half, half);
+      if (nm & 2) c.drawImage(img, HEDGE_NOTCH_PATCH.ne[0], HEDGE_NOTCH_PATCH.ne[1], 8,8, px+half, py, half, half);
+      if (nm & 4) c.drawImage(img, HEDGE_NOTCH_PATCH.sw[0], HEDGE_NOTCH_PATCH.sw[1], 8,8, px, py+half, half, half);
+      if (nm & 8) c.drawImage(img, HEDGE_NOTCH_PATCH.se[0], HEDGE_NOTCH_PATCH.se[1], 8,8, px+half, py+half, half, half);
+    } else drawCell(c, mapping.hedge["h"+m], px, py, Z);
+  }
+}
+(function wireHedge(){
+  const cv = document.getElementById("hedge"); if (!cv) return;
+  cv.addEventListener("pointerdown", e => {
+    if (!hbrush) return;
+    const r = cv.getBoundingClientRect(), Z = 3;
+    const x = Math.floor((e.clientX - r.left) * (cv.width / r.width) / (T*Z));
+    const y = Math.floor((e.clientY - r.top) * (cv.height / r.height) / (T*Z));
+    if (x < 0 || y < 0 || x >= HED_W || y >= HED_H) return;
+    hedgeMap[y][x] = hbrush; renderHedge();
+  });
+  for (const rb of document.querySelectorAll('input[name=hbr]')) rb.addEventListener("change", () => { hbrush = rb.value; cv.style.cursor = hbrush ? "crosshair" : "default"; });
+})();
+
+/* ============================ TABS ============================ */
+function showTab(which) {
+  for (const [btn, panel] of [["tabScn","panelScn"],["tabDun","panelDun"],["tabHedge","panelHedge"]]) {
+    const on = btn === "tab" + which;
+    const b = document.getElementById(btn), p = document.getElementById(panel);
+    if (b) b.classList.toggle("on", on);
+    if (p) p.hidden = !on;
+  }
+  if (which === "Dun") renderDungeon();
+  if (which === "Hedge") renderHedge();
+}
+for (const w of ["Scn","Dun","Hedge"]) {
+  const b = document.getElementById("tab" + w); if (b) b.addEventListener("click", () => showTab(w));
+}
+
+/* ============================ BOOT ============================ */
+loadState();
+let pending = sheets.length + 1;
+const ready = () => { if (--pending === 0) { renderGallery(); renderEditor(); renderExport(); renderBoard(); buildDungeon(); buildHedgeBoard(); showTab("Scn"); } };
+for (const im of sheets) { if (im.complete) ready(); else { im.onload = ready; im.onerror = ready; } }
+if (floorImg.complete) ready(); else { floorImg.onload = ready; floorImg.onerror = ready; }
+</script>

@@ -1,0 +1,62 @@
+name: Release
+
+# Tag a version and push it (`git tag v1.2.3 && git push origin v1.2.3`)
+# and this publishes a GitHub Release with the binaries plus a QR code.
+# The QR encodes the release's own myfarm.cia download URL, so FBI's
+# Remote Install -> Scan QR Code installs the game straight onto a CFW
+# console over the air.
+#
+# Same build steps as build.yml (which handles push/PR artifact builds);
+# host tests run first so a release can't ship with failing logic tests.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run host unit tests
+        run: make -C tests
+
+      - name: Build builder image
+        run: docker build -t myfarm-builder -f Containerfile .
+
+      - name: Build CIA
+        run: docker run --rm -v ${{ github.workspace }}:/project myfarm-builder make cia
+
+      - name: Verify build outputs
+        run: |
+          test -f myfarm.cia && test -f myfarm.3dsx
+
+      - name: Generate FBI install QR code
+        # -s 8: 8px modules so the QR is big enough to scan off a monitor
+        # with the console camera.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qrencode
+          qrencode -s 8 -o qr.png \
+            "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/myfarm.cia"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Quoted heredoc: backticks stay literal for markdown; the ${{ }}
+        # expressions are substituted by Actions before the shell runs.
+        run: |
+          cat > notes.md <<'EOF'
+          Scan the QR code with **FBI** (Remote Install -> Scan QR Code) to
+          install MyFarm directly onto a CFW console - or download
+          `myfarm.cia` and install it from the SD card. `myfarm.3dsx` is for
+          the Homebrew Launcher and Citra.
+
+          ![FBI install QR](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/qr.png)
+          EOF
+          gh release create "${{ github.ref_name }}" myfarm.cia myfarm.3dsx qr.png \
+            --title "MyFarm ${{ github.ref_name }}" \
+            --notes-file notes.md

@@ -1,0 +1,50 @@
+name: Build
+
+# Mirrors the local workflow in build.ps1/Containerfile: build the
+# devkitARM+makerom+bannertool image, then `make cia` inside it.
+#
+# push/PR: build only, upload myfarm.cia/.3dsx as a workflow artifact
+# (Actions tab -> this run -> Artifacts) so a build is always verified and
+# grabbable without cutting a release.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  host-tests:
+    # Unit tests for the pure-logic core/ modules - plain g++, no devkitARM
+    # image needed, so this runs in seconds and catches logic bugs before
+    # the much slower CIA build below even starts. See tests/Makefile.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run host unit tests
+        run: make -C tests
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build builder image
+        run: docker build -t myfarm-builder -f Containerfile .
+
+      - name: Build CIA
+        run: docker run --rm -v ${{ github.workspace }}:/project myfarm-builder make cia
+
+      - name: Verify build outputs
+        run: |
+          test -f myfarm.cia && test -f myfarm.3dsx
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: myfarm-build
+          path: |
+            myfarm.cia
+            myfarm.3dsx
+          if-no-files-found: error
