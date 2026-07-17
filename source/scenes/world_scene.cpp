@@ -93,7 +93,7 @@ constexpr float kTrashBtnW = 68.0f;
 
 // Skills tab: one row per skill, each with a full-width XP bar (25px
 // keeps all seven inside the frame ring below the held-item line).
-constexpr float kSkillRowH = 25.0f;
+constexpr float kSkillRowH = 21.0f; // 9 rows must fit the 194px frame
 constexpr float kSkillBarX = 96.0f;
 constexpr float kSkillBarW = 210.0f;
 
@@ -269,7 +269,7 @@ void WorldScene::awardXp(core::Skill skill, int amount) {
     xp += static_cast<uint32_t>(amount);
     int after = core::levelForXp(xp);
     if (firstEver) {
-        // Skills stay hidden ("???" in the Skills tab) until first used.
+        // Skills stay hidden (no Skills-tab row at all) until first used.
         setStatus("New skill discovered: %s!", core::kSkillNames[static_cast<int>(skill)]);
         platform::playSfx(platform::Sfx::LevelUp);
         emoteSprite_ = atlas_emote_cheer_idx;
@@ -290,13 +290,80 @@ void WorldScene::awardXp(core::Skill skill, int amount) {
         platform::playSfx(platform::Sfx::LevelUp);
         emoteSprite_ = atlas_emote_cheer_idx;
         // The skill's signature tool/item pops up next to the cheer so you
-        // can tell WHAT leveled without reading the status line.
+        // can tell WHAT leveled without reading the status line. Athletics
+        // and Swimming have no tool - they pop the farmer mid-stride/swim.
         static const core::ItemId kSkillIcon[core::kSkillCount] = {
             core::kItemHoe,     core::kItemAxe, core::kItemPickaxe,  core::kItemBerries,
-            core::kItemEgg,     core::kItemFishingRod, core::kItemHammer};
-        emoteExtra_ = spriteForItem(kSkillIcon[static_cast<int>(skill)]);
+            core::kItemEgg,     core::kItemFishingRod, core::kItemHammer,
+            core::kItemNone /*Athletics*/, core::kItemNone /*Swimming*/};
+        if (skill == core::Skill::Athletics) {
+            emoteExtra_ = atlas_player_right_1_idx;
+        } else if (skill == core::Skill::Swimming) {
+            emoteExtra_ = atlas_swim_right_0_idx;
+        } else {
+            emoteExtra_ = spriteForItem(kSkillIcon[static_cast<int>(skill)]);
+        }
         emoteT_ = 110;
     }
+}
+
+float WorldScene::maxStamina() const {
+    int athletics = state_->skillLevel(core::Skill::Athletics);
+    return core::kStaminaBase +
+           core::kStaminaPerAthleticsLevel * static_cast<float>(athletics - 1);
+}
+
+bool WorldScene::sprintReady(const platform::InputState& input) const {
+    return input.move != platform::MoveDir::None &&
+           input.moveMag >= core::kRunStickThreshold && !exhausted_ &&
+           state_->stamina > 0.0f;
+}
+
+void WorldScene::sprintTick(bool active, bool inWater, float dt) {
+    float maxSt = maxStamina();
+    if (active) {
+        float drain = core::kRunStaminaPerSec;
+        if (inWater) {
+            // Swimming levels shave the swim drain (never below the floor).
+            float cut = 1.0f - core::kSwimDrainCutPerLevel *
+                                   static_cast<float>(state_->skillLevel(core::Skill::Swimming) - 1);
+            if (cut < core::kSwimDrainFloor) cut = core::kSwimDrainFloor;
+            drain = core::kSwimStaminaPerSec * cut;
+        }
+        state_->stamina -= drain * dt;
+        if (state_->stamina <= 0.0f) {
+            state_->stamina = 0.0f;
+            if (!exhausted_) platform::playSfx(platform::Sfx::Deny); // winded gasp
+            exhausted_ = true;
+        }
+        sprintXpAcc_ += core::kSprintXpPerSec * dt;
+        int whole = static_cast<int>(sprintXpAcc_);
+        if (whole > 0) {
+            sprintXpAcc_ -= static_cast<float>(whole);
+            awardXp(inWater ? core::Skill::Swimming : core::Skill::Athletics, whole);
+        }
+    } else {
+        float regen = core::kStaminaRegenPerSec * (inWater ? core::kStaminaRegenSwimMul : 1.0f);
+        state_->stamina += regen * dt;
+        if (exhausted_ && state_->stamina >= maxSt * core::kExhaustRecoverFrac) {
+            exhausted_ = false;
+        }
+    }
+    if (state_->stamina > maxSt) state_->stamina = maxSt;
+}
+
+void WorldScene::drawStaminaBar(const platform::Renderer& renderer, int eye, float y) const {
+    (void)renderer;
+    (void)eye; // zero-parallax rects sit on the screen plane, like the HUD
+    float maxSt = maxStamina();
+    if (state_->stamina >= maxSt - 0.5f) return; // full = hidden, clean HUD
+    float frac = state_->stamina / maxSt;
+    if (frac < 0.0f) frac = 0.0f;
+    C2D_DrawRectSolid(7.0f, y - 1.0f, 0.9f, 58.0f, 7.0f, C2D_Color32(0x14, 0x18, 0x10, 0xFF));
+    // Green while usable, angry red while winded.
+    C2D_DrawRectSolid(8.0f, y, 0.91f, 56.0f * frac, 5.0f,
+                      exhausted_ ? C2D_Color32(0xC8, 0x50, 0x38, 0xFF)
+                                 : C2D_Color32(0x88, 0xC8, 0x40, 0xFF));
 }
 
 void WorldScene::selectItem(core::ItemId item) {
@@ -697,6 +764,11 @@ void WorldScene::handleFieldInput(float dt, const platform::InputState& input) {
     float speed = kMoveTilesPerSecond;
     if (core::isPathTerrain(under.terrain)) speed *= kPathSpeedMul;
     if (swimming_) speed = 1.8f;
+    // Sprint: Circle Pad at its rim with fuel to burn. Land trains
+    // Athletics, open water trains Swimming. Ice is exempt - momentum
+    // already outruns walking there, and cleats haven't been invented.
+    bool sprinting = !onIce && sprintReady(input);
+    if (sprinting) speed *= swimming_ ? core::kSwimSprintMul : core::kRunSpeedMul;
 
     if (onIce) {
         // Slippery: input only steers, momentum carries, letting go glides.
@@ -746,6 +818,9 @@ void WorldScene::handleFieldInput(float dt, const platform::InputState& input) {
     if (velX_ != 0.0f && !tryMove(velX_ * dt, 0.0f)) velX_ = 0.0f;
     if (velY_ != 0.0f && !tryMove(0.0f, velY_ * dt)) velY_ = 0.0f;
     moving_ = std::fabs(velX_) + std::fabs(velY_) > 0.3f;
+    // Drain only when the sprint actually moves you (shoving a wall at
+    // full tilt is free); regen whenever not sprinting.
+    sprintTick(sprinting && moving_, swimming_, dt);
 
     // Stepping onto a door inside a building warps back out to just
     // south of it (any door in the room works - the stamped one or one
@@ -3219,8 +3294,12 @@ void WorldScene::updateMine(float dt, const platform::InputState& input) {
             case platform::MoveDir::Right: delta = {1.0f, 0.0f}; state_->facing = core::Facing::Right; break;
             case platform::MoveDir::None: break;
         }
-        float mx = delta.x * kMoveTilesPerSecond + pKnockX_;
-        float my = delta.y * kMoveTilesPerSecond + pKnockY_;
+        // Sprinting works down here too - a joyride past the slimes,
+        // trained as Athletics like any dry-land run.
+        bool sprinting = sprintReady(input);
+        float mineSpeed = kMoveTilesPerSecond * (sprinting ? core::kRunSpeedMul : 1.0f);
+        float mx = delta.x * mineSpeed + pKnockX_;
+        float my = delta.y * mineSpeed + pKnockY_;
         float decay = 1.0f - 6.0f * dt;
         if (decay < 0.0f) decay = 0.0f;
         pKnockX_ *= decay;
@@ -3228,6 +3307,7 @@ void WorldScene::updateMine(float dt, const platform::InputState& input) {
         if (mx != 0.0f && !mineBlocked(minePos_.x + mx * dt, minePos_.y)) minePos_.x += mx * dt;
         if (my != 0.0f && !mineBlocked(minePos_.x, minePos_.y + my * dt)) minePos_.y += my * dt;
         moving_ = std::fabs(mx) + std::fabs(my) > 0.3f;
+        sprintTick(sprinting && moving_, false, dt);
     }
 
     if (input.lPressed) cycleHudTab(-1);
@@ -3694,12 +3774,14 @@ void WorldScene::draw(const platform::Renderer& renderer) const {
         if (mineFloor_ > 0) {
             renderer.beginTop(eye, C2D_Color32(0x14, 0x0e, 0x0c, 0xFF));
             drawMine(renderer, eye);
+            drawStaminaBar(renderer, eye, 28.0f); // below the hearts
         } else {
             renderer.beginTop(eye, C2D_Color32(0x30, 0x40, 0x20, 0xFF));
             drawWorld(renderer, eye);
             if (buildModeActive()) drawBuildGhost(renderer, eye);
             else drawSeedGhost(renderer, eye);
             drawPromptBar(renderer, eye, aLbl, bLbl);
+            drawStaminaBar(renderer, eye, 8.0f);
         }
     }
     if (chestOpen_) {
@@ -5884,24 +5966,23 @@ void WorldScene::drawSkillsTab(const platform::Renderer& renderer) const {
     // 9-slice at 2x -> 320x194 spanning y46..240, below the held line).
     renderer.drawSpriteFlat(atlas_ui_frame_skills_idx, 0.0f, kFrameSkillsY, 2.0f);
 
+    int row = 0;
     for (int i = 0; i < core::kSkillCount; i++) {
-        float y = kTabContentY + i * kSkillRowH;
         uint32_t xp = state_->skillXp[i];
+        // Undiscovered skills don't get a row at all - not even a teaser -
+        // so the list is exactly what the player has actually done, and
+        // rows compact upward as things get found.
+        if (xp == 0) continue;
+        float y = kTabContentY + row++ * kSkillRowH;
         int level = core::levelForXp(xp);
         int into, span;
         core::xpProgress(xp, &into, &span);
 
         char label[40];
-        if (xp == 0) {
-            // Undiscovered: the row exists (there's more to find!) but
-            // nothing about it is disclosed until the player first does it.
-            renderer.drawTextFlat("???", 12.0f, y + 1.0f, 0.4f, C2D_Color32(0x70, 0x78, 0x64, 0xFF));
-            continue;
-        }
         snprintf(label, sizeof(label), "%s", core::kSkillNames[i]);
-        renderer.drawTextFlat(label, 12.0f, y + 1.0f, 0.4f, C2D_Color32(0xD8, 0xE8, 0xC0, 0xFF));
+        renderer.drawTextFlat(label, 12.0f, y, 0.36f, C2D_Color32(0xD8, 0xE8, 0xC0, 0xFF));
         snprintf(label, sizeof(label), "Lv %d", level);
-        renderer.drawTextFlat(label, 12.0f, y + 13.0f, 0.32f, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+        renderer.drawTextFlat(label, 12.0f, y + 11.0f, 0.3f, C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
         // A gold star every 5 levels, a half star at +2 or more toward
         // the next (premium UI star icons) - glanceable mastery.
         int stars = level / 5;
@@ -5910,15 +5991,15 @@ void WorldScene::drawSkillsTab(const platform::Renderer& renderer) const {
             int spr = s < stars ? atlas_ui_star_idx
                       : (s == stars && half) ? atlas_ui_star_half_idx
                                              : atlas_ui_star_empty_idx;
-            renderer.drawSpriteFlat(spr, 48.0f + s * 15.0f, y + 12.0f, 0.9f);
+            renderer.drawSpriteFlat(spr, 48.0f + s * 13.0f, y + 10.0f, 0.72f);
         }
 
-        float barH = 10.0f;
-        C2D_DrawRectSolid(kSkillBarX, y + 3.0f, 0.0f, kSkillBarW, barH, C2D_Color32(0x14, 0x18, 0x10, 0xFF));
+        float barH = 8.0f;
+        C2D_DrawRectSolid(kSkillBarX, y + 2.0f, 0.0f, kSkillBarW, barH, C2D_Color32(0x14, 0x18, 0x10, 0xFF));
         float fill = span > 0 ? static_cast<float>(into) / static_cast<float>(span) : 0.0f;
-        C2D_DrawRectSolid(kSkillBarX, y + 3.0f, 0.0f, kSkillBarW * fill, barH, C2D_Color32(0x88, 0xC8, 0x40, 0xFF));
+        C2D_DrawRectSolid(kSkillBarX, y + 2.0f, 0.0f, kSkillBarW * fill, barH, C2D_Color32(0x88, 0xC8, 0x40, 0xFF));
         snprintf(label, sizeof(label), "%d / %d XP", into, span);
-        renderer.drawTextFlat(label, kSkillBarX + 4.0f, y + 14.0f, 0.3f, C2D_Color32(0xB8, 0xC8, 0xA0, 0xFF));
+        renderer.drawTextFlat(label, kSkillBarX + 4.0f, y + 11.0f, 0.28f, C2D_Color32(0xB8, 0xC8, 0xA0, 0xFF));
     }
 }
 

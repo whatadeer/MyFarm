@@ -1,5 +1,6 @@
 #include "platform/input.h"
 
+#include <cmath>
 #include <cstdlib>
 
 #include <3ds.h>
@@ -23,7 +24,9 @@ InputState pollInput(bool* wasTouching) {
         state.move = MoveDir::Right;
     }
 
-    if (state.move == MoveDir::None) {
+    if (state.move != MoveDir::None) {
+        state.moveMag = 0.6f; // D-Pad walks - sprinting needs the Circle Pad's rim
+    } else {
         circlePosition circle;
         hidCircleRead(&circle);
         constexpr int kDeadzone = 40;
@@ -31,6 +34,13 @@ InputState pollInput(bool* wasTouching) {
             state.move = circle.dx > 0 ? MoveDir::Right : MoveDir::Left;
         } else if (std::abs(circle.dy) > kDeadzone) {
             state.move = circle.dy > 0 ? MoveDir::Up : MoveDir::Down;
+        }
+        if (state.move != MoveDir::None) {
+            // ~156 is the pad's nominal full deflection per libctru.
+            float mag = std::sqrt(static_cast<float>(circle.dx) * circle.dx +
+                                  static_cast<float>(circle.dy) * circle.dy) /
+                        156.0f;
+            state.moveMag = mag > 1.0f ? 1.0f : mag;
         }
     }
 

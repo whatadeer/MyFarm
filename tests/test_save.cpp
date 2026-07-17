@@ -19,7 +19,10 @@ static void test_round_trip_preserves_everything() {
     state.lastFieldPos = {7.0f, 8.0f};
     state.skillXp[static_cast<int>(Skill::Logging)] = 777;
     state.skillXp[static_cast<int>(Skill::Herding)] = 42;
+    state.skillXp[static_cast<int>(Skill::Athletics)] = 55; // v12 slots
+    state.skillXp[static_cast<int>(Skill::Swimming)] = 21;
     state.clockOffset = 123456; // bed-sleep fast-forward (v7)
+    state.stamina = 63.5f;      // mid-recovery sprint fuel (v12)
 
     TamedAnimal hen;
     hen.species = AnimalSpecies::Chicken;
@@ -77,7 +80,10 @@ static void test_round_trip_preserves_everything() {
     CHECK(loaded.lastFieldPos.x == 7.0f && loaded.lastFieldPos.y == 8.0f);
     CHECK(loaded.skillXp[static_cast<int>(Skill::Logging)] == 777);
     CHECK(loaded.skillXp[static_cast<int>(Skill::Herding)] == 42);
+    CHECK(loaded.skillXp[static_cast<int>(Skill::Athletics)] == 55);
+    CHECK(loaded.skillXp[static_cast<int>(Skill::Swimming)] == 21);
     CHECK(loaded.clockOffset == 123456);
+    CHECK(loaded.stamina == 63.5f);
 
     // Axe-only starter kit from newGame() should have round-tripped too -
     // into the v11 tool belt, not the general grid (every other tool is

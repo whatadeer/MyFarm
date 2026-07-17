@@ -18,8 +18,11 @@ enum class Skill : uint8_t {
     Fishing = 5,
     Building = 6, // construction - placing buildings levels it, and higher
                   // levels unlock fancier things to build
+    Athletics = 7, // sprinting overland (Circle Pad at its rim) - levels
+                   // grow the stamina pool
+    Swimming = 8,  // sprint-swimming - levels make hard swimming cheaper
 };
-constexpr int kSkillCount = 7;
+constexpr int kSkillCount = 9;
 
 extern const char* const kSkillNames[kSkillCount];
 

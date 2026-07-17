@@ -137,6 +137,15 @@ private:
     bool buildModeActive() const; // Hammer is the selected/equipped item
 
     void awardXp(core::Skill skill, int amount);
+
+    // Sprinting: full-rim Circle Pad = run (land, Athletics) or hard swim
+    // (open water, Swimming), fueled by state_->stamina.
+    float maxStamina() const;
+    bool sprintReady(const platform::InputState& input) const;
+    // Drains (and trickles XP) when `active`, regenerates otherwise; call
+    // exactly once per simulated frame from whichever movement handler ran.
+    void sprintTick(bool active, bool inWater, float dt);
+    void drawStaminaBar(const platform::Renderer& renderer, int eye, float y) const;
     void setStatus(const char* fmt, ...);
     bool rollPct(int pct);
     uint32_t nextRand();
@@ -195,6 +204,9 @@ private:
     int actionTimer_ = 0;  // frames left of the tool-swing pose
     bool moving_ = false;
     bool swimming_ = false; // standing on open water (overworld): swim!
+    bool exhausted_ = false; // stamina hit 0 - no sprinting until it
+                             // refills to kExhaustRecoverFrac of max
+    float sprintXpAcc_ = 0.0f; // fractional sprint XP awaiting a whole point
     // Emote bubble over the player's head (heart on tame, cheer on level).
     // On a level-up, emoteExtra_ carries the skill's signature tool/item
     // icon, drawn beside the cheer.

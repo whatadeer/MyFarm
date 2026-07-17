@@ -6,9 +6,10 @@ else is earned from the world itself: forage bushes for seeds and berries,
 chop trees for wood and saplings, hammer rocks for stone and ore, dig holes
 and pour water to sculpt ponds, build fences/paths/bridges/chests and a
 camp (your teleport home), tame wild chickens and cows (five colors each,
-tamed as babies that grow up), go fishing, keep bees, and level six
+tamed as babies that grow up), go fishing, keep bees, and level nine
 RuneScape-style skills (Farming, Logging, Mining, Foraging, Herding,
-Fishing - no level cap, each level slower than the last) to unlock
+Fishing, Building, Athletics, Swimming - no level cap, each level slower
+than the last) to unlock
 higher-tier resource nodes found farther from spawn (fruit trees,
 boulders, skull mushrooms, exotic bushes). The world is split into
 biomes - meadow, birch, cherry-blossom, and pine regions, plus the
@@ -87,7 +88,7 @@ as Actions artifacts.
 
 | Input | Action |
 |---|---|
-| Circle Pad / D-Pad | Move (paths and rails are faster) |
+| Circle Pad / D-Pad | Move (paths and rails are faster). Push the Circle Pad all the way to its rim to **sprint** - or swim hard in open water - burning stamina (the D-Pad always walks) |
 | A | Contextual action on the faced tile: pick up a dropped item / harvest a ripe crop / forage a bush, mushroom, or ripe fruit tree (all toolless) / feed a wild animal to tame it / collect from a Coop, Barn, or Beehive / open a Chest. With a tool selected: Axe chops trees, Pickaxe mines rocks, Watering Can scoops from water (or a Well) and, when full, waters a crop (1.5x growth) or pours into a dug hole to make a pond, Hammer bonks trees/rocks for a small freebie without depleting them (or places the loaded ghost building elsewhere - see the ghost preview), seeds plant, a Sapling plants into a hole |
 | B | Dig a hole / fill a hole / un-till / demolish the faced placed object (no tool needed). Also closes menus/chests |
 | L / R | Cycle the bottom-screen tab (Inventory / Skills) |
@@ -114,8 +115,8 @@ selected press A to build a **Workbench** (6 wood, no hammer needed - the
 ghost preview shows where it lands). A on the bench opens the crafting
 menu: Hammer, Hoe, Pickaxe, Watering Can, and Fishing Rod (stone comes
 from digging holes with B). Tilling takes the Hoe; digging stays
-toolless. Skills are hidden as "???" until you first perform them - the
-game reveals itself as you play.
+toolless. Skills don't appear in the Skills tab at all until you first
+perform them - the game reveals itself as you play.
 
 **Water finds its level**: dig a hole beside water and it floods in -
 and rushes through any connected trench of holes. Pouring the watering
@@ -135,6 +136,15 @@ into birch, cherry-blossom, and pine country beyond that.
 this needs the DSP firmware dump most CFW setups already have
 (`sdmc:/3ds/dspfirm.cdc`, created by running the DSP1 homebrew once) - if
 it's missing the game simply plays silently.
+
+**Running & stamina**: push the Circle Pad to its rim and you sprint
+(1.55x on land; in open water it's a hard swim). Sprinting burns the
+green stamina bar (top-left of the top screen, hidden while full) and
+trains **Athletics** - every level grows the pool. Hard swimming trains
+**Swimming** instead - every level makes it cheaper. Empty the bar and
+you're winded (the bar turns red): no sprinting until it refills a
+quarter of the way. The D-Pad always walks, and ice keeps its own
+momentum rules. (Save v12 - older saves load fine.)
 
 **Home building**: equip the Hammer, cycle to Floor (1 wood), Wall
 (3 wood), Door (4 wood), or Roof (4 wood) with X/Y, and lay them out

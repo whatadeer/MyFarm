@@ -221,4 +221,22 @@ constexpr float kInvulnSec = 1.0f;
 constexpr int kXpKillSlime = 8;
 constexpr int kXpKillBat = 6;
 
+// --- Sprinting & stamina (save v12) -----------------------------------
+// Circle Pad pushed to its rim = sprint; the D-Pad always walks. On land
+// it trains Athletics (levels grow the pool), in open water it's a fast
+// swim that trains Swimming (levels cut the swim drain).
+constexpr float kRunStickThreshold = 0.88f; // fraction of full deflection
+constexpr float kRunSpeedMul = 1.55f;
+constexpr float kSwimSprintMul = 1.7f; // hard swim ~= 3 tiles/s, still slower than walking
+constexpr float kStaminaBase = 100.0f;
+constexpr float kStaminaPerAthleticsLevel = 8.0f;
+constexpr float kRunStaminaPerSec = 10.0f;  // ~10s of sprint at level 1
+constexpr float kSwimStaminaPerSec = 14.0f; // water is harder work
+constexpr float kSwimDrainCutPerLevel = 0.03f; // per Swimming level above 1...
+constexpr float kSwimDrainFloor = 0.4f;        // ...down to this fraction
+constexpr float kStaminaRegenPerSec = 14.0f;
+constexpr float kStaminaRegenSwimMul = 0.5f; // treading water recovers slower
+constexpr float kExhaustRecoverFrac = 0.25f; // winded until refilled to this
+constexpr float kSprintXpPerSec = 1.5f;      // Athletics or Swimming trickle
+
 } // namespace core

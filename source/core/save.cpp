@@ -7,6 +7,7 @@ namespace core {
 namespace {
 
 constexpr char kMagic[4] = {'M', 'Y', 'F', 'M'};
+// v12: Athletics + Swimming (skills 8-9) and the stamina pool.
 // v11: the tool bar - tools move out of the general inventory grid into
 // their own fixed ToolBelt slots (see inventory.h). v10: the Clone Mirror.
 // v9: building-interior registry. v8: the Building skill (7th skill slot).
@@ -14,7 +15,7 @@ constexpr char kMagic[4] = {'M', 'Y', 'F', 'M'};
 // older saves load with the missing fields zeroed/empty instead of being
 // treated as "not found" - worlds are big enough now that wiping them
 // over an added field would be rude.
-constexpr uint8_t kVersion = 11;
+constexpr uint8_t kVersion = 12;
 constexpr uint8_t kMinVersion = 6;
 
 class ByteWriter {
@@ -184,6 +185,7 @@ std::vector<uint8_t> serializeSave(const GameState& state) {
     w.i64(state.clockOffset); // v7+
 
     for (int i = 0; i < kSkillCount; i++) w.u32(state.skillXp[i]);
+    w.f32(state.stamina); // v12+
 
     writeInventory(w, state.inventory);
     writeToolBelt(w, state.toolBelt); // v11+
@@ -271,8 +273,11 @@ bool deserializeSave(const std::vector<uint8_t>& bytes, GameState* outState) {
     state.lastFieldPos.y = r.f32();
     state.clockOffset = version >= 7 ? r.i64() : 0;
 
-    int skillsInFile = version >= 8 ? kSkillCount : 6;
+    // Skill-slot count per era: v12 added Athletics/Swimming (9), v8 added
+    // Building (7), v6-v7 had the original six.
+    int skillsInFile = version >= 12 ? kSkillCount : (version >= 8 ? 7 : 6);
     for (int i = 0; i < skillsInFile; i++) state.skillXp[i] = r.u32();
+    state.stamina = version >= 12 ? r.f32() : kStaminaBase;
 
     readInventory(r, &state.inventory);
     if (version >= 11) {

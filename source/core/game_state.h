@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "core/balance.h"
 #include "core/inventory.h"
 #include "core/skills.h"
 #include "core/world.h"
@@ -115,6 +116,11 @@ struct GameState {
     // wall clock via core::setClockOffset() on load and grown each time
     // the player sleeps to morning. Only ever increases.
     int64_t clockOffset = 0;
+
+    // Sprint fuel (v12), spent by running/hard-swimming and refilled by
+    // easing off - see the stamina block in balance.h. The max is derived:
+    // kStaminaBase + kStaminaPerAthleticsLevel per Athletics level above 1.
+    float stamina = kStaminaBase;
 
     Inventory inventory;
     ToolBelt toolBelt;

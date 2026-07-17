@@ -9,6 +9,11 @@ enum class MoveDir : uint8_t { None, Up, Down, Left, Right };
 struct InputState {
     MoveDir move = MoveDir::None; // held direction, for continuous movement (walking)
 
+    // How hard the direction is being held, 0..1: the Circle Pad's
+    // deflection fraction, or a fixed mid value for the D-Pad (which can
+    // therefore never sprint). 0 when `move` is None.
+    float moveMag = 0.0f;
+
     // Edge-triggered (this-frame-only) - for menu navigation, where `move`
     // being *held* would otherwise re-fire every single frame.
     bool upPressed = false;
