@@ -39,6 +39,9 @@ private:
         float moveTimer;
         bool faceLeft = false; // mirror the art when heading left
         int reqT = 0; // frames left on the "I want..." speech bubble
+        core::ItemId reqFood = core::kItemNone; // which of its two tastes
+                                                // the bubble is showing,
+                                                // rolled fresh per ask
     };
 
     // Bottom-screen HUD tabs - inventory and skills each get their own full
@@ -146,6 +149,9 @@ private:
     // exactly once per simulated frame from whichever movement handler ran.
     void sprintTick(bool active, bool inWater, float dt);
     void drawStaminaBar(const platform::Renderer& renderer, int eye, float y) const;
+    // While a chest is open, its contents mirror on the MAIN (top) screen
+    // as a compact read-only grid; the touch screen keeps the interaction.
+    void drawChestPeek(const platform::Renderer& renderer, int eye) const;
     void setStatus(const char* fmt, ...);
     bool rollPct(int pct);
     uint32_t nextRand();

@@ -120,11 +120,31 @@ constexpr int32_t kBabyGrowSec = 600;
 // Chickens tame from Herding 1; cows are for proven herders.
 constexpr int kTameCowMinHerding = 12;
 
-// Taming food (consumed on a successful tame).
-constexpr int kTameChickenBerries = 3;
-constexpr int kTameCowHay = 2;
-constexpr int kTameCowTurnips = 2; // fallback if no hay held
-constexpr int kTameCowApples = 2;  // cows also love apples
+// Per-color tastes: each animal variant fancies exactly TWO foods. The
+// ask bubble rolls ONE of them to show per refusal - the animal keeps
+// the rest of its palate secret - and feeding either one tames it.
+// Indexed by the wild animal's variant (0 = the classic free-pack look).
+struct AnimalTaste {
+    ItemId a;
+    ItemId b;
+};
+constexpr AnimalTaste kChickenTastes[5] = {
+    {kItemBerries, kItemWheat},
+    {kItemWheat, kItemCarrot},
+    {kItemBerries, kItemRadish},
+    {kItemCarrot, kItemLettuce},
+    {kItemRadish, kItemMushroom},
+};
+constexpr AnimalTaste kCowTastes[5] = {
+    {kItemHay, kItemTurnip},
+    {kItemTurnip, kItemApple},
+    {kItemHay, kItemPumpkin},
+    {kItemOrange, kItemCarrot},
+    {kItemPear, kItemCorn},
+};
+// How many of the fancied food a tame consumes.
+constexpr int kTameFoodChicken = 3;
+constexpr int kTameFoodCow = 2;
 
 // Beehive: produces Honey on its own clock, no animal needed. Collecting
 // grants Foraging XP.

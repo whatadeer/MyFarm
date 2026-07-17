@@ -6,7 +6,8 @@ else is earned from the world itself: forage bushes for seeds and berries,
 chop trees for wood and saplings, hammer rocks for stone and ore, dig holes
 and pour water to sculpt ponds, build fences/paths/bridges/chests and a
 camp (your teleport home), tame wild chickens and cows (five colors each,
-tamed as babies that grow up), go fishing, keep bees, and level ten
+tamed as babies that grow up - each color has its own two favorite
+foods), go fishing, keep bees, and level ten
 RuneScape-style skills (Farming, Logging, Mining, Foraging, Mycology,
 Herding, Fishing, Building, Athletics, Swimming - capped at level 100,
 each level slower than the last) to unlock
@@ -89,7 +90,8 @@ as Actions artifacts.
 | Input | Action |
 |---|---|
 | Circle Pad / D-Pad | Move (paths and rails are faster). Push the Circle Pad all the way to its rim to **sprint** - or swim hard in open water - burning stamina (the D-Pad always walks) |
-| A | Contextual action on the faced tile: pick up a dropped item / harvest a ripe crop / forage a bush, mushroom, or ripe fruit tree (all toolless) / feed a wild animal to tame it / collect from a Coop, Barn, or Beehive / open a Chest. With a tool selected: Axe chops trees, Pickaxe mines rocks, Watering Can scoops from water (or a Well) and, when full, waters a crop (1.5x growth) or pours into a dug hole to make a pond, Hammer bonks trees/rocks for a small freebie without depleting them (or places the loaded ghost building elsewhere - see the ghost preview), seeds plant, a Sapling plants into a hole |
+| A | Contextual action on the faced tile: pick up a dropped item / harvest a ripe crop / forage a bush, mushroom, or ripe fruit tree (all toolless) / feed a wild animal to tame it / collect from a Coop, Barn, or Beehive / open a Chest (an open chest
+mirrors its contents on the top screen). With a tool selected: Axe chops trees, Pickaxe mines rocks, Watering Can scoops from water (or a Well) and, when full, waters a crop (1.5x growth) or pours into a dug hole to make a pond, Hammer bonks trees/rocks for a small freebie without depleting them (or places the loaded ghost building elsewhere - see the ghost preview), seeds plant, a Sapling plants into a hole |
 | B | Dig a hole / fill a hole / un-till / demolish the faced placed object (no tool needed). Also closes menus/chests |
 | L / R | Cycle the bottom-screen tab (Inventory / Skills) |
 | X / Y | With the Hammer equipped: cycle which building the ghost preview is loaded with |
@@ -126,8 +128,9 @@ or tree.
 
 **The loop**: forage a bush → get seeds (higher-tier bushes drop Carrot/
 Tomato/Pumpkin seeds) → till, plant, wait real minutes, harvest → chop
-wood → build a Coop + Camp → feed Berries to a wild chicken (any of five
-colors) → it moves in as a baby, grows up, lays eggs on a timer → craft a
+wood → build a Coop + Camp → ask a wild chicken what it fancies (every
+color has TWO favorite foods and coyly shows just one per ask - feed it
+either) → it moves in as a baby, grows up, lays eggs on a timer → craft a
 Fishing Rod and a Beehive → level up → unlock the boulders, fruit trees,
 and skull mushrooms you've spotted out past the 50-tile mark, and wander
 into birch, cherry-blossom, and pine country beyond that.

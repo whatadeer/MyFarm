@@ -34,7 +34,6 @@ constexpr float kPathSpeedMul = 1.4f; // stone paths are worth building
 // of its menu (hay/turnip/fruit) before cycling to the next.
 constexpr int kReqBubbleFrames = 140;
 constexpr int kReqBubblePopFrames = 8;
-constexpr int kReqBubbleCycleFrames = 35;
 
 // Bottom screen (320x240) is two full-screen tabs (Inventory/Skills)
 // cycled with L/R, plus a small header row naming the current one.
@@ -352,6 +351,50 @@ void WorldScene::sprintTick(bool active, bool inWater, float dt) {
         }
     }
     if (state_->stamina > maxSt) state_->stamina = maxSt;
+}
+
+void WorldScene::drawChestPeek(const platform::Renderer& renderer, int eye) const {
+    // "What's in here again?" - the open chest's contents, mirrored on
+    // the main screen so you can eye the loot without looking down. The
+    // bottom screen still owns the touch interaction.
+    const core::ChestData* chest = nullptr;
+    for (const core::ChestData& c : state_->chests) {
+        if (c.x == chestX_ && c.y == chestY_) {
+            chest = &c;
+            break;
+        }
+    }
+    if (!chest) return;
+    constexpr float kCell = 22.0f;
+    constexpr int kCols = 8;
+    constexpr int kRows = core::kInventorySlots / kCols;
+    float panelW = kCols * kCell + 12.0f;
+    float panelH = kRows * kCell + 12.0f;
+    float x0 = (kTopScreenW - panelW) / 2.0f;
+    float y0 = 6.0f;
+    // Tan pixel frame around a dark well, echoing the HUD dialog boxes.
+    C2D_DrawRectSolid(x0 - 3.0f, y0 - 3.0f, 0.88f, panelW + 6.0f, panelH + 6.0f,
+                      C2D_Color32(0xE8, 0xD8, 0xA0, 0xFF));
+    C2D_DrawRectSolid(x0, y0, 0.885f, panelW, panelH, C2D_Color32(0x2a, 0x22, 0x14, 0xF0));
+    for (int i = 0; i < core::Inventory::slotCount(); i++) {
+        int colI = i % kCols;
+        int rowI = i / kCols;
+        float x = x0 + 6.0f + colI * kCell;
+        float y = y0 + 6.0f + rowI * kCell;
+        renderer.drawSprite(atlas_ui_slot_idx, x, y, 0.89f, eye, kCell / 28.0f);
+        const core::ItemStack& s = chest->items.slot(i);
+        if (s.item == core::kItemNone) continue;
+        float scale = iconScaleForItem(s.item) * 0.8f;
+        float size = 16.0f * scale;
+        renderer.drawSprite(spriteForItem(s.item), x + (kCell - size) / 2.0f,
+                            y + (kCell - size) / 2.0f, 0.9f, eye, scale);
+        if (s.count > 1) {
+            char buf[8];
+            snprintf(buf, sizeof(buf), "%u", s.count);
+            renderer.drawText(buf, x + kCell - 8.0f, y + kCell - 10.0f, 0.91f, eye, 0.38f,
+                              C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF));
+        }
+    }
 }
 
 void WorldScene::drawStaminaBar(const platform::Renderer& renderer, int eye, float y) const {
@@ -1230,19 +1273,15 @@ bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
 
     const core::ItemStack& sel = selectedStack();
     bool isChicken = wild.kind == 0;
-
-    // A refused animal says so itself: the request pops up as a speech
-    // bubble over its head (drawn in the wild-animal pass) with the food
-    // it wants; the status line keeps the full wording.
-    if (isChicken && sel.item != core::kItemBerries) {
-        setStatus("Chickens want Berries!");
-        wild.reqT = kReqBubbleFrames;
-        return false;
-    }
-    bool fruit = sel.item == core::kItemApple || sel.item == core::kItemOrange ||
-                 sel.item == core::kItemPear || sel.item == core::kItemPeach;
-    if (!isChicken && sel.item != core::kItemHay && sel.item != core::kItemTurnip && !fruit) {
-        setStatus("Cows want Hay, Turnips or fruit!");
+    // Every color has its own palate: exactly two foods this individual
+    // will tame for. A refusal pops the speech bubble with ONE of them,
+    // rolled fresh per ask - the animal never shows its whole hand, so
+    // asking twice may reveal the other (or repeat itself, coyly).
+    const core::AnimalTaste& taste =
+        isChicken ? core::kChickenTastes[wild.variant] : core::kCowTastes[wild.variant];
+    if (sel.item != taste.a && sel.item != taste.b) {
+        wild.reqFood = (nextRand() % 2) ? taste.b : taste.a;
+        setStatus("It fancies %s!", core::kItemTable[wild.reqFood].name);
         wild.reqT = kReqBubbleFrames;
         return false;
     }
@@ -1286,27 +1325,11 @@ bool WorldScene::tryTame(WildAnimal& wild, int64_t now) {
         return false;
     }
 
-    // Consume the food.
-    if (isChicken) {
-        if (!state_->inventory.remove(core::kItemBerries, core::kTameChickenBerries)) {
-            setStatus("Need %d Berries", core::kTameChickenBerries);
-            return false;
-        }
-    } else if (sel.item == core::kItemHay) {
-        if (!state_->inventory.remove(core::kItemHay, core::kTameCowHay)) {
-            setStatus("Need %d Hay", core::kTameCowHay);
-            return false;
-        }
-    } else if (fruit) {
-        if (!state_->inventory.remove(sel.item, core::kTameCowApples)) {
-            setStatus("Need %d %ss", core::kTameCowApples, core::kItemTable[sel.item].name);
-            return false;
-        }
-    } else {
-        if (!state_->inventory.remove(core::kItemTurnip, core::kTameCowTurnips)) {
-            setStatus("Need %d Turnips", core::kTameCowTurnips);
-            return false;
-        }
+    // Consume the offered food (either of its two tastes works).
+    int need = isChicken ? core::kTameFoodChicken : core::kTameFoodCow;
+    if (!state_->inventory.remove(sel.item, need)) {
+        setStatus("Need %d %s", need, core::kItemTable[sel.item].name);
+        return false;
     }
 
     core::TamedAnimal tamed;
@@ -3811,6 +3834,7 @@ void WorldScene::draw(const platform::Renderer& renderer) const {
             else drawSeedGhost(renderer, eye);
             drawPromptBar(renderer, eye, aLbl, bLbl);
             drawStaminaBar(renderer, eye, 8.0f);
+            if (chestOpen_) drawChestPeek(renderer, eye);
         }
     }
     if (chestOpen_) {
@@ -5295,9 +5319,10 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
                 items[count++] = {w.y, cx - 32.0f, feetY - 64.0f, sprite, 0.65f, w.faceLeft};
             }
             // Tame-refusal speech bubble: a quick droplet pop, then the
-            // small bubble with the food this animal wants inside (the cow
-            // cycles through its menu). The tail tip rests just above the
-            // head; bobs on the same clock as the produce-ready icons.
+            // small bubble with the ONE taste this individual rolled for
+            // this ask (each color fancies two foods - see kChickenTastes/
+            // kCowTastes - but only ever shows one at a time). The tail
+            // tip rests just above the head; bobs with the produce icons.
             if (w.reqT > 0 && w.kind <= 1 && count < 278) {
                 float bob = std::sin(static_cast<float>(animFrame_) / 12.0f) * 2.0f;
                 float headTop = feetY - (w.kind == 0 ? 32.0f : 64.0f);
@@ -5307,14 +5332,12 @@ void WorldScene::drawWorld(const platform::Renderer& renderer, int eye) const {
                 } else {
                     items[count++] = {w.y + 0.01f, cx - 31.0f, headTop - 66.0f + bob,
                                       atlas_req_bubble_1_idx, 0.9f};
-                    int icon = spriteForItem(core::kItemBerries);
-                    if (w.kind == 1) {
-                        static const core::ItemId kCowMenu[3] = {core::kItemHay, core::kItemTurnip,
-                                                                 core::kItemApple};
-                        icon = spriteForItem(
-                            kCowMenu[((kReqBubbleFrames - w.reqT) / kReqBubbleCycleFrames) % 3]);
-                    }
-                    items[count++] = {w.y + 0.011f, cx - 16.0f, headTop - 56.0f + bob, icon, 0.92f};
+                    core::ItemId shown =
+                        w.reqFood != core::kItemNone
+                            ? w.reqFood
+                            : (w.kind == 0 ? core::kChickenTastes[v].a : core::kCowTastes[v].a);
+                    items[count++] = {w.y + 0.011f, cx - 16.0f, headTop - 56.0f + bob,
+                                      spriteForItem(shown), 0.92f};
                 }
             }
         }
